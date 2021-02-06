@@ -6,3 +6,4 @@ tmp/
 .terraform/
 *.tfstate
 *.tfstate*
+.direnv/
