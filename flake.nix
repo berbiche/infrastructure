@@ -38,8 +38,6 @@
     in pkgs.mkShell {
       nativeBuildInputs = [ inputs.sops-nix.packages.${system}.sops-pgp-hook ];
 
-      SOPS_PGP_FP = "328820E009708FDD29C08DBA1D0261F6BCA46C6E";
-
       buildInputs = [
         deploy-rs.defaultPackage.${system}
         # (terraform.withPlugins (ps: with ps; [ ovh cloudflare ]))
