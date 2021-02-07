@@ -1,6 +1,10 @@
 { config, inputs, lib, ... }:
 
 {
+  imports = [ inputs.sops-nix.nixosModules.sops ];
+
+  sops.defaultSopsFile = ../../secrets/keanu.yaml;
+
   users.users.admin.extraGroups = [
     (lib.optionalString config.security.doas.enable "doas")
     (lib.optionalString config.security.sudo.enable "wheel")

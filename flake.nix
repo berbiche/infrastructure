@@ -34,14 +34,21 @@
 
     devShell.x86_64-linux = let
       pkgs = inputs.nixpkgs-unstable.legacyPackages.${system};
+      sops-nix = inputs.sops-nix.packages.${system};
       terraform = pkgs.terraform_0_14;
     in pkgs.mkShell {
-      nativeBuildInputs = [ inputs.sops-nix.packages.${system}.sops-pgp-hook ];
+      nativeBuildInputs = [ sops-nix.sops-pgp-hook ];
+
+      sopsPGPKeyDirs = [
+        "./secrets/keys/keanu.asc"
+        "./secrets/keys/admin.asc"
+      ];
 
       buildInputs = [
         deploy-rs.defaultPackage.${system}
         # (terraform.withPlugins (ps: with ps; [ ovh cloudflare ]))
         terraform
+        sops-nix.ssh-to-pgp
       ];
     };
   };
