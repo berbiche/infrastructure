@@ -7,3 +7,4 @@ tmp/
 *.tfstate
 *.tfstate*
 .direnv/
+*.out
