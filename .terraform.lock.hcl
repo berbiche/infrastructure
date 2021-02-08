@@ -1,6 +1,16 @@
 # This file is maintained automatically by "terraform init".
 # Manual edits may be lost in future updates.
 
+provider "registry.terraform.io/backblaze/b2" {
+  version     = "0.2.0"
+  constraints = "~> 0.2"
+  hashes = [
+    "h1:vgTlHhyR3O6GzfzY2cKQde8GMpEipMM9G2DwZUxCTeY=",
+    "zh:94f88b665746848ef7d9eaab374b05a029098684686b54f3e4c3dcdd803eb8ad",
+    "zh:bbe5b43e7ad02eb6c4e8707a9ca5e58e4127a23bc4260e03bf01a3ef90c5a87e",
+  ]
+}
+
 provider "registry.terraform.io/carlpett/sops" {
   version     = "0.6.0"
   constraints = "~> 0.5"

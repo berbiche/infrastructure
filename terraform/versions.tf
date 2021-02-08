@@ -4,19 +4,22 @@ terraform {
   required_providers {
     ovh = {
       source  = "ovh/ovh"
-      # source  = "nixpkgs/ovh"
       version = ">= 0.10.0, < 1.0.0"
     }
 
     cloudflare = {
       source  = "cloudflare/cloudflare"
-      # source  = "nixpkgs/cloudflare"
       version = "~> 2.0"
     }
 
     sops = {
-      source = "carlpett/sops"
+      source  = "carlpett/sops"
       version = "~> 0.5"
+    }
+
+    b2 = {
+      source  = "Backblaze/b2"
+      version = "~> 0.2"
     }
   }
 }

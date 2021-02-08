@@ -4,6 +4,7 @@
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-20.09";
   inputs.nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable-small";
   inputs.deploy-rs.url = "github:serokell/deploy-rs";
+  inputs.flake-compat = { url = "github:edolstra/flake-compat"; flake = false; };
   # Secret management
   inputs.sops-nix.url = "github:Mic92/sops-nix";
 
@@ -12,6 +13,9 @@
 
   outputs = inputs@{ self, nixpkgs, deploy-rs, ... }: let
     system = "x86_64-linux";
+    pkgs = inputs.nixpkgs-unstable.legacyPackages.${system};
+    sops-nix = inputs.sops-nix.packages.${system};
+    terraform = pkgs.terraform_0_14;
   in {
     nixosConfigurations.keanu = nixpkgs.lib.nixosSystem {
       inherit system;
@@ -32,11 +36,19 @@
       };
     };
 
-    devShell.x86_64-linux = let
-      pkgs = inputs.nixpkgs-unstable.legacyPackages.${system};
-      sops-nix = inputs.sops-nix.packages.${system};
-      terraform = pkgs.terraform_0_14;
-    in pkgs.mkShell {
+    # FHS for the terraform-provider-b2
+    # because writing a derivation is complex (it embeds a python binary generated with pyinstaller)
+    defaultPackage.${system} =
+      (pkgs.buildFHSUserEnv {
+        name = "fhs";
+        targetPkgs = pkgs: [
+          pkgs.terraform_0_14
+          pkgs.zlib
+        ];
+        runScript = "bash";
+      }).env;
+
+    devShell.x86_64-linux = pkgs.mkShell {
       nativeBuildInputs = [ sops-nix.sops-pgp-hook ];
 
       sopsPGPKeyDirs = [
@@ -46,7 +58,6 @@
 
       buildInputs = [
         deploy-rs.defaultPackage.${system}
-        # (terraform.withPlugins (ps: with ps; [ ovh cloudflare ]))
         terraform
         sops-nix.ssh-to-pgp
       ];
