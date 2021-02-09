@@ -42,10 +42,13 @@
       (pkgs.buildFHSUserEnv {
         name = "fhs";
         targetPkgs = pkgs: [
+          pkgs.sops
           pkgs.terraform_0_14
           pkgs.zlib
         ];
-        runScript = "bash";
+        runScript = ''
+          sops exec-env secrets/terraform-backend.yaml bash
+        '';
       }).env;
 
     devShell.x86_64-linux = pkgs.mkShell {
@@ -60,6 +63,7 @@
         deploy-rs.defaultPackage.${system}
         terraform
         sops-nix.ssh-to-pgp
+        pkgs.sops
       ];
     };
   };
