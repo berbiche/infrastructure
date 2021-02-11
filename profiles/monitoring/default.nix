@@ -1,12 +1,16 @@
 { config, lib, pkgs, ... }:
 
+let
+  domain = config.services.grafana.domain;
+in
 {
-  services.grafana = {
-    enable = true;
-    domain = "grafana.cloud.normie.dev";
-  };
+  imports = [
+    ./grafana.nix
+    ./loki.nix
+    ./prometheus.nix
+  ];
 
-  services.nginx.virtualHosts.${config.services.grafana.domain} = {
+  services.nginx.virtualHosts.${domain} = {
     locations."/" = {
       proxyPass = "http://127.0.0.1/${toString config.services.grafana.port}";
       proxyWebsockets = true;
