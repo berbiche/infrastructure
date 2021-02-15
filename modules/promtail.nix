@@ -90,6 +90,7 @@ in {
       home = cfg.dataDir;
       createHome = true;
       isSystemUser = true;
+      extraGroups = cfg.supplementaryGroups;
     };
 
     systemd.services.promtail = {
@@ -105,7 +106,6 @@ in {
         ExecStart = "${pkgs.grafana-loki}/bin/promtail --config.file=${conf} ${escapeShellArgs cfg.extraFlags}";
         User = cfg.user;
         Group = cfg.group;
-        SupplementaryGroups = cfg.supplementaryGroups;
         Restart = "always";
         PrivateTmp = true;
         ProtectHome = true;

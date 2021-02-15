@@ -1,0 +1,4 @@
+[
+  ./promtail.nix
+  ./nginx.nix
+]

@@ -1,9 +1,9 @@
-{ config, inputs, lib, ... }:
+{ config, inputs, rootPath, lib, ... }:
 
 {
   imports = [ inputs.sops-nix.nixosModules.sops ];
 
-  sops.defaultSopsFile = ../../secrets/keanu.yaml;
+  sops.defaultSopsFile = rootPath + "/secrets/keanu.yaml";
 
   users.users.admin.extraGroups = [
     (lib.optionalString config.security.doas.enable "doas")
@@ -11,6 +11,7 @@
   ];
 
   security.apparmor.enable = false;
+  security.hideProcessInformation = true;
 
   # Deployment host
   users.users.deploy = {

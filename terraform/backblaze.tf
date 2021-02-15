@@ -48,7 +48,7 @@ resource "b2_bucket" "keanu-emails" {
   lifecycle_rules {
     file_name_prefix = ""
     days_from_hiding_to_deleting = 30
-    days_from_uploading_to_hiding = 3650
+    days_from_uploading_to_hiding = null
   }
 }
 
