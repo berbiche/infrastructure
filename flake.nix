@@ -72,19 +72,33 @@
     # because writing a derivation is complex (it embeds a python binary generated with pyinstaller)
     defaultPackage.${system} =
       (pkgs.buildFHSUserEnv {
-        name = "fhs";
+        name = "fhs-1";
         targetPkgs = pkgs: [
           pkgs.sops
           pkgs.terraform_0_14
           pkgs.zlib
         ];
         runScript = ''
-          sops exec-env secrets/terraform-backend.yaml bash
+          echo "Plug-in and touch the YubiKey"
+          echo "Toto"
+          echo sops exec-env secrets/terraform-backend.yaml bash || true
+          #sops exec-env secrets/terraform-backend.yaml bash || true
+          echo "After"
         '';
       }).env;
 
     devShell.x86_64-linux = pkgs.mkShell {
-      nativeBuildInputs = [ sops-nix.sops-pgp-hook ];
+      nativeBuildInputs = [
+        sops-nix.sops-pgp-hook
+        # (pkgs.makeSetupHook {
+        #   name = "sops-terraform-hook";
+        #   substitutions.sops = "${pkgs.sops}/bin/sops";
+        #   deps = [ pkgs.sops pkgs.gnupg ];
+        # } (pkgs.writeShellScript "sops-terraform-hook" ''
+        #   echo "Plug-in and touch the YubiKey"
+        #   eval "$(@sops@ --decrypt --output-type dotenv secrets/terraform-backend.yaml)"
+        # ''))
+      ];
 
       sopsPGPKeyDirs = [
         "./secrets/keys"

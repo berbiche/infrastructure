@@ -116,4 +116,9 @@ in
       }
     ];
   };
+
+  config.networking.firewall = lib.mkIf cfg.enable {
+    allowedTCPPorts = [ 80 443 ];
+    allowedUDPPorts = [ 80 443 ];
+  };
 }

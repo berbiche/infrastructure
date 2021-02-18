@@ -13,7 +13,27 @@ in
       exporters = {
         node = {
           enable = true;
-          enabledCollectors = [ "systemd" ];
+          enabledCollectors = [
+            "systemd"
+            "tcpstat"
+            "conntrack"
+            "diskstats"
+            "entropy"
+            "filefd"
+            "filesystem"
+            "loadavg"
+            "meminfo"
+            "netdev"
+            "netstat"
+            "nfs"
+            "stat"
+            "time"
+            "vmstat"
+            "logind"
+            "thermal_zone"
+            "interrupts"
+            "ksmd"
+          ];
         };
       };
 

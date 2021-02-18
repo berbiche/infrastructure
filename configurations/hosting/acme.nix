@@ -3,13 +3,13 @@
 let
   cfg = config.configurations.hosting;
   domain = config.networking.domain;
-  dnsProvider = "cloudflare";
-  email = "nic.berbiche" + "@" + "gmail.com";
 
   sslDirectoryFor = x: config.security.acme.certs."${x}".directory;
 
-  credentialsFile = config.sops.secrets."acme-cloudflare".path;
-  defaultCert = { inherit dnsProvider credentialsFile; };
+  defaultCert = {
+    dnsProvider = "cloudflare";
+    credentialsFile = config.sops.secrets."acme-cloudflare".path;
+  };
 in
 {
   config = lib.mkIf cfg.enable {
@@ -19,11 +19,6 @@ in
       group = "acme";
       sopsFile = rootPath + "/secrets/acme.txt";
     };
-
-    security.acme.acceptTerms = true;
-    security.acme.email = email;
-    # Staging environment for test purposes
-    security.acme.server = "https://acme-staging-v02.api.letsencrypt.org/directory";
 
     services.nginx.virtualHosts."${domain}" = {
       useACMEHost = domain;

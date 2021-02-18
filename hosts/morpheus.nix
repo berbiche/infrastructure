@@ -2,7 +2,7 @@
 
 {
   configurations.plex.enable = true;
-  # configurations.hosting.enable = true;
+  configurations.hosting.enable = true;
 
 
 

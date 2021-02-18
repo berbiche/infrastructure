@@ -15,6 +15,8 @@ let
     "noatime"
     "timeo=10"
   ];
+
+  inherit (config.networking) domain hostName;
 in
 {
   options.configurations.plex.enable = lib.mkEnableOption "plex configuration";
@@ -38,21 +40,35 @@ in
       options = defaults;
     };
 
+    users.users.mediaserver = {
+      uid = 950;
+      isSystemUser = true;
+    };
     users.groups.mediaserver = {
       gid = 950;
       members = [ config.services.plex.user ];
     };
 
-    services.nginx.virtualHosts."plex.${config.networking.domain}" = {
-      useACMEHost = "plex.${config.networking.domain}";
-      sslCertificate = "${sslDirectoryFor "plex.${config.networking.domain}"}/full.pem";
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:32401";
-        proxyWebsockets = true;
+    services.nginx.virtualHosts = let
+      nginxConfig = {
+        useACMEHost = "plex.${domain}";
+        addSSL = true;
+        sslCertificate = "${sslDirectoryFor "plex.${domain}"}/full.pem";
+        locations."/" = {
+          proxyPass = "http://127.0.0.1:32400";
+          proxyWebsockets = true;
+        };
+        serverName = "plex.${domain}";
+        serverAliases = [
+          "plex.${hostName}"
+          "plex.${hostName}.lan"
+        ];
+        extraConfig = ''
+          ${config.services.nginx.defaultServerBlock}
+        '';
       };
-      extraConfig = ''
-        ${config.services.nginx.defaultServerBlock}
-      '';
+    in {
+      "plex" = nginxConfig;
     };
   };
 }
