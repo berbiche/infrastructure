@@ -4,8 +4,6 @@
   configurations.plex.enable = true;
   configurations.hosting.enable = true;
 
-
-
   boot.initrd.availableKernelModules = [ "uhci_hcd" "ehci_pci" "ata_piix" "usb_storage" "usbhid" "sd_mod" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];

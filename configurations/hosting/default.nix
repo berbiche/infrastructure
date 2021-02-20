@@ -7,7 +7,7 @@ in
 {
   imports = [
     # ./acme.nix
-    ./nginx.nix
+    # ./nginx.nix
     ./geoip.nix
   ];
 
@@ -15,14 +15,8 @@ in
 
   config = {
     security.acme.acceptTerms = true;
-    security.acme.email = ;
+    security.acme.email = "nic.berbiche@gmail.com";
     # Staging environment for test purposes
     security.acme.server = "https://acme-staging-v02.api.letsencrypt.org/directory";
-
-    services.nginx.virtualHosts = {
-      "${domain}" = {
-        default = true;
-      };
-    };
   };
 }

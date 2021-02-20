@@ -50,7 +50,7 @@ resource "cloudflare_record" "qt_rs_ipv6" {
   proxied = false
 }
 
-resource "cloudflare_record" "www" {
+resource "cloudflare_record" "www_qt_rs" {
   zone_id = cloudflare_zone.qt_rs.id
   type    = "CNAME"
   name    = "www"

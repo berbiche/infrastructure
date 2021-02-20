@@ -1,10 +1,15 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
 let
   cfg = config.configurations.monitoring;
   inherit (config.services.loki) dataDir;
 in
 {
+  # The `configuration` option is not mergeable so we use the definition from
+  # unstable which has it (20.09 does not have it)
+  disabledModules = [ "services/monitoring/loki.nix" ];
+  imports = [ "${inputs.nixpkgs-unstable.outPath}/nixos/modules/services/monitoring/loki.nix" ];
+
   config = lib.mkIf cfg.enable {
     assertions = [{
       assertion = ! lib.hasSuffix "/" dataDir;
@@ -76,10 +81,6 @@ in
         };
       };
 
-    };
-
-    systemd.services.loki = {
-      serviceConfig.PrivateTmp = true;
     };
   };
 }

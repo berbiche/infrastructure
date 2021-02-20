@@ -51,9 +51,9 @@ in
 
     services.nginx.virtualHosts = let
       nginxConfig = {
-        useACMEHost = "plex.${domain}";
-        addSSL = true;
-        sslCertificate = "${sslDirectoryFor "plex.${domain}"}/full.pem";
+        # useACMEHost = "plex.${domain}";
+        # addSSL = true;
+        # sslCertificate = "${sslDirectoryFor "plex.${domain}"}/full.pem";
         locations."/" = {
           proxyPass = "http://127.0.0.1:32400";
           proxyWebsockets = true;
@@ -61,7 +61,6 @@ in
         serverName = "plex.${domain}";
         serverAliases = [
           "plex.${hostName}"
-          "plex.${hostName}.lan"
         ];
         extraConfig = ''
           ${config.services.nginx.defaultServerBlock}

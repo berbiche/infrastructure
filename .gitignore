@@ -8,3 +8,4 @@ tmp/
 *.tfstate*
 .direnv/
 *.out
+secrets/world-readable-secrets.nix

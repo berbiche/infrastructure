@@ -78,12 +78,9 @@
           pkgs.terraform_0_14
           pkgs.zlib
         ];
+        # Only one line can be in the runScript option
         runScript = ''
-          echo "Plug-in and touch the YubiKey"
-          echo "Toto"
-          echo sops exec-env secrets/terraform-backend.yaml bash || true
-          #sops exec-env secrets/terraform-backend.yaml bash || true
-          echo "After"
+          sops exec-env secrets/terraform-backend.yaml bash
         '';
       }).env;
 
