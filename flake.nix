@@ -22,7 +22,7 @@
       modules = pkgs.lib.concatLists [
         (import ./configurations)
         (import ./modules)
-        (pkgs.lib.toList (import (./hosts + "/${host}.nix")))
+        (pkgs.lib.toList (import (./hosts + "/${host}")))
       ];
       specialArgs = {
         inherit self inputs;

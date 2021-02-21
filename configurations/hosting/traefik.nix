@@ -10,9 +10,11 @@ let
   entryPoints = {
     http = {
       address = ":80";
+      proxyProtocol = {};
     };
     https = {
       address = ":443";
+      proxyProtocol = {};
     };
   };
 
@@ -27,18 +29,18 @@ let
       };
       dnsChallenge = {
         provider = "cloudflare";
-        resolvers = [ "1.0.0.1:53" "8.8.8.8:53" ];
+        resolvers = [ "1.0.0.1:53" "8.8.8.8:53" "[2606:4700:4700::64]:53" "[2606:4700:4700::6400]:53" ];
       };
     };
   };
 in
 {
-  config.sops.secrets."cloudflare-env" = mkIf cfg.enable {
+  config.sops.secrets = mkIf cfg.enable (genAttrs [ "cloudflare-env" "traefik-users" ] (name: {
     format = "binary";
     owner = "traefik";
     group = config.services.traefik.group;
-    sopsFile = rootPath + "/secrets/tq.rs/cloudflare.env";
-  };
+    sopsFile = rootPath + "/secrets/tq.rs/" + replaceStrings [ "-" "users" ] [ "." "txt" ] name;
+  }));
 
   config.services.traefik = mkIf cfg.enable {
     enable = true;
@@ -50,8 +52,15 @@ in
 
     enableReload = true;
 
-    staticConfigOptions =
-      entryPoints
+    staticConfigOptions = {
+      api.dashboard = true;
+      http.routers.api = {
+        rule = "Host(`traefik.${domain}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))";
+        service = "api@internal";
+        middlewares = [ "auth" ];
+      };
+      http.middlewares.auth.basicAuth.usersFile = config.sops.secrets."traefik-users".path;
+    } // entryPoints
       // optionalAttrs cfg.enableACME certificateConfig
       // {
 

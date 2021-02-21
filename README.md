@@ -9,6 +9,10 @@ Technologies used:
 - [Terraform](https://terraform.io) for the automated DNS and OVH configuration
 - [Backblaze](https://www.backblaze.com) for the cheap object storage
 
+
+TODO: https://plantuml.com/nwdiag
+
+
 ## Initial configuration
 
 ### Configuring the VPS
