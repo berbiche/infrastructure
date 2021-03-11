@@ -11,7 +11,7 @@
   ];
 
   security.apparmor.enable = false;
-  security.hideProcessInformation = true;
+  # security.hideProcessInformation = true;
 
   # Deployment host
   users.users.deploy = {
@@ -34,20 +34,20 @@
     }];
   };
 
-  security.doas = {
-    enable = false;
-    extraRules = [
-      {
-        groups = [ config.users.groups.doas.name ];
-        noPass = false;
-        keepEnv = true;
-      }
-      {
-        users = [ config.users.users.deploy.name ];
-        cmd = "/nix/var/nix/profiles/system/deploys-rs-activate";
-        noPass = true;
-        runAs = "root";
-      }
-    ];
-  };
+  # security.doas = {
+  #   enable = false;
+  #   extraRules = [
+  #     {
+  #       groups = [ config.users.groups.doas.name ];
+  #       noPass = false;
+  #       keepEnv = true;
+  #     }
+  #     {
+  #       users = [ config.users.users.deploy.name ];
+  #       cmd = "/nix/var/nix/profiles/system/deploys-rs-activate";
+  #       noPass = true;
+  #       runAs = "root";
+  #     }
+  #   ];
+  # };
 }

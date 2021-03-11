@@ -17,6 +17,8 @@
     sops-nix = inputs.sops-nix.packages.${system};
     terraform = pkgs.terraform_0_14;
 
+    activateNixos = deploy-rs.lib.${system}.activate.nixos;
+
     makeHost = host: nixpkgs.lib.nixosSystem {
       inherit system;
       modules = pkgs.lib.concatLists [
@@ -38,16 +40,30 @@
     nixosConfigurations = {
       keanu = makeHost "keanu";
       morpheus = makeHost "morpheus";
+      mouse = makeHost "mouse";
     };
 
     deploy.nodes.morpheus = {
       sshOpts = [ "-p" "59910" ];
+      #hostname = "morpheus-remote";
       hostname = "morpheus-remote";
       fastConnection = false;
       profilesOrder = [ "system" ];
       profiles.system = {
         sshUser = "root";
-        path = deploy-rs.lib.${system}.activate.nixos self.nixosConfigurations.morpheus;
+        path = activateNixos self.nixosConfigurations.morpheus;
+        user = "root";
+      };
+    };
+
+    deploy.nodes.mouse = {
+      sshOpts = [ "-p" "22" ];
+      hostname = "proxmox-mouse";
+      fastConnection = false;
+      profilesOrder = [ "system" ];
+      profiles.system = {
+        sshUser = "root";
+        path = activateNixos self.nixosConfigurations.mouse;
         user = "root";
       };
     };
@@ -60,11 +76,13 @@
       profiles = {
         system = {
           sshUser = "root";
-          path = deploy-rs.lib.${system}.activate.nixos self.nixosConfigurations.keanu;
+          path = activateNixos self.nixosConfigurations.keanu;
           user = "root";
         };
       };
     };
+
+    packages = import ./bmc-access.nix { inherit nixpkgs; };
 
     overlays.packages = import ./pkgs;
 

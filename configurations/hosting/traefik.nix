@@ -1,20 +1,65 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, rootPath, ... }:
 
 with lib;
 
 let
-  cfg = config.configurations.hosting;
+  cfg = config.configurations.hosting.traefik;
+  traefikCfg = config.services.traefik;
 
-  inherit (config.services.traefik) dataDir;
+  inherit (traefikCfg) dataDir;
 
   entryPoints = {
-    http = {
+    web = {
       address = ":80";
-      proxyProtocol = {};
+      # Cannot be an empty list
+      # proxyProtocol.trustedIPs = [ "127.0.0.1/32" "::1/128" ];
+      http.redirections.entryPoint = {
+        to = "websecure";
+        scheme = "https";
+        permanent = true;
+      };
+      # http.middlewares = [ "compress" "autodetect" "security" ];
     };
-    https = {
+    websecure = {
       address = ":443";
-      proxyProtocol = {};
+      # Cannot be an empty list
+      # proxyProtocol.trustedIPs = [ "127.0.0.1/32" "::1/128" ];
+      # http.middlewares = [ "compress" "autodetect" "security" ];
+    };
+    metrics = {
+      address = ":8082";
+    };
+  };
+
+  middlewares = {
+    # Enables compression
+    compress.compress = {};
+    # Disable auto-detecting content-type header (recommended)
+    autodetect.contentType.autoDetect = true;
+    # Basic-Auth middleware
+    auth.basicAuth.usersFile = config.sops.secrets."traefik-users".path;
+    # Secure headers middleware
+    security = {
+      headers = {
+
+        #   map $scheme $hsts_header {
+        #       https "max-age=31536000; includeSubdomains; preload"
+        #   }
+        #   add_header Strict-Transport-Security $hsts_header
+
+        # Remove origin information in referrer header
+        # Minimize information leaked to other domains
+        referrerPolicy = "origin-when-cross-origin";
+        # Disable embedding as a frame
+        frameDeny = true;
+        # Prevent injection of code in other mime types (XSS Attacks)
+        contentTypeNosniff = true;
+        # Enable XSS protection of the browser.
+        browserXssFilter = true;
+        # Enable CSP for your services.
+        # contentSecurityPolicy = "default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self';";
+        # contentSecurityPolicy = "default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self'; base-uri 'self'; form-action 'self'";
+      };
     };
   };
 
@@ -25,7 +70,7 @@ let
       #caServer = "https://acme-v02.api.letsencrypt.org/directory";
       caServer = "https://acme-staging-v02.api.letsencrypt.org/directory";
       tlsChallenge = {
-        entryPoint = "https";
+        entryPoint = "websecure";
       };
       dnsChallenge = {
         provider = "cloudflare";
@@ -35,75 +80,91 @@ let
   };
 in
 {
-  config.sops.secrets = mkIf cfg.enable (genAttrs [ "cloudflare-env" "traefik-users" ] (name: {
-    format = "binary";
-    owner = "traefik";
-    group = config.services.traefik.group;
-    sopsFile = rootPath + "/secrets/tq.rs/" + replaceStrings [ "-" "users" ] [ "." "txt" ] name;
-  }));
-
-  config.services.traefik = mkIf cfg.enable {
-    enable = true;
-
-    recommendedGzipSettings = true;
-    recommendedOptimisation = true;
-    recommendedProxySettings = true;
-    recommendedTlsSettings = true;
-
-    enableReload = true;
-
-    staticConfigOptions = {
-      api.dashboard = true;
-      http.routers.api = {
-        rule = "Host(`traefik.${domain}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))";
-        service = "api@internal";
-        middlewares = [ "auth" ];
-      };
-      http.middlewares.auth.basicAuth.usersFile = config.sops.secrets."traefik-users".path;
-    } // entryPoints
-      // optionalAttrs cfg.enableACME certificateConfig
-      // {
-
-      };
-
-
-    # The host is a .dev domain, so HSTS is required
-    commonHttpConfig = ''
-      # The domain is a `.dev` domain, so HSTS is required
-      map $scheme $hsts_header {
-          https "max-age=31536000; includeSubdomains; preload"
-      }
-      add_header Strict-Transport-Security $hsts_header
-
-      # Enable CSP for your services.
-      #add_header Content-Security-Policy "script-src 'self'; object-src 'none'; base-uri 'none';" always;
-
-      # Minimize information leaked to other domains
-      add_header 'Referrer-Policy' 'origin-when-cross-origin'
-
-      # Disable embedding as a frame
-      add_header X-Frame-Options DENY
-
-      # Prevent injection of code in other mime types (XSS Attacks)
-      add_header X-Content-Type-Options nosniff;
-
-      # Enable XSS protection of the browser.
-      add_header X-XSS-Protection '1;mode=block'
-
-      #proxy_cookie_path / "/; secure; HttpOnly; SameSite=strict";
-    '';
-
-    defaultServerBlock = ''
-      access_log /var/log/nginx/json_access.log json_analytics;
-    '';
+  options.configurations.hosting.traefik = {
+    enable = mkEnableOption "Traefik reverse proxy";
+    enableACME = mkEnableOption "ACME certificate configuration";
+    domain = mkOption {
+      type = types.str;
+      description = ''
+        Root domain for Traefik's dashboard.
+        Traefik will listen on `traefik.''${domain}`.
+      '';
+    };
   };
 
-  config.systemd.services.traefik.serviceConfig = {
-    EnvironmentFile = config.sops.secrets."cloudflare-env".path;
+
+
+  config.sops.secrets."cloudflare-txt" = mkIf cfg.enable {
+    format = "binary";
+    owner = config.users.users.traefik.name;
+    group = traefikCfg.group;
+    sopsFile = rootPath + "/secrets/tq.rs/cloudflare.txt";
+  };
+  config.sops.secrets."traefik-users" = mkIf cfg.enable {
+    format = "binary";
+    # mode = "0440";
+    owner = config.users.users.traefik.name;
+    group = traefikCfg.group;
+    sopsFile = rootPath + "/secrets/tq.rs/traefik.txt";
+  };
+  config.systemd.services.traefik.serviceConfig = mkIf cfg.enable {
+    EnvironmentFile = config.sops.secrets."cloudflare-txt".path;
+    SupplementaryGroups = [ config.users.groups.keys.name ];
   };
 
   config.networking.firewall = mkIf cfg.enable {
     allowedTCPPorts = [ 80 443 ];
     allowedUDPPorts = [ 80 443 ];
+  };
+
+  config.services.traefik = mkIf cfg.enable {
+    enable = true;
+
+    staticConfigOptions = {
+      # Let's log to the Systemd journal instead
+      log = {
+        # filePath = "${dataDir}/traefik.log";
+        # format = "json";
+        level = "DEBUG";
+      };
+      accessLog = {
+        # filePath = "${dataDir}/access.log";
+        format = "json";
+      };
+
+      global.checkNewVersion = true;
+
+      api.dashboard = true;
+
+      metrics.prometheus = {
+        entryPoint = "metrics";
+      };
+
+      inherit entryPoints;
+    } // optionalAttrs cfg.enableACME certificateConfig
+      // {
+
+      };
+
+    dynamicConfigOptions = {
+      http = {
+        middlewares = middlewares // {
+          redirect-dashboard.replacePathRegex = {
+            regex = "^/dashboard$";
+            replace = "/dashboard/";
+          };
+        };
+
+        routers = {
+          my-api = {
+            rule = "Host(`traefik.${cfg.domain}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))";
+            entryPoints = [ "web" "websecure" ];
+            service = "api@internal";
+            middlewares = [ "auth" "redirect-dashboard" ];
+            # tls = { };
+          };
+        };
+      };
+    };
   };
 }

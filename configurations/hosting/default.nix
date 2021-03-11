@@ -9,6 +9,7 @@ in
     # ./acme.nix
     # ./nginx.nix
     ./geoip.nix
+    ./traefik.nix
   ];
 
   options.configurations.hosting.enable = lib.mkEnableOption "hosting configuration";
