@@ -1,10 +1,9 @@
-{ config, inputs, rootPath, lib, ... }:
+{ config, inputs, lib, ... }:
 
+let
+  globalCfg = config.configurations.global;
+in
 {
-  imports = [ inputs.sops-nix.nixosModules.sops ];
-
-  sops.defaultSopsFile = rootPath + "/secrets/keanu.yaml";
-
   users.users.admin.extraGroups = [
     (lib.optionalString config.security.doas.enable "doas")
     (lib.optionalString config.security.sudo.enable "wheel")
@@ -13,26 +12,28 @@
   security.apparmor.enable = false;
   # security.hideProcessInformation = true;
 
-  # Deployment host
-  users.users.deploy = {
-    isSystemUser = true;
-    openssh.authorizedKeys.keys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO7OSbLUwgRy5NY0VWDmyHUIUh1gAR/EYCm3Z4Y6C0iu keanu.ovh"
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFjVrgNOlB82cM5xUF2Z/WasfSRhmWc/1tjiUqqUfmYW OVH Cloud"
-    ];
-  };
+  ###### Disabled deploy user because I also need to allow `rm`ing lock files and canary
+  ###### files and these files have a dynamic path in /tmp/
+  ###### so the sudo security rules doesn't work
+  ## Deployment host
+  # users.users.deploy = {
+  #   isSystemUser = true;
+  #   # The user cannot login by default unless a shell is set
+  #   # shell = pkgs.shadow;
+  #   openssh.authorizedKeys.keys = globalCfg.authorizedKeys;
+  # };
 
-  security.sudo = {
-    enable = true;
-    extraRules = [{
-      users = [ config.users.users.deploy.name ];
-      runAs = "root";
-      commands = map (v: { command = v; options = [ "NOPASSWD" ]; }) [
-        "/nix/var/nix/profiles/system/deploys-rs-activate"
-        "/nix/var/nix/profiles/system/activate-rs"
-      ];
-    }];
-  };
+  # security.sudo = {
+  #   enable = true;
+  #   extraRules = [{
+  #     users = [ config.users.users.deploy.name ];
+  #     runAs = "root";
+  #     commands = map (v: { command = v; options = [ "NOPASSWD" ]; }) [
+  #       "/nix/var/nix/profiles/system/deploys-rs-activate"
+  #       "/nix/var/nix/profiles/system/activate-rs"
+  #     ];
+  #   }];
+  # };
 
   # security.doas = {
   #   enable = false;

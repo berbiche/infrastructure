@@ -1,7 +1,7 @@
 { config, lib, pkgs, ... }:
 
 {
-  configurations.plex.enable = true;
+  # configurations.plex.enable = true;
 
   configurations."tq.rs".enable = true;
 

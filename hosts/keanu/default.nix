@@ -1,10 +1,12 @@
-{ config, inputs, lib, pkgs, modulesPath, ... }:
+{ config, inputs, lib, pkgs, rootPath, modulesPath, ... }:
 
 {
   imports = [
     (modulesPath + "/profiles/qemu-guest.nix")
     (modulesPath + "/profiles/headless.nix")
   ];
+
+  sops.defaultSopsFile = rootPath + "/secrets/keanu.yaml";
 
   boot.cleanTmpDir = true;
 

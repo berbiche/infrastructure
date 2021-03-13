@@ -1,11 +1,19 @@
-{ config, inputs, pkgs, ... }:
+{ config, inputs, pkgs, modulesPath, rootPath, ... }:
 
+let
+  globalCfg = config.configurations.global;
+in
 {
   imports = [
     ./networking.nix
     ./security.nix
     ./prometheus-node-exporter.nix
+    (modulesPath + "/profiles/minimal.nix")
   ];
+
+  boot.kernelParams = [ "panic=1" "boot.panic_on_fail" ];
+
+  sops.defaultSopsFile = rootPath + "/secrets/keanu.yaml";
 
   sops.secrets.admin-pass = { };
 
@@ -22,10 +30,7 @@
   };
 
   users.mutableUsers = false;
-  users.users.root.openssh.authorizedKeys.keys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO7OSbLUwgRy5NY0VWDmyHUIUh1gAR/EYCm3Z4Y6C0iu keanu.ovh"
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFjVrgNOlB82cM5xUF2Z/WasfSRhmWc/1tjiUqqUfmYW OVH Cloud"
-  ];
+  users.users.root.openssh.authorizedKeys.keys = globalCfg.authorizedKeys;
   users.users.admin = {
     isNormalUser = true;
     uid = 1000;
@@ -33,13 +38,10 @@
     hashedPassword = "$6$DUzWCM9C$cxkLY2c1efB/Bxn/jzh7Y4HBPkxRmcHdrPoxsl.0f2/rg/H6AZrsj8c7PvvE.Wj1YbTWsKdDjWosVOxnZ6Bgb.";
     # Will not work until initrd supports secrets
     # passwordFile = config.sops.secrets.admin-pass.path;
-    openssh.authorizedKeys.keys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO7OSbLUwgRy5NY0VWDmyHUIUh1gAR/EYCm3Z4Y6C0iu keanu.ovh"
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFjVrgNOlB82cM5xUF2Z/WasfSRhmWc/1tjiUqqUfmYW OVH Cloud"
-    ];
+    openssh.authorizedKeys.keys = globalCfg.authorizedKeys;
   };
 
-  environment.noXlibs = true;
+  i18n.defaultLocale = "en_US.UTF-8";
 
   environment.systemPackages = with pkgs; [
     vim

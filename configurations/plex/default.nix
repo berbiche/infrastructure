@@ -12,12 +12,13 @@ let
   defaults = [
     "defaults"
     "ro"
-    "addr=192.168.0.4"
+    "nfsvers=3"
     "noauto"
     "x-systemd.automount"
     "x-systemd.device-timeout=10"
     "noatime"
     "timeo=10"
+    # "retry=1000000"
   ];
 
   inherit (config.networking) domain hostName;
@@ -31,6 +32,8 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    boot.supportedFilesystems = [ "nfs" ];
+
     services.plex = {
       enable = true;
       openFirewall = false;
@@ -55,12 +58,23 @@ in
       "::1" = [ "plex.tq.rs" "tautulli.tq.rs" "traefik.tq.rs" ];
     };
 
-    fileSystems."/metacortex" = {
-      device = "zion.lan:/mnt/metacortex";
-      fsType = "nfs";
-      noCheck = true;
-      options = defaults;
-    };
+    systemd.mounts = lib.flip map [ "anime" "tv" "movies" ] (x: {
+      # Move the constants below in another file
+      what = "192.168.42.5:/mnt/tank/${x}";
+      where = "/metacortex/${x}";
+      type = "nfs";
+      options = lib.concatStringsSep "," defaults;
+      mountConfig.DirectoryMode = "770";
+      wantedBy = [ "multi-user.target" ];
+    });
+
+    # fileSystems."/metacortex/" = {
+    #   device = "zion.lan:/mnt/metacortex";
+    #   fsType = "nfs";
+    #   noCheck = true;
+    #   options = defaults;
+    # };
+
     fileSystems."/mediaserver" = {
       device = "/metacortex";
       fsType = "none";

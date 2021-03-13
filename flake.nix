@@ -21,10 +21,12 @@
 
     makeHost = host: nixpkgs.lib.nixosSystem {
       inherit system;
-      modules = pkgs.lib.concatLists [
+      modules = [
+        inputs.sops-nix.nixosModule
+        (./hosts + "/${host}")
+      ] ++ pkgs.lib.concatLists [
         (import ./configurations)
         (import ./modules)
-        (pkgs.lib.toList (import (./hosts + "/${host}")))
       ];
       specialArgs = {
         inherit self inputs;
@@ -41,6 +43,7 @@
       keanu = makeHost "keanu";
       morpheus = makeHost "morpheus";
       mouse = makeHost "mouse";
+      apoc = makeHost "apoc";
     };
 
     deploy.nodes.morpheus = {
@@ -57,7 +60,7 @@
     };
 
     deploy.nodes.mouse = {
-      sshOpts = [ "-p" "22" ];
+      sshOpts = [ "-p" "59910" ];
       hostname = "proxmox-mouse";
       fastConnection = false;
       profilesOrder = [ "system" ];
@@ -65,6 +68,20 @@
         sshUser = "root";
         path = activateNixos self.nixosConfigurations.mouse;
         user = "root";
+      };
+    };
+
+    deploy.nodes.apoc = {
+      sshOpts = [ "-p" "59910" ];
+      hostname = "proxmox-apoc";
+      fastConnection = false;
+      profilesOrder = [ "system" ];
+      profiles.system = {
+        sshUser = "root";
+        user = "root";
+        path = activateNixos self.nixosConfigurations.apoc;
+        autoRollback = false;
+        magicRollback = false;
       };
     };
 
