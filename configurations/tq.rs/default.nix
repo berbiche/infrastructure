@@ -1,13 +1,14 @@
 { config, lib, pkgs, rootPath, ... }:
 
 let
+  cfg = config.configurations."tq.rs";
 in
 {
-  # imports = [ ./dns.nix ];
+  imports = [ ./dns.nix ];
 
   options.configurations."tq.rs".enable = lib.mkEnableOption "tq.rs domain configuration and stuff";
 
-  config = lib.mkIf config.configurations."tq.rs".enable {
+  config = lib.mkIf cfg.enable {
     configurations.hosting.enable = true;
     configurations.plex.domain = "plex.tq.rs";
 

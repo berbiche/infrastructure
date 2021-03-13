@@ -15,7 +15,7 @@
     VLAN-1-ipv4CIDR = "192.168.0.7/24";
     VLAN-1-gateway = "192.168.0.1";
     VLAN-42-ipv4CIDR = "192.168.42.7/24";
-    dnsServers = [ "192.168.0.1" "192.168.142.6" ];
+    dnsServers = [ "192.168.0.6" "192.168.0.1" ];
   };
 
   configurations.plex.enable = true;

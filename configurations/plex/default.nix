@@ -49,13 +49,13 @@ in
 
     networking.firewall = {
       # Default port
-      allowedTCPPorts = [ 32400 ];
+      allowedTCPPorts = [ tautulliCfg.port 32400 ];
       # AVAHI, Network Discovery, etc.
       allowedUDPPorts = [ 5353 32410 32412 32413 32414 ];
     };
     networking.hosts = {
-      "127.0.0.1" = [ "plex.tq.rs" "tautulli.tq.rs" "traefik.tq.rs" ];
-      "::1" = [ "plex.tq.rs" "tautulli.tq.rs" "traefik.tq.rs" ];
+      "127.0.0.1" = [ "plex.tq.rs" "tautulli.tq.rs" ];
+      "::1" = [ "plex.tq.rs" "tautulli.tq.rs" ];
     };
 
     systemd.mounts = lib.flip map [ "anime" "tv" "movies" ] (x: {
@@ -116,44 +116,6 @@ in
     # };
 
     services.traefik.dynamicConfigOptions = {
-      http.routers.plex = {
-        rule = "Host(`${cfg.domain}`)";
-        entryPoints = [ "websecure" ];
-        # middlewares = [ "compress" ];
-        service = "plex";
-      };
-      http.routers.tautulli = {
-        rule = "Host(`tautulli.tq.rs`)";
-        entryPoints = [ "websecure" ];
-        # middlewares = [ "compress" ];
-        service = "tautulli";
-      };
-      http.services.plex = {
-        loadBalancer = {
-          servers = [
-            { url = "http://[::]:${toString plexPort}/"; }
-          ];
-        };
-        healthCheck = {
-          path = "/web/index.html";
-          port = plexPort;
-          interval = "15s";
-          timeout = "3s";
-        };
-      };
-      http.services.tautulli = {
-        loadBalancer = {
-          servers = [
-            { url = "http://[::1]:${toString tautulliCfg.port}/"; }
-          ];
-        };
-        healthCheck = {
-          path = "/";
-          port = tautulliCfg.port;
-          interval = "15s";
-          timeout = "3s";
-        };
-      };
     };
   };
 }

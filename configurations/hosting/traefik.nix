@@ -64,17 +64,15 @@ let
   };
 
   certificateConfig = {
-    certificatesResolvers.myresolver.acme = {
+    certificatesResolvers.cloudflare.acme = {
       email = "nic.berbiche@gmail.com";
-      storage = "acme.json";
+      storage = "${config.services.traefik.dataDir}/acme.json";
       #caServer = "https://acme-v02.api.letsencrypt.org/directory";
-      caServer = "https://acme-staging-v02.api.letsencrypt.org/directory";
-      tlsChallenge = {
-        entryPoint = "websecure";
-      };
+      # caServer = "https://acme-staging-v02.api.letsencrypt.org/directory";
+      # tlsChallenge = {};
       dnsChallenge = {
         provider = "cloudflare";
-        resolvers = [ "1.0.0.1:53" "8.8.8.8:53" "[2606:4700:4700::64]:53" "[2606:4700:4700::6400]:53" ];
+        resolvers = [ "1.1.1.1:53" "8.8.8.8:53" /*"[2606:4700:4700::64]:53" "[2606:4700:4700::6400]:53"*/ ];
       };
     };
   };
@@ -161,7 +159,54 @@ in
             entryPoints = [ "web" "websecure" ];
             service = "api@internal";
             middlewares = [ "auth" "redirect-dashboard" ];
-            # tls = { };
+          } // optionalAttrs cfg.enableACME {
+            tls.certResolver = "cloudflare";
+          };
+          plex = {
+            rule = "Host(`plex.tq.rs`)";
+            entryPoints = [ "web" "websecure" ];
+            # middlewares = [ "compress" ];
+            service = "plex";
+          } // optionalAttrs cfg.enableACME {
+            tls.certResolver = "cloudflare";
+          };
+          tautulli = {
+            rule = "Host(`tautulli.tq.rs`)";
+            entryPoints = [ "web" "websecure" ];
+            # middlewares = [ "compress" ];
+            service = "tautulli";
+          } // optionalAttrs cfg.enableACME {
+            tls.certResolver = "cloudflare";
+          };
+        };
+        services.plex = let
+          plexPort = 32000;
+        in {
+          loadBalancer = {
+            servers = [
+              { url = "http://apoc.node.tq.rs:${toString plexPort}/"; }
+            ];
+          };
+          healthCheck = {
+            path = "/web/index.html";
+            port = plexPort;
+            interval = "15s";
+            timeout = "3s";
+          };
+        };
+        services.tautulli = let
+          tautulliPort = config.services.tautulli.port;
+        in {
+          loadBalancer = {
+            servers = [
+              { url = "http://apoc.node.tq.rs:${toString tautulliPort}/"; }
+            ];
+          };
+          healthCheck = {
+            path = "/";
+            port = tautulliPort;
+            interval = "15s";
+            timeout = "3s";
           };
         };
       };

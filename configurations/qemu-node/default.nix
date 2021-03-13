@@ -61,7 +61,7 @@ in
     boot.loader.grub.version = 2;
     boot.loader.grub.device = "/dev/sda";
 
-    services.dnsmasq.enable = true;
+    services.dnsmasq.enable = lib.mkDefault true;
     services.dnsmasq.servers = cfg.dnsServers;
     services.resolved.enable = false;
 
