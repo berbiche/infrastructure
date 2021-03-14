@@ -8,7 +8,7 @@
   sops.defaultSopsFile = rootPath + "/secrets/keanu.yaml";
 
   networking.hostName = "mouse";
-  networking.domain = "tq.rs";
+  networking.domain = "node.tq.rs";
 
   configurations."tq.rs".enable = true;
 

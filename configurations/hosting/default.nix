@@ -2,7 +2,6 @@
 
 let
   cfg = config.configurations.hosting;
-  domain = config.networking.domain;
 in
 {
   imports = [

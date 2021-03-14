@@ -8,7 +8,7 @@
   # sops.defaultSopsfile = rootPath + "/secrets/keanu.yaml";
 
   networking.hostName = "apoc";
-  networking.domain = "tq.rs";
+  networking.domain = "node.tq.rs";
 
   configurations.qemu-node = {
     enable = true;
