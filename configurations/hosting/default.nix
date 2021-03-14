@@ -8,7 +8,7 @@ in
   imports = [
     # ./acme.nix
     # ./nginx.nix
-    ./geoip.nix
+    # ./geoip.nix
     ./traefik.nix
   ];
 
