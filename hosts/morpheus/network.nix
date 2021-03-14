@@ -4,6 +4,7 @@
   networking.useDHCP = false;
   networking.useNetworkd = true;
   networking.firewall.logRefusedPackets = true;
+  networking.firewall.logRefusedConnections = true;
   systemd.network.enable = true;
   services.resolved.enable = true;
 
