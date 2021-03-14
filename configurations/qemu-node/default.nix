@@ -48,6 +48,8 @@ in
     boot.initrd.kernelModules = [ ];
     boot.extraModulePackages = [ ];
 
+    boot.kernelParams = [ "console=ttyS0,115200" ];
+
     boot.growPartition = true;
 
     fileSystems."/" = {
@@ -86,9 +88,11 @@ in
       addresses = [{
         addressConfig.Address = cfg.VLAN-42-ipv4CIDR;
       }];
-      routes = lib.mkIf (cfg.VLAN-42-gateway != null) [{
-        routeConfig.Gateway = cfg.VLAN-42-gateway;
-      }];
+      routes = [
+        (lib.mkIf (cfg.VLAN-42-gateway != null) {
+          routeConfig.Gateway = cfg.VLAN-42-gateway;
+        })
+      ];
     };
 
     time.timeZone = lib.mkDefault "America/Montreal";
