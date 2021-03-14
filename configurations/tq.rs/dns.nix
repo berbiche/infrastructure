@@ -16,7 +16,7 @@ in
         cancel 1s
         file ${pkgs.writeText "coredns-tq-rs-zone" ''
           @       900 IN SOA   ns.tq.rs.   nicberbiche.gmail.com. (2021031305 3600 600 604800 600)
-                       900 IN NS    ns.tq.rs.
+                  900 IN NS    ns.tq.rs.
 
           ; A/AAAA records
           @            900 IN A     192.168.0.6
@@ -25,6 +25,7 @@ in
           switch.node  900 IN A     192.168.0.8
 
           ; CNAME records
+          ns           900 IN CNAME @
           www          900 IN CNAME @
           traefik      900 IN CNAME @
           plex         900 IN CNAME @
@@ -36,16 +37,20 @@ in
           jackett      900 IN CNAME @
 
           ; PTR records
-          6            900 IN PTR   ns
-          6            900 IN PTR   www
-          6            900 IN PTR   traefik
-          7            900 IN PTR   plex
-          8            900 IN PTR   qbittorrent
-          8            900 IN PTR   rtorrent
-          8            900 IN PTR   sonarr
-          8            900 IN PTR   radarr
-          8            900 IN PTR   jackett
-        ''} {
+          6            900 IN PTR   ns.tq.rs.
+          6            900 IN PTR   www.tq.rs.
+          6            900 IN PTR   traefik.tq.rs.
+          6            900 IN PTR   auth.tq.rs.
+          6            900 IN PTR   plex.tq.rs.
+          6            900 IN PTR   qbittorrent.tq.rs.
+          6            900 IN PTR   rtorrent.tq.rs.
+          6            900 IN PTR   sonarr.tq.rs.
+          6            900 IN PTR   radarr.tq.rs.
+          6            900 IN PTR   jackett.tq.rs.
+          6            900 IN PTR   mouse.node.tq.rs.
+          7            900 IN PTR   apoc.node.tq.rs.
+          8            900 IN PTR   switch.node.tq.rs.
+        ''} tq.rs 42.168.192.in-addr.arpa 0.168.192.in-addr.arpa {
           reload 0
         }
         chaos
@@ -88,21 +93,5 @@ in
         }];
       }
     ];
-
-    # services.nsd.enable = true;
-    # services.nsd.identity = "tq.rs server";
-    # services.nsd.statistics = 10;
-    # services.nsd.interfaces = [
-    #   "0.0.0.0"
-    #   "::"
-    # ];
-    # services.nsd.zones = {
-    #   "tq.rs." = {
-    #     zoneStats = "%s";
-    #     data = ''
-    #     '';
-    #   };
-    # };
-    # services.nsd.
   };
 }
