@@ -17,4 +17,6 @@ final: prev: {
       cp *.c config $out
     '';
   };
+
+  traefik = final.inputs.nixpkgs-unstable.legacyPackages.${final.system}.traefik;
 }

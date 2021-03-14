@@ -29,6 +29,7 @@ in
           www          900 IN CNAME @
           traefik      900 IN CNAME @
           plex         900 IN CNAME @
+          auth         900 IN CNAME @
           tautulli     900 IN CNAME @
           qbittorrent  900 IN CNAME @
           rtorrent     900 IN CNAME @

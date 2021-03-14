@@ -3,7 +3,8 @@
 with lib;
 
 let
-  cfg = config.configurations.hosting.traefik;
+  cfgHosting = config.configurations.hosting;
+  cfg = cfgHosting.traefik;
   traefikCfg = config.services.traefik;
 
   inherit (traefikCfg) dataDir;
@@ -18,13 +19,13 @@ let
         scheme = "https";
         permanent = true;
       };
-      # http.middlewares = [ "compress" "autodetect" "security" ];
+      http.middlewares = [ "compress" "autodetect" "security" ];
     };
     websecure = {
       address = ":443";
       # Cannot be an empty list
       # proxyProtocol.trustedIPs = [ "127.0.0.1/32" "::1/128" ];
-      # http.middlewares = [ "compress" "autodetect" "security" ];
+      http.middlewares = [ "compress" "autodetect" "security" ];
     };
     metrics = {
       address = ":8082";
@@ -56,23 +57,46 @@ let
         contentTypeNosniff = true;
         # Enable XSS protection of the browser.
         browserXssFilter = true;
+
+        # My domain has been preloaded to the HSTS list for a long time
+        stsIncludeSubdomains = true;
+        stsPreload = true;
+        forceSTSHeader = true;
         # Enable CSP for your services.
         # contentSecurityPolicy = "default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self';";
         # contentSecurityPolicy = "default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self'; base-uri 'self'; form-action 'self'";
       };
     };
+    redirect-dashboard.replacePathRegex = {
+      regex = "^/dashboard$";
+      replacement = "/dashboard/";
+    };
+    forward-auth.forwardAuth = {
+      address = "http://localhost:4181";
+      authResponseHeaders = ["X-Forwarded-User"];
+      trustForwardHeader = true;
+    };
+    plex-cors.headers = {
+      accessControlAllowMethods = [
+        "GET"
+        "OPTIONS"
+        "PUT"
+      ];
+      accessControlAllowOriginList = [
+        "https://app.plex.tv"
+      ];
+    };
   };
 
   certificateConfig = {
     certificatesResolvers.cloudflare.acme = {
-      email = "nic.berbiche@gmail.com";
+      email = config.security.acme.email;
       storage = "${config.services.traefik.dataDir}/acme.json";
-      #caServer = "https://acme-v02.api.letsencrypt.org/directory";
-      # caServer = "https://acme-staging-v02.api.letsencrypt.org/directory";
+      caServer = config.security.acme.server;
       # tlsChallenge = {};
       dnsChallenge = {
         provider = "cloudflare";
-        resolvers = [ "1.1.1.1:53" "8.8.8.8:53" /*"[2606:4700:4700::64]:53" "[2606:4700:4700::6400]:53"*/ ];
+        resolvers = [ "1.1.1.1:53" "8.8.8.8:53" "[2606:4700:4700::64]:53" "[2606:4700:4700::6400]:53" ];
       };
     };
   };
@@ -88,6 +112,7 @@ in
         Traefik will listen on `traefik.''${domain}`.
       '';
     };
+    enableForwardAuth = mkEnableOption "forward authentication with Traefik Forward Auth running in podman";
   };
 
 
@@ -113,6 +138,11 @@ in
   config.networking.firewall = mkIf cfg.enable {
     allowedTCPPorts = [ 80 443 ];
     allowedUDPPorts = [ 80 443 ];
+
+    interfaces.ens19 = {
+      allowedTCPPorts = [ 8082 ];
+      allowedUDPPorts = [ 8082 ];
+    };
   };
 
   config.services.traefik = mkIf cfg.enable {
@@ -145,53 +175,70 @@ in
       };
 
     dynamicConfigOptions = {
+      tls.options.default = {
+        # Enable Strict SNI checking to disable serving hosts
+        # that do not have a matching certificate
+        sniStrict = true;
+        minVersion = "VersionTLS12";
+      };
+
       http = {
-        middlewares = middlewares // {
-          redirect-dashboard.replacePathRegex = {
-            regex = "^/dashboard$";
-            replace = "/dashboard/";
-          };
-        };
+        inherit middlewares;
 
         routers = {
-          my-api = {
-            rule = "Host(`traefik.${cfg.domain}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))";
-            entryPoints = [ "web" "websecure" ];
+          dashboard = {
+            rule = "Host(`traefik.${cfg.domain}`)";#" && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))";
+            entryPoints = [ "websecure" ];
             service = "api@internal";
-            middlewares = [ "auth" "redirect-dashboard" ];
+            middlewares = [ "redirect-dashboard" ] ++ (
+              if cfg.enableForwardAuth
+              then [ "forward-auth" ]
+              else [ "auth" ]);
           } // optionalAttrs cfg.enableACME {
             tls.certResolver = "cloudflare";
+            tls.domains = [{
+              main = cfg.domain;
+              sans = [ "traefik.${cfg.domain}" "auth.tq.rs" ];
+            }];
           };
           plex = {
-            rule = "Host(`plex.tq.rs`)";
+            rule = "Host(`plex.${cfg.domain}`)";
             entryPoints = [ "web" "websecure" ];
-            # middlewares = [ "compress" ];
+            middlewares = [ "plex-cors" ];
             service = "plex";
           } // optionalAttrs cfg.enableACME {
             tls.certResolver = "cloudflare";
           };
           tautulli = {
-            rule = "Host(`tautulli.tq.rs`)";
+            rule = "Host(`tautulli.${cfg.domain}`)";
             entryPoints = [ "web" "websecure" ];
-            # middlewares = [ "compress" ];
+            middlewares = [ "forward-auth" ];
             service = "tautulli";
+          } // optionalAttrs cfg.enableACME {
+            tls.certResolver = "cloudflare";
+          };
+          traefik-forward-auth = {
+            rule = "Host(`auth.tq.rs`)";
+            entryPoints = [ "websecure" ];
+            service = "traefik-forward-auth";
+            middlewares = [ "forward-auth" ];
           } // optionalAttrs cfg.enableACME {
             tls.certResolver = "cloudflare";
           };
         };
         services.plex = let
-          plexPort = 32000;
+          plexPort = 32400;
         in {
           loadBalancer = {
             servers = [
               { url = "http://apoc.node.tq.rs:${toString plexPort}/"; }
             ];
-          };
-          healthCheck = {
-            path = "/web/index.html";
-            port = plexPort;
-            interval = "15s";
-            timeout = "3s";
+            healthCheck = {
+              path = "/web/index.html";
+              port = plexPort;
+              interval = "15s";
+              timeout = "3s";
+            };
           };
         };
         services.tautulli = let
@@ -201,15 +248,74 @@ in
             servers = [
               { url = "http://apoc.node.tq.rs:${toString tautulliPort}/"; }
             ];
+            healthCheck = {
+              path = "/";
+              port = tautulliPort;
+              interval = "15s";
+              timeout = "3s";
+            };
           };
-          healthCheck = {
-            path = "/";
-            port = tautulliPort;
-            interval = "15s";
-            timeout = "3s";
+        };
+        services.traefik-forward-auth = {
+          loadBalancer = {
+            servers = [{ url = "http://localhost:4181/"; }];
+            healthCheck  ={
+              path = "/";
+              port = 4181;
+              interval = "15s";
+              timeout = "3s";
+            };
           };
         };
       };
     };
   };
+
+  # https://vincent.bernat.ch/fr/blog/2020-docker-nixos-isso
+  # https://nixos.org/manual/nixpkgs/stable/#sec-pkgs-dockerTools
+  # nix run nixpkgs#nix-prefetch-docker -- --image-name thomseddon/traefik-forward-auth --image-tag 2
+  config.virtualisation.oci-containers = let
+    dockerImage = pkgs.dockerTools.pullImage {
+      imageName = "thomseddon/traefik-forward-auth";
+      imageDigest = "sha256:69a2c985d2c518b6f0e77161a98628a148a5d964e4e84fc52cc62e19bb4da634";
+      finalImageName = "thomseddon/traefik-forward-auth";
+      finalImageTag = "2";
+      sha256 = "114c1bgzav6ahs5xbpk054m6sqwc4238b0k0xjmgxfi0szq076ri";
+    };
+    # Unused because environment secrets cannot be injected as a file
+    configFile = pkgs.writeText "traefik-forward-auth-config.txt" ''
+      auth-host = auth.tq.rs
+      port = 4181
+      default-provider = google
+      cookie-domain = tq.rs
+      ${optionalString false "domain = tq.rs, normie.dev"}
+      whitelist = nic.berbiche@gmail.com, nicolas@normie.dev
+      match-whitelist-or-domain = true
+    '';
+  in mkIf (cfg.enable && cfg.enableForwardAuth) {
+    backend = "podman";
+    containers = {
+      traefik-forward-auth = {
+        image = "thomseddon/traefik-forward-auth";
+        imageFile = dockerImage;
+        ports = [ "127.0.0.1:4181:4181" ];
+        volumes = [ "${config.sops.secrets."traefik-forward-auth.txt".path}:/traefik-forward-auth-config.txt:ro" ];
+        cmd = [
+          "--config=/traefik-forward-auth-config.txt"
+        ];
+        autoStart = true;
+      };
+    };
+  };
+
+  config.sops.secrets."traefik-forward-auth.txt" = mkIf (cfg.enable && cfg.enableForwardAuth) {
+    format = "binary";
+    mode = "0400";
+    sopsFile = rootPath + "/secrets/tq.rs/traefik-forward-auth.txt";
+  };
+
+  # Inject our environment file -> doesn't work, requires podman --env-host=true which we can't pass
+  # config.systemd.services."podman-traefik-forward-auth" = mkIf (cfg.enable && cfg.enableForwardAuth) {
+  #   serviceConfig.EnvironmentFile = config.sops.secrets."traefik-forward-auth.txt".path;
+  # };
 }

@@ -102,6 +102,7 @@
     packages = import ./bmc-access.nix { inherit nixpkgs; };
 
     overlays.packages = import ./pkgs;
+    overlays.inputs = final: prev: { inherit inputs; };
 
     # FHS for the terraform-provider-b2
     # because writing a derivation is complex (it embeds a python binary generated with pyinstaller)

@@ -17,6 +17,7 @@ in
     security.acme.acceptTerms = true;
     security.acme.email = "nic.berbiche@gmail.com";
     # Staging environment for test purposes
-    security.acme.server = "https://acme-staging-v02.api.letsencrypt.org/directory";
+    security.acme.server = "https://acme-v02.api.letsencrypt.org/directory";
+    # security.acme.server = "https://acme-staging-v02.api.letsencrypt.org/directory";
   };
 }

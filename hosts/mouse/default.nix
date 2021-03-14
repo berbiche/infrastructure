@@ -16,7 +16,8 @@
     enable = true;
     traefik.enable = true;
     traefik.domain = "tq.rs";
-    traefik.enableACME = false;
+    traefik.enableACME = true;
+    traefik.enableForwardAuth = true;
   };
 
   configurations.qemu-node = {
