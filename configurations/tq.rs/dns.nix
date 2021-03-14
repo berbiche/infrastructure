@@ -49,7 +49,7 @@ in
           reload 0
         }
         chaos
-        health
+        health :8080
         cache
         log
       }
@@ -57,18 +57,18 @@ in
       #   whoami
       # }
 
-      .lan {
+      lan {
         cancel 1s
-        forward . /etc/resolv.conf
         chaos
-        health
-        cache
         log
+        errors
+        forward . 192.168.0.1
+        cache
       }
 
       . {
         any
-        forward . /etc/resolv.conf 8.8.8.8 1.1.1.1 8.8.4.4 1.0.0.1 9.9.9.9
+        forward . 8.8.8.8 1.1.1.1 8.8.4.4 1.0.0.1 9.9.9.9
         errors
         cache
       }
