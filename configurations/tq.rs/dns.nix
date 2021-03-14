@@ -73,7 +73,11 @@ in
 
       . {
         any
-        forward . 8.8.8.8 1.1.1.1 8.8.4.4 1.0.0.1 9.9.9.9
+        # Forward to my router because of the dns adblock
+        forward . 192.168.0.1 8.8.8.8 1.1.1.1 8.8.4.4 1.0.0.1 9.9.9.9 {
+          prefer_udp
+          policy sequential
+        }
         errors
         cache
       }
