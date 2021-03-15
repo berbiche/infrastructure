@@ -153,11 +153,11 @@ in
       log = {
         # filePath = "${dataDir}/traefik.log";
         # format = "json";
-        level = "DEBUG";
+        level = "info";
       };
       accessLog = {
         # filePath = "${dataDir}/access.log";
-        format = "json";
+        # format = "json";
       };
 
       global.checkNewVersion = true;
@@ -187,7 +187,7 @@ in
 
         routers = {
           dashboard = {
-            rule = "Host(`traefik.${cfg.domain}`)";#" && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))";
+            rule = "Host(`traefik.${cfg.domain}`)";
             entryPoints = [ "websecure" ];
             service = "api@internal";
             middlewares = [ "redirect-dashboard" ] ++ (
@@ -200,6 +200,14 @@ in
               main = cfg.domain;
               sans = [ "traefik.${cfg.domain}" "auth.tq.rs" ];
             }];
+          };
+          proxmox = {
+            rule = "Host(`proxmox.${cfg.domain}`)";
+            entryPoints = [ "websecure" ];
+            service = "proxmox";
+            middlewares = [ "forward-auth" ];
+          } // optionalAttrs cfg.enableACME {
+            tls.certResolver = "cloudflare";
           };
           plex = {
             rule = "Host(`plex.${cfg.domain}`)";
@@ -225,7 +233,16 @@ in
           } // optionalAttrs cfg.enableACME {
             tls.certResolver = "cloudflare";
           };
-        };
+        } // (genAttrs [ "qbittorrent" "sonarr" "radarr" "jackett" ]
+          (n: {
+            rule = "Host(`${n}.tq.rs`)";
+            entryPoints = [ "websecure" ];
+            service = "${n}";
+            middlewares = [ "forward-auth" ];
+          } // optionalAttrs cfg.enableACME {
+            tls.certResolver = "cloudflare";
+          })
+        );
         services.plex = let
           plexPort = 32400;
         in {
@@ -259,9 +276,60 @@ in
         services.traefik-forward-auth = {
           loadBalancer = {
             servers = [{ url = "http://localhost:4181/"; }];
-            healthCheck  ={
+            # healthCheck  ={
+            #   path = "/";
+            #   port = 4181;
+            #   interval = "15s";
+            #   timeout = "3s";
+            # };
+          };
+        };
+        services.proxmox = {
+          loadBalancer = {
+            servers = [{ url = "https://proxmox.node.tq.rs:8006"; }];
+            serversTransport = "proxmox";
+          };
+        };
+        serversTransports.proxmox.insecureSkipVerify = true;
+        services.qbittorrent = {
+          loadBalancer = {
+            servers = [{ url = "http://switch.node.tq.rs:15000"; }];
+            healthCheck = {
               path = "/";
-              port = 4181;
+              port = 15000;
+              interval = "15s";
+              timeout = "3s";
+            };
+          };
+        };
+        services.sonarr = {
+          loadBalancer = {
+            servers = [{ url = "http://switch.node.tq.rs:8989"; }];
+            healthCheck = {
+              path = "/";
+              port = 8989;
+              interval = "15s";
+              timeout = "3s";
+            };
+          };
+        };
+        services.radarr = {
+          loadBalancer = {
+            servers = [{ url = "http://switch.node.tq.rs:7878"; }];
+            healthCheck = {
+              path = "/";
+              port = 7878;
+              interval = "15s";
+              timeout = "3s";
+            };
+          };
+        };
+        services.jackett = {
+          loadBalancer = {
+            servers = [{ url = "http://switch.node.tq.rs:9117"; }];
+            healthCheck = {
+              path = "/";
+              port = 9117;
               interval = "15s";
               timeout = "3s";
             };
@@ -280,7 +348,7 @@ in
       imageDigest = "sha256:69a2c985d2c518b6f0e77161a98628a148a5d964e4e84fc52cc62e19bb4da634";
       finalImageName = "thomseddon/traefik-forward-auth";
       finalImageTag = "2";
-      sha256 = "114c1bgzav6ahs5xbpk054m6sqwc4238b0k0xjmgxfi0szq076ri";
+      sha256 = "sha256-dvRU4PUethX7qEG9lFsmZ65+BT/cobgj8sEXgabs+o4=";
     };
     # Unused because environment secrets cannot be injected as a file
     configFile = pkgs.writeText "traefik-forward-auth-config.txt" ''

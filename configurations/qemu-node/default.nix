@@ -95,6 +95,8 @@ in
       ];
     };
 
+    networking.firewall.trustedInterfaces = [ "ens19" ];
+
     time.timeZone = lib.mkDefault "America/Montreal";
 
     users.users.root.initialPassword = "root";

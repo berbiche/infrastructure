@@ -20,14 +20,23 @@ in
 
           ; A/AAAA records
           @            900 IN A     192.168.0.6
+                       900 IN A     192.168.42.6
           mouse.node   900 IN A     192.168.0.6
+                       900 IN A     192.168.42.6
           apoc.node    900 IN A     192.168.0.7
+                       900 IN A     192.168.42.7
           switch.node  900 IN A     192.168.0.8
+                       900 IN A     192.168.42.8
+          proxmox.node 900 IN A     192.168.0.4
+                       900 IN A     192.168.42.4
+                       900 IN A     192.168.0.3
+                       900 IN A     192.168.42.3
 
           ; CNAME records
           ns           900 IN CNAME @
           www          900 IN CNAME @
           traefik      900 IN CNAME @
+          proxmox      900 IN CNAME @
           plex         900 IN CNAME @
           auth         900 IN CNAME @
           tautulli     900 IN CNAME @
@@ -41,6 +50,7 @@ in
           6            900 IN PTR   ns.tq.rs.
           6            900 IN PTR   www.tq.rs.
           6            900 IN PTR   traefik.tq.rs.
+          6            900 IN PTR   proxmox.tq.rs.
           6            900 IN PTR   auth.tq.rs.
           6            900 IN PTR   plex.tq.rs.
           6            900 IN PTR   qbittorrent.tq.rs.

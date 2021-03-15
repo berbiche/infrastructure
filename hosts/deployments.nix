@@ -32,6 +32,7 @@ rec {
     "apoc"
     "keanu"
     "mouse"
+    "switch"
   ];
 
   deploy.nodes = let
@@ -50,6 +51,7 @@ rec {
       "apoc"
       "keanu"
       "mouse"
+      "switch"
     ];
   in
     lib.recursiveUpdate generatedNodes {

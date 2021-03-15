@@ -4,12 +4,6 @@ let
   cfg = config.configurations.plex;
   plexCfg = config.services.plex;
   tautulliCfg = config.services.tautulli;
-
-  plexPort = 32400;
-
-  sslDirectoryFor = x: config.security.acme.certs."${x}".directory;
-
-  inherit (config.networking) domain hostName;
 in
 {
   options.configurations.plex.enable = lib.mkEnableOption "plex configuration";
@@ -20,9 +14,9 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    boot.supportedFilesystems = [ "nfs" ];
-
     configurations.nfs-mediaserver-mounts.enable = true;
+    configurations.nfs-mediaserver-mounts.mountRO = true;
+    configurations.nfs-mediaserver-mounts.mediaserver.enableBindMount = true;
 
     services.plex = {
       enable = true;
@@ -47,30 +41,6 @@ in
       "127.0.0.1" = [ "plex.tq.rs" "tautulli.tq.rs" ];
       "::1" = [ "plex.tq.rs" "tautulli.tq.rs" ];
     };
-
-    # fileSystems."/metacortex/" = {
-    #   device = "zion.lan:/mnt/metacortex";
-    #   fsType = "nfs";
-    #   noCheck = true;
-    #   options = defaults;
-    # };
-
-    fileSystems."/mediaserver" = {
-      device = "/metacortex";
-      fsType = "none";
-      noCheck = true;
-      options = [
-        "bind"
-        "defaults"
-        "x-systemd.requires=/metacortex"
-        "x-systemd.automount"
-      ];
-    };
-
-    # systemd.services.plex.serviceConfig = {
-    #   SupplementaryGroups = [ config.users.groups.mediaserver.name ];
-    # };
-
     systemd.tmpfiles.rules = [
       "d '${plexCfg.dataDir}' - ${plexCfg.user} ${plexCfg.group} - -"
     ];
@@ -94,8 +64,5 @@ in
     #   gid = 950;
     #   members = [ plexCfg.user ];
     # };
-
-    services.traefik.dynamicConfigOptions = {
-    };
   };
 }

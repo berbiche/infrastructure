@@ -1,4 +1,11 @@
-final: prev: {
+final: prev:
+let
+  unstable = import final.inputs.nixpkgs-unstable {
+    config.allowUnfree = true;
+    inherit (final) system;
+  };
+in
+{
   ngx_http_geoip2_module = prev.stdenv.mkDerivation rec {
     pname = "ngx_http_geoip2_module";
     version = "3.3";
@@ -18,5 +25,13 @@ final: prev: {
     '';
   };
 
-  traefik = final.inputs.nixpkgs-unstable.legacyPackages.${final.system}.traefik;
+  # Traefik's WebUI is broken on 20.09
+  traefik = unstable.traefik;
+
+  # Use the latest versions for these
+  jackett = unstable.jackett;
+  plex = unstable.plex;
+  radarr = unstable.radarr;
+  sonarr = unstable.sonarr;
+  qbittorrent = unstable.qbittorrent;
 }
