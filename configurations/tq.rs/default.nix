@@ -11,13 +11,14 @@ in
   config = lib.mkIf cfg.enable {
     configurations.hosting.enable = true;
     configurations.plex.domain = "plex.tq.rs";
+    configurations.hosting.traefik.domain = "tq.rs";
 
     sops.secrets.ddclient = {
       format = "binary";
       sopsFile = rootPath + "/secrets/tq.rs/ddclient.conf";
     };
     services.ddclient = {
-      enable = false;
+      enable = true;
       configFile = config.sops.secrets.ddclient.path;
     };
     systemd.services.ddclient = {
