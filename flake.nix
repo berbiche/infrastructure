@@ -17,87 +17,11 @@
     sops-nix = inputs.sops-nix.packages.${system};
     terraform = pkgs.terraform_0_14;
 
-    activateNixos = deploy-rs.lib.${system}.activate.nixos;
-
-    makeHost = host: nixpkgs.lib.nixosSystem {
-      inherit system;
-      modules = [
-        inputs.sops-nix.nixosModule
-        (./hosts + "/${host}")
-      ] ++ pkgs.lib.concatLists [
-        (import ./configurations)
-        (import ./modules)
-      ];
-      specialArgs = {
-        inherit self inputs;
-        rootPath = ./.;
-      };
-      pkgs = import nixpkgs {
-        inherit system;
-        overlays = builtins.attrValues self.overlays;
-        config.allowUnfree = true;
-      };
-    };
-  in {
-    nixosConfigurations = {
-      keanu = makeHost "keanu";
-      morpheus = makeHost "morpheus";
-      mouse = makeHost "mouse";
-      apoc = makeHost "apoc";
+    nodesConfigurations = import ./hosts/deployments.nix {
+      inherit inputs system;
     };
 
-    deploy.nodes.morpheus = {
-      sshOpts = [ "-p" "59910" ];
-      #hostname = "morpheus-remote";
-      hostname = "morpheus-remote";
-      fastConnection = false;
-      profilesOrder = [ "system" ];
-      profiles.system = {
-        sshUser = "root";
-        path = activateNixos self.nixosConfigurations.morpheus;
-        user = "root";
-      };
-    };
-
-    deploy.nodes.mouse = {
-      sshOpts = [ "-p" "59910" ];
-      hostname = "proxmox-mouse";
-      fastConnection = false;
-      profilesOrder = [ "system" ];
-      profiles.system = {
-        sshUser = "root";
-        path = activateNixos self.nixosConfigurations.mouse;
-        user = "root";
-      };
-    };
-
-    deploy.nodes.apoc = {
-      sshOpts = [ "-p" "59910" ];
-      hostname = "proxmox-apoc";
-      fastConnection = false;
-      profilesOrder = [ "system" ];
-      profiles.system = {
-        sshUser = "root";
-        user = "root";
-        path = activateNixos self.nixosConfigurations.apoc;
-        autoRollback = false;
-        magicRollback = false;
-      };
-    };
-
-    deploy.nodes.keanu = {
-      sshOpts = [ "-p" "59910" ];
-      hostname = "keanu.ovh";
-      fastConnection = false;
-      profilesOrder = [ "system" ];
-      profiles = {
-        system = {
-          sshUser = "root";
-          path = activateNixos self.nixosConfigurations.keanu;
-          user = "root";
-        };
-      };
-    };
+  in nodesConfigurations // {
 
     packages = import ./bmc-access.nix { inherit nixpkgs; };
 
