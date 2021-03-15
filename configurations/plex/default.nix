@@ -9,18 +9,6 @@ let
 
   sslDirectoryFor = x: config.security.acme.certs."${x}".directory;
 
-  defaults = [
-    "defaults"
-    "ro"
-    "nfsvers=3"
-    "noauto"
-    "x-systemd.automount"
-    "x-systemd.device-timeout=10"
-    "noatime"
-    "timeo=10"
-    # "retry=1000000"
-  ];
-
   inherit (config.networking) domain hostName;
 in
 {
@@ -33,6 +21,8 @@ in
 
   config = lib.mkIf cfg.enable {
     boot.supportedFilesystems = [ "nfs" ];
+
+    configurations.nfs-mediaserver-mounts.enable = true;
 
     services.plex = {
       enable = true;
@@ -57,16 +47,6 @@ in
       "127.0.0.1" = [ "plex.tq.rs" "tautulli.tq.rs" ];
       "::1" = [ "plex.tq.rs" "tautulli.tq.rs" ];
     };
-
-    systemd.mounts = lib.flip map [ "anime" "tv" "movies" ] (x: {
-      # Move the constants below in another file
-      what = "192.168.42.5:/mnt/tank/${x}";
-      where = "/metacortex/${x}";
-      type = "nfs";
-      options = lib.concatStringsSep "," defaults;
-      mountConfig.DirectoryMode = "770";
-      wantedBy = [ "multi-user.target" ];
-    });
 
     # fileSystems."/metacortex/" = {
     #   device = "zion.lan:/mnt/metacortex";
