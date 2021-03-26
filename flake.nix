@@ -35,7 +35,7 @@
         name = "fhs-1";
         targetPkgs = pkgs: [
           pkgs.sops
-          pkgs.terraform_0_14
+          terraform
           pkgs.zlib
         ];
         # Only one line can be in the runScript option
