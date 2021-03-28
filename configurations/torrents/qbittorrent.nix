@@ -16,12 +16,12 @@ in
 
     uid = mkOption {
       type = types.int;
-      default = 1500;
+      default = config.configurations.nfs-mediaserver-mounts.uid;
     };
 
     gid = mkOption {
       type = types.int;
-      default = 1500;
+      default = config.configurations.nfs-mediaserver-mounts.gid;
     };
 
     dataDir = mkOption {

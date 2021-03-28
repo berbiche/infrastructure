@@ -16,6 +16,20 @@ in
       default = "192.168.42.5";
     };
 
+    uid = mkOption {
+      type = types.int;
+      default = 950;
+      readOnly = true;
+      description = "UID of the NFS mounts";
+    };
+
+    gid = mkOption {
+      type = types.int;
+      default = 950;
+      readOnly = true;
+      description = "GID of the NFS mounts";
+    };
+
     mounts = mkOption {
       type = types.attrsOf types.str;
       default = {
@@ -25,7 +39,10 @@ in
       };
       description = ''
         NFS mounts to mount from the TrueNas host.
-        The attribute name is the local directory
+        The attribute name is the local directory.
+        By default, a systemd tmpfiles rule is created for the
+        the folder <path>/metacortex</path> to chown it to
+        the specified GID and UID.
       '';
     };
 
@@ -48,6 +65,13 @@ in
 
   config = mkIf cfg.enable (mkMerge [
     {
+      systemd.tmpfiles.rules = let
+        uid = toString cfg.uid;
+        gid = toString cfg.gid;
+      in [
+        "d '/metacortex' - ${uid} ${gid} - -"
+        "d '/mediaserver' - ${uid} ${gid} - -"
+      ];
       boot.supportedFilesystems = [ "nfs" ];
 
       systemd.mounts = flip mapAttrsToList cfg.mounts (localFS: remoteFS: {
