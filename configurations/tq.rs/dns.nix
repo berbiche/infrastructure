@@ -16,21 +16,16 @@ in
         cancel 1s
         file ${pkgs.writeText "coredns-tq-rs-zone" ''
           @       900 IN SOA   ns.tq.rs.   nicberbiche.gmail.com. (2021031305 3600 600 604800 600)
-                  900 IN NS    ns.tq.rs.
+                  900 IN NS    ns
 
           ; A/AAAA records
-          @            900 IN A     192.168.0.6
-                       900 IN A     192.168.42.6
-          mouse.node   900 IN A     192.168.0.6
-                       900 IN A     192.168.42.6
-          apoc.node    900 IN A     192.168.0.7
-                       900 IN A     192.168.42.7
-          switch.node  900 IN A     192.168.0.8
-                       900 IN A     192.168.42.8
-          proxmox.node 900 IN A     192.168.0.4
-                       900 IN A     192.168.42.4
-                       900 IN A     192.168.0.3
-                       900 IN A     192.168.42.3
+          @                     900 IN A 192.168.0.6
+          mouse.node            900 IN A 192.168.0.6
+          apoc.node             900 IN A 192.168.0.7
+          switch.node           900 IN A 192.168.0.8
+          proxmox.node          900 IN A 192.168.0.4
+          proxmox-morpheus.node 900 IN A 192.168.0.4
+          proxmox-zion.node     900 IN A 192.168.0.3
 
           ; CNAME records
           ns           900 IN CNAME @
@@ -47,6 +42,9 @@ in
           jackett      900 IN CNAME @
 
           ; PTR records
+          3            900 IN PTR   proxmox-zion.node.tq.rs
+          4            900 IN PTR   proxmox.node.tq.rs
+          4            900 IN PTR   proxmox-morpheus.node.tq.rs
           6            900 IN PTR   ns.tq.rs.
           6            900 IN PTR   www.tq.rs.
           6            900 IN PTR   traefik.tq.rs.
