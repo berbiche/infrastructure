@@ -1,3 +1,4 @@
+/*
 resource "cloudflare_zone" "qt_rs" {
   zone = "qt.rs"
   plan = "free"
@@ -57,3 +58,4 @@ resource "cloudflare_record" "www_qt_rs" {
   value   = "qt.rs"
   proxied = false
 }
+*/

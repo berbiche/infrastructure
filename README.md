@@ -73,6 +73,29 @@ Documentation about capabilities:
 
 Retention settings for the dovecot email bucket: 30 days
 
+## Kubernetes deployment
+
+I use Proxmox VMs as Kubernetes nodes.
+
+A base VM template has to be created initially for the nodes used in Terraform.
+
+This is currently done with Terraform's `remote-exec` provisioner but can also be done
+manually:
+
+**OPTIONAL**
+
+1. ssh into an host
+2. Download Ubuntu 20.04 Focal with
+`wget -P /var/lib/vz/template/iso/ https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img`
+3. Create the VM:
+  `qm create 1000 --memory 16384 --net0 virtio,bridge=vmbr0,tag=42 --cpu=host --socket=1 --cores=6 --ostype=other --serial0=socket --vga=serial0 --agent=1 --name="cloudimage-ubuntu-template"`
+4. `qm importdisk 1000 /var/lib/vz/template/iso/focal-server-cloudimg-amd64.img proxthin`
+5. `qm set 1000 --ide2=proxthin:cloudinit --boot=c --bootdisk=scsi0`
+6. `qm set 1000 --scsihw=virtio-scsi-pci --scsi0=proxthin:vm-1000-disk-0`
+7. `qm template 1000`
+
+Where `proxthin` is the name of the LVM thin provisioner on the Proxmox host.
+
 ## NixOS
 
 ### Modules

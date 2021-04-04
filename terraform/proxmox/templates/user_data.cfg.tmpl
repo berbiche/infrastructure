@@ -1,0 +1,77 @@
+#cloud-config
+# -*- mode: yaml -*-
+hostname: ${jsonencode(hostname)}
+fdqn: ${jsonencode(fqdn)}
+
+ssh_deletekeys: 1
+ssh_pwauth: false
+disable_root: false
+manage_etc_hosts: true
+
+package_update: true
+package_upgrade: true
+
+bootcmd:
+  - [ cloud-init-per, once, dirmngr-aptupdate, apt-get, update ]
+  - [ cloud-init-per, once, dirmngr-aptinstall, apt-get, install, dirmngr, -y ]
+  - [ cloud-init-per, once, dirmngr-aptupdate, apt-get, install, gnupg2, -y ]
+
+timezone: ${jsonencode(timezone)}
+locale: en_US.UTF-8
+
+users:
+  - name: nicolas
+    gecos: Nicolas Berbiche
+    primary_group: nicolas
+    groups: sudo, users
+    ssh_authorized_keys:
+      - ${jsonencode(chomp(authorized-key-nicolas))}
+    lock_passwd: false
+    passwd: ${jsonencode(hashed-password)}
+  - name: automation
+    system: true
+    lock_passwd: true
+    ssh_authorized_keys:
+      - ${jsonencode(chomp(authorized-key-automation))}
+    sudo: ALL=(ALL) NOPASSWD:ALL
+
+# growpart:
+#   mode: auto
+#   devices: ['/']
+
+write_files:
+  - path: /etc/sysctl.d/10-ip_forward.conf
+    permissions: '0644'
+    content: |
+      net.ipv4.ip_forward=1
+      net.ipv6.conf.all.forwarding=1
+
+network:
+  version: 2
+  ethernets:
+    eth0:
+      match:
+        macaddress: ${jsonencode(macaddress)}
+      set-name: eth0
+      dhcp4: false
+      dhcp6: true
+      nameservers:
+        addresses: ${jsonencode(nameservers)}
+        search:
+          - lan
+      addresses:
+        - ${jsonencode(ip4)}
+      gateway4: ${jsonencode(gateway4)}
+
+packages:
+  - ca-certificates
+  - apt-transport-https
+  - qemu-guest-agent
+  - dnsutils
+  - curl
+  - software-properties-common
+
+power_state:
+  delay: 'now'
+  mode: reboot
+  message: Configuration completed

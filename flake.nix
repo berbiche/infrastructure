@@ -40,7 +40,10 @@
         ];
         # Only one line can be in the runScript option
         runScript = ''
-          sops exec-env secrets/terraform-backend.yaml bash
+          sops exec-env secrets/terraform-backend.yaml ${pkgs.writeShellScript "fhs-terraform-sops" ''
+            export PS1="\e[0;32m(keanu-shell)\e[m \e[0;34m\w\e[m \e[0;31m$\e[m "
+            exec bash --norc
+          ''}
         '';
       }).env;
 

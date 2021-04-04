@@ -20,7 +20,7 @@ terraform {
 
     cloudflare = {
       source  = "cloudflare/cloudflare"
-      version = "~> 2.0"
+      version = "~> 2.0, != 2.18"
     }
 
     sops = {
@@ -31,6 +31,21 @@ terraform {
     b2 = {
       source  = "Backblaze/b2"
       version = "0.2.1"
+    }
+
+    proxmox = {
+      source  = "Telmate/proxmox"
+      version = "~> 2.6.0"
+    }
+
+    macaddress = {
+      source = "ivoronin/macaddress"
+      version = "0.2.2"
+    }
+
+    random = {
+      source = "hashicorp/random"
+      version = "~> 3.1.0"
     }
   }
 }
