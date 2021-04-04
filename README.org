@@ -133,14 +133,13 @@ host.
    :PROPERTIES:
    :CUSTOM_ID: kubespray
    :END:
-
-#+INCLUDE: "./kubespary/README.org"
+#+INCLUDE: "./kubespray/README.org"
 
 ** NixOS
    :PROPERTIES:
    :CUSTOM_ID: nixos
    :END:
-** Deployment
+*** Deployment
    :PROPERTIES:
    :CUSTOM_ID: deployment
    :END:
