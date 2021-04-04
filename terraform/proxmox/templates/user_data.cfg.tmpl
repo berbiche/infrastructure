@@ -29,6 +29,7 @@ users:
     lock_passwd: false
     passwd: ${jsonencode(hashed-password)}
   - name: automation
+    primary_group: automation
     system: true
     lock_passwd: true
     ssh_authorized_keys:
@@ -62,6 +63,9 @@ network:
       addresses:
         - ${jsonencode(ip4)}
       gateway4: ${jsonencode(gateway4)}
+
+runcmd:
+  - [ chown, 'automation:automation', /home/automation ]
 
 packages:
   - ca-certificates

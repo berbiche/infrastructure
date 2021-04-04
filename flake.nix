@@ -69,6 +69,9 @@
         terraform
         sops-nix.ssh-to-pgp
         pkgs.sops
+        pkgs.python38
+        pkgs.ansible_2_9
+        pkgs.pipenv
       ];
     };
 

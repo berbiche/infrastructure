@@ -31,10 +31,10 @@ and to be able to use the `terraform-provider-b2`.
 - Create a Backblaze bucket and application key for that bucket for the
   Terraform state and update `secrets/terraform-backend.yaml`
 
-All required secrets are public in the appropriate SOPS file in `secrets/`
+All required secrets keys are public in the appropriate SOPS file in `secrets/`
 (but not their values).
 
-- `terraform init terraform/`
+- `cd terraform && terraform init`
 
 ## SOPS Cheatsheet
 
@@ -50,10 +50,6 @@ File is encrypted inline
 $ sops exec-env secrets/some-file bash
 bash-4.4$
 ```
-
-## Deployment
-
-Using deploy-rs, `deploy --`
 
 ## Terraform
 
@@ -75,7 +71,23 @@ Retention settings for the dovecot email bucket: 30 days
 
 ## Kubernetes deployment
 
-I use Proxmox VMs as Kubernetes nodes.
+### Proxmox
+
+I use Proxmox VMs as Kubernetes nodes since I don't have enough baremetal servers.
+
+My VMs are CPU and memory overcommitted.
+
+1. Create a user to access and control Proxmox for Terraform
+
+    ``` console
+    root@proxmox:~# pveum user add terraform@pve --password temporary-password
+    root@proxmox:~# pveum aclmod / -user terraform@pve -role Administrator
+    ```
+
+2. Change the user's password to a strong password generated only for Terraform.
+
+   I had to set the password in the web interface as I couldn't find a way to
+   input the password without it being in the shell's history.
 
 A base VM template has to be created initially for the nodes used in Terraform.
 
@@ -88,7 +100,7 @@ manually:
 2. Download Ubuntu 20.04 Focal with
 `wget -P /var/lib/vz/template/iso/ https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img`
 3. Create the VM:
-  `qm create 1000 --memory 16384 --net0 virtio,bridge=vmbr0,tag=42 --cpu=host --socket=1 --cores=6 --ostype=other --serial0=socket --vga=serial0 --agent=1 --name="cloudimage-ubuntu-template"`
+  `qm create 1000 --memory 16384 --net0 virtio,bridge=vmbr0,tag=42 --cpu=host --socket=1 --cores=6 --ostype=other --serial0=socket --agent=1 --name="cloudimage-ubuntu-template"`
 4. `qm importdisk 1000 /var/lib/vz/template/iso/focal-server-cloudimg-amd64.img proxthin`
 5. `qm set 1000 --ide2=proxthin:cloudinit --boot=c --bootdisk=scsi0`
 6. `qm set 1000 --scsihw=virtio-scsi-pci --scsi0=proxthin:vm-1000-disk-0`
@@ -96,8 +108,16 @@ manually:
 
 Where `proxthin` is the name of the LVM thin provisioner on the Proxmox host.
 
+## Kubespray
+
+See the documentation in `kubespary/README.md`
+
 ## NixOS
+
+## Deployment
+
+Using deploy-rs, `deploy .#mouse --auto-rollback=false` for instance.
 
 ### Modules
 
-I host different services on my NixOS server.
+I host different services on my NixOS VMs.
