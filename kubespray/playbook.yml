@@ -1,0 +1,24 @@
+# One-off roles to be executed on Nodes outside of initial provisioning
+---
+- name: Roles for OpenEBS nodes
+  hosts: openebs-node
+  become: yes
+  become_user: root
+  remote_user: automation
+  tasks:
+    - name: 'Create the Hugepage configuration (at least 1Gb)'
+      copy:
+        dest: /etc/sysctl.d/20-openebs-hugepages.conf
+        mode: '0644'
+        owner: root
+        group: root
+        # Allow for even more hugepages
+        content: |
+          vm.nr_hugepages=1024
+      notify:
+        - Reload sysctl
+  handlers:
+    - name: Reload sysctl
+      become: yes
+      become_user: root
+      command: /usr/sbin/sysctl --system

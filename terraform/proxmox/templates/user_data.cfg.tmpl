@@ -48,10 +48,6 @@ write_files:
     content: |
       net.ipv4.ip_forward=1
       net.ipv6.conf.all.forwarding=1
-  - path: /etc/sysctl.d/10-k8s-hugepages.conf
-    permissions: '0644'
-    content: |
-      vm.nr_hugepages=1024
 
 network:
   version: 2
