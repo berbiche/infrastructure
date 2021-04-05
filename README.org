@@ -82,11 +82,11 @@ Documentation about capabilities:
 
 Retention settings for the dovecot email bucket: 30 days
 
-** Kubernetes deployment
+** Kubernetes
    :PROPERTIES:
    :CUSTOM_ID: kubernetes-deployment
    :END:
-*** Proxmox
+*** Creating nodes inside of Proxmox
     :PROPERTIES:
     :CUSTOM_ID: proxmox
     :END:
@@ -129,11 +129,17 @@ can also be done manually:
 Where =proxthin= is the name of the LVM thin provisioner on the Proxmox
 host.
 
-** Kubespray
+*** Kubespray cluster deployment
    :PROPERTIES:
    :CUSTOM_ID: kubespray
    :END:
 #+INCLUDE: "./kubespray/README.org"
+
+*** Applications
+This requires the [[github:viaduct-ai/kustomize-sops][kustomize-sops plugin]].
+This plugin is automatically exposed in the flake shell.
+
+To encrypt a secret: =sops -i -e k8s/something/overlays/prod/secrets/some-secret= for instance.
 
 ** NixOS
    :PROPERTIES:
