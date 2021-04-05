@@ -87,14 +87,13 @@ resource "proxmox_vm_qemu" "cloud-vms" {
     null_resource.cloud_init_config_files
   ]
 
-  force_recreate_on_change_of = filesha256("${path.module}/templates/user_data.cfg.tmpl")
+  # force_recreate_on_change_of = filesha512("${path.module}/templates/user_data.cfg.tmpl")
 
   os_type = "cloud-init"
   agent = 1
   cicustom = "user=local:snippets/user_data_vm-${var.host}-${count.index}.yml"
   ipconfig0 = "ip=${var.ipv4_addresses[count.index]},gw=${var.ipv4_gateway}"
   nameserver = element(var.nameservers, 0)
-  # nameserver = jsonencode(var.nameservers)
   onboot = true
 
   cpu = "host"

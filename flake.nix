@@ -19,6 +19,7 @@
 
     nodesConfigurations = import ./nixos/hosts/deployments.nix {
       inherit inputs system;
+      rootPath = ./nixos;
     };
 
   in nodesConfigurations // {
@@ -60,9 +61,9 @@
         # ''))
       ];
 
-      sopsPGPKeyDirs = [
-        "./secrets/keys"
-      ];
+      # sopsPGPKeyDirs = [
+      #   "./secrets/keys"
+      # ];
 
       buildInputs = [
         deploy-rs.defaultPackage.${system}

@@ -1,4 +1,4 @@
-{ inputs, system }:
+{ inputs, system, rootPath }:
 
 let
   inherit (inputs) nixpkgs;
@@ -17,8 +17,7 @@ let
     ];
     specialArgs = {
       inherit (inputs) self;
-      inherit inputs;
-      rootPath = ../.;
+      inherit inputs rootPath;
     };
     pkgs = import nixpkgs {
       inherit system;
