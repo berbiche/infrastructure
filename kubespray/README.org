@@ -6,12 +6,6 @@ After deploying the Proxmox VMs, update the =inventory/hosts.yml= file.
 
 To deploy (within the nix environment):
 
-#+begin_example
-  nicolas:keanu.ovh$ cd kubespray/kubespray
-  nicolas:kubespray$ pipenv shell
-  nicolas:kubespray$ ansible-playbook -i ../inventory/hosts.yml cluster.yml -u automation -b --private-key=~/.ssh/automation
-#+end_example
-
 1. Upgrading calico version
    a. Get the latest sha256 of calicoctl of calicocrd
        #+begin_example
@@ -23,4 +17,10 @@ To deploy (within the nix environment):
 #+begin_example
 kubectl apply -f https://docs.projectcalico.org/manifest/calico.yaml
 #+end_example
-3. Reboot server (may be optional)
+3. Run the kubespray ansible playbook
+#+begin_example
+  nicolas:keanu.ovh$ cd kubespray/kubespray
+  nicolas:kubespray$ pipenv shell
+  nicolas:kubespray$ ansible-playbook -i ../inventory/hosts.yml cluster.yml -u automation -b --private-key=~/.ssh/automation
+#+end_example
+3. Reboot physical nodes (optional but was required in my case)
