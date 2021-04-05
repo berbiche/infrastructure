@@ -1,5 +1,5 @@
 creation_rules:
-  - path_regex: secrets/.*$
+  - path_regex: secrets/.*\.(txt|ya?ml)$
     pgp: >-
       31DC3B2FBD6F216874FB823BBA4DE64771F67D4E,
       BD8A6B2B1C125E4B821E2BA5C03C8BEEBE3644EE,
