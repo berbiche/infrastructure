@@ -9,3 +9,5 @@ tmp/
 .direnv/
 *.out
 secrets/world-readable-secrets.nix
+
+kubeconfig

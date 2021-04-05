@@ -3,6 +3,8 @@ calico_version: "v3.18.1"
 calicoctl_binary_checksums:
   amd64:
     v3.18.1: 29d0dc67458c1fb8950b5c157de41045d4f502eb80791d7858c7a6252c2390c1
+calico_crds_archive_checksums:
+  v3.18.1: 4702a887db9014d1c208a4969e1a72e38803d757c2656d3e64376b96e4897556
 
 ## With calico it is possible to distributed routes with border routers of the datacenter.
 ## Warning : enabling router peering will disable calico's default behavior ('node mesh').
@@ -55,10 +57,10 @@ calico_advertise_cluster_ips: true
 # - y.y.y.y/32
 
 # Choose data store type for calico: "etcd" or "kdd" (kubernetes datastore)
-# calico_datastore: "etcd"
+calico_datastore: "kdd"
 
 # Choose Calico iptables backend: "Legacy", "Auto" or "NFT"
-# calico_iptables_backend: "Legacy"
+calico_iptables_backend: "auto"
 
 # Use typha (only with kdd)
 # typha_enabled: false

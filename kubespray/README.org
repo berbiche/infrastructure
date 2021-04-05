@@ -9,5 +9,18 @@ To deploy (within the nix environment):
 #+begin_example
   nicolas:keanu.ovh$ cd kubespray/kubespray
   nicolas:kubespray$ pipenv shell
-  nicolas:kubespray$ ansible-playbook -i ../inventory/hosts.yml cluster.yml -u automation -b -v --private-key=~/.ssh/automation
+  nicolas:kubespray$ ansible-playbook -i ../inventory/hosts.yml cluster.yml -u automation -b --private-key=~/.ssh/automation
 #+end_example
+
+1. Upgrading calico version
+   a. Get the latest sha256 of calicoctl of calicocrd
+       #+begin_example
+       $ wget -q -O- https://github.com/projectcalico/calicoctl/releases/download/${VERSION}/calicoctl-linux-amd64 | sha256sum -
+       $ wget -q -O- https://github.com/projectcalico/calico/archive/${VERSION}.tar.gz | sha256sum -
+       #+end_example
+   b. Update the hashes in =./inventory/group_vars/k8s-cluster/k8s-net-calico.yml=
+2. Download Calico CRD (because it fails for some reason with kubespray)
+#+begin_example
+kubectl apply -f https://docs.projectcalico.org/manifest/calico.yaml
+#+end_example
+3. Reboot server (may be optional)

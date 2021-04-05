@@ -22,6 +22,7 @@ locale: en_US.UTF-8
 users:
   - name: nicolas
     gecos: Nicolas Berbiche
+    shell: /bin/bash
     primary_group: nicolas
     groups: sudo, users
     ssh_authorized_keys:
@@ -30,6 +31,7 @@ users:
     passwd: ${jsonencode(hashed-password)}
   - name: automation
     primary_group: automation
+    shell: /bin/bash
     system: true
     lock_passwd: true
     ssh_authorized_keys:

@@ -72,7 +72,28 @@
         pkgs.python38
         pkgs.ansible_2_9
         pkgs.pipenv
+        pkgs.kubectl
+        pkgs.kubetail
+        pkgs.kubectx
+        (pkgs.runCommandLocal "calico-3.18.1" rec {
+          pname = "calico";
+          version = "3.18.1";
+          src = pkgs.fetchurl {
+            url = "https://github.com/projectcalico/calicoctl/releases/download/v${version}/calicoctl-linux-amd64";
+            hash = "sha256-KdDcZ0WMH7iVC1wVfeQQRdT1AuuAeR14WMemJSwjkME=";
+          };
+        } ''
+          mkdir -p $out/bin
+          install -Dm0755 $src $out/bin/calicoctl
+        '')
       ];
+
+      # For calico
+      DATASTORE_TYPE = "kubernetes";
+
+      shellHook = ''
+        export KUBECONFIG=$PWD/kubespray/inventory/artifacts/admin.conf
+      '';
     };
 
     checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
