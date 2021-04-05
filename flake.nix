@@ -17,15 +17,15 @@
     sops-nix = inputs.sops-nix.packages.${system};
     terraform = pkgs.terraform_0_14;
 
-    nodesConfigurations = import ./hosts/deployments.nix {
+    nodesConfigurations = import ./nixos/hosts/deployments.nix {
       inherit inputs system;
     };
 
   in nodesConfigurations // {
 
-    packages = import ./bmc-access.nix { inherit nixpkgs; };
+    packages = import ./scripts/bmc-access.nix { inherit nixpkgs; };
 
-    overlays.packages = import ./pkgs;
+    overlays.packages = import ./nixos/pkgs;
     overlays.inputs = final: prev: { inherit inputs; };
 
     # FHS for the terraform-provider-b2
