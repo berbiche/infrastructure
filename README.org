@@ -116,6 +116,8 @@ This plugin is automatically exposed in the flake shell.
 
 To encrypt a secret: ~sops -i -e k8s/something/overlays/prod/secrets/some-secret~ for instance.
 
+#+INCLUDE: "./k8s/README.org"
+
 ** NixOS
 *** Deployment
 Using deploy-rs, ~deploy .#mouse --auto-rollback=false~ for instance.

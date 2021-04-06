@@ -13,27 +13,27 @@ Technologies used:
 
 TODO: <https://plantuml.com/nwdiag>
 
-1.  [Initial configuration](#org4b4fd7a)
-    1.  [Configuring the VPS](#org31b147a)
-    2.  [Configuring Terraform](#org7322ff7)
-2.  [SOPS Cheatsheet](#orgd3a90e7)
-3.  [Terraform](#orgbfda07a)
-4.  [Backblaze](#orgedc070f)
-5.  [Kubernetes](#org9f28f7c)
-    1.  [Creating nodes inside of Proxmox](#orgd9c1ae7)
-    2.  [Kubespray cluster deployment](#org1bc3f5c)
-    3.  [Applications](#org2201832)
-6.  [NixOS](#orgf10797b)
-    1.  [Deployment](#org7403a1b)
-    2.  [Modules](#org1280bbc)
+1.  [Initial configuration](#orgd31aefc)
+    1.  [Configuring the VPS](#org9adbfe3)
+    2.  [Configuring Terraform](#org35c8b87)
+2.  [SOPS Cheatsheet](#org405e50a)
+3.  [Terraform](#org2f17697)
+4.  [Backblaze](#orgfe8f405)
+5.  [Kubernetes](#orgb583b27)
+    1.  [Creating nodes inside of Proxmox](#org8564fa4)
+    2.  [Kubespray cluster deployment](#orgbec1cd1)
+    3.  [Applications](#orgabaab64)
+6.  [NixOS](#org9fe45d8)
+    1.  [Deployment](#orgef1204d)
+    2.  [Modules](#orga302395)
 
 
-<a id="org4b4fd7a"></a>
+<a id="orgd31aefc"></a>
 
 ## Initial configuration
 
 
-<a id="org31b147a"></a>
+<a id="org9adbfe3"></a>
 
 ### Configuring the VPS
 
@@ -41,7 +41,7 @@ TODO: <https://plantuml.com/nwdiag>
 -   `nixos-infect` the VPS
 
 
-<a id="org7322ff7"></a>
+<a id="org35c8b87"></a>
 
 ### Configuring Terraform
 
@@ -60,7 +60,7 @@ All required secrets keys are public in the appropriate SOPS file in
 -   `cd terraform && terraform init`
 
 
-<a id="orgd3a90e7"></a>
+<a id="org405e50a"></a>
 
 ## SOPS Cheatsheet
 
@@ -74,7 +74,7 @@ All required secrets keys are public in the appropriate SOPS file in
     bash-4.4$
 
 
-<a id="orgbfda07a"></a>
+<a id="org2f17697"></a>
 
 ## Terraform
 
@@ -88,7 +88,7 @@ its binary and the paths needs to be =patchelf=d.
 Terraform B2 plugin to work.
 
 
-<a id="orgedc070f"></a>
+<a id="orgfe8f405"></a>
 
 ## Backblaze
 
@@ -98,12 +98,12 @@ Documentation about capabilities:
 Retention settings for the dovecot email bucket: 30 days
 
 
-<a id="org9f28f7c"></a>
+<a id="orgb583b27"></a>
 
 ## Kubernetes
 
 
-<a id="orgd9c1ae7"></a>
+<a id="org8564fa4"></a>
 
 ### Creating nodes inside of Proxmox
 
@@ -145,7 +145,7 @@ Where `proxthin` is the name of the LVM thin provisioner on the Proxmox
 host.
 
 
-<a id="org1bc3f5c"></a>
+<a id="orgbec1cd1"></a>
 
 ### Kubespray cluster deployment
 
@@ -183,7 +183,7 @@ host.
         ansible-playbook playbook.yaml
 
 
-<a id="org2201832"></a>
+<a id="orgabaab64"></a>
 
 ### Applications
 
@@ -192,20 +192,38 @@ This plugin is automatically exposed in the flake shell.
 
 To encrypt a secret: `sops -i -e k8s/something/overlays/prod/secrets/some-secret` for instance.
 
+1.  Technologies
 
-<a id="orgf10797b"></a>
+    -   Kustomize to scaffold, modify and apply patches on top of external resources
+    -   Cert-manager to manage certificates
+    -   metallb to manage ip allocation in the cluster
+    -   calico as the CNI
+    -   longhorn for disk and storage provisioning
+    -   ExternalDNS to expose DNS records to Cloudflare
+
+2.  Kustomize
+
+        kustomize build --enable-alpha-plugins something/overlays/prod
+        kustomize build --enable-alpha-plugins something/overlays/prod | kubectl apply -f -
+
+3.  ExternalDNS
+
+    <https://github.com/kubernetes-sigs/external-dns/blob/master/docs/faq.md#are-other-ingress-controllers-supported>
+
+
+<a id="org9fe45d8"></a>
 
 ## NixOS
 
 
-<a id="org7403a1b"></a>
+<a id="orgef1204d"></a>
 
 ### Deployment
 
 Using deploy-rs, `deploy .#mouse --auto-rollback=false` for instance.
 
 
-<a id="org1280bbc"></a>
+<a id="orga302395"></a>
 
 ### Modules
 
