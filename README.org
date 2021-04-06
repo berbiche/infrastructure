@@ -1,6 +1,8 @@
-#+TITLE: My OVH VPS configuration
 #+OPTIONS: toc:nil
 * My OVH VPS configuration
+:PROPERTIES:
+:CUSTOM_ID: TopLevel
+:END:
 
 In this repository resides the configuration for my OVH VPS host.
 
@@ -13,15 +15,28 @@ Technologies used:
 
 TODO: https://plantuml.com/nwdiag
 
-#+TOC: headlines 3 local
+** Table of contents
+:PROPERTIES:
+:CUSTOM_ID: table-of-contents
+:END:
+#+TOC: headlines 3 local :target #TopLevel
 
 ** Initial configuration
+:PROPERTIES:
+:CUSTOM_ID: initial-configuration
+:END:
 
 *** Configuring the VPS
+:PROPERTIES:
+:CUSTOM_ID: configuring-the-vps
+:END:
 - Create a VPS at =$HOSTING_PROVIDER=
 - =nixos-infect= the VPS
 
 *** Configuring Terraform
+:PROPERTIES:
+:CUSTOM_ID: configuring-terraform
+:END:
 Enter the shell with =nix-shell= to get access to all the required
 variables and to be able to use the =terraform-provider-b2=.
 
@@ -37,6 +52,9 @@ All required secrets keys are public in the appropriate SOPS file in
 - ~cd terraform && terraform init~
 
 ** SOPS Cheatsheet
+:PROPERTIES:
+:CUSTOM_ID: sops-cheatsheet
+:END:
 #+begin_example
   $ sops -i secrets/cloudflare.yaml
   edit stuff in $EDITOR
@@ -51,6 +69,9 @@ All required secrets keys are public in the appropriate SOPS file in
 #+end_example
 
 ** Terraform
+:PROPERTIES:
+:CUSTOM_ID: terraform
+:END:
 The Terraform state is managed outside of the repository in a B2 bucket.
 
 Terraform needs to be run from the FHS provided in the flake default
@@ -61,13 +82,22 @@ its binary and the paths needs to be =patchelf=d.
 Terraform B2 plugin to work.
 
 ** Backblaze
+:PROPERTIES:
+:CUSTOM_ID: backblaze
+:END:
 Documentation about capabilities:
 [[https://www.backblaze.com/b2/docs/application_keys.html]]
 
 Retention settings for the dovecot email bucket: 30 days
 
 ** Kubernetes
+:PROPERTIES:
+:CUSTOM_ID: kubernetes
+:END:
 *** Creating nodes inside of Proxmox
+:PROPERTIES:
+:CUSTOM_ID: creating-nodes-inside-of-proxmox
+:END:
 I use Proxmox VMs as Kubernetes nodes since I don't have enough
 baremetal servers.
 
@@ -108,9 +138,15 @@ Where =proxthin= is the name of the LVM thin provisioner on the Proxmox
 host.
 
 *** Kubespray cluster deployment
+:PROPERTIES:
+:CUSTOM_ID: kubespray-cluster-deployment
+:END:
 #+INCLUDE: "./kubespray/README.org"
 
 *** Applications
+:PROPERTIES:
+:CUSTOM_ID: applications
+:END:
 This requires the [[github:viaduct-ai/kustomize-sops][kustomize-sops plugin]].
 This plugin is automatically exposed in the flake shell.
 
@@ -119,8 +155,17 @@ To encrypt a secret: ~sops -i -e k8s/something/overlays/prod/secrets/some-secret
 #+INCLUDE: "./k8s/README.org"
 
 ** NixOS
+:PROPERTIES:
+:CUSTOM_ID: nixos
+:END:
 *** Deployment
+:PROPERTIES:
+:CUSTOM_ID: deployment
+:END:
 Using deploy-rs, ~deploy .#mouse --auto-rollback=false~ for instance.
 
 *** Modules
+:PROPERTIES:
+:CUSTOM_ID: modules
+:END:
 I host different services on my NixOS VMs.
