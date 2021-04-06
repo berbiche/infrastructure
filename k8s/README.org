@@ -1,0 +1,19 @@
+#+TITLE: Kubernetes cluster applications
+
+* Technologies
+- Kustomize to scaffold, modify and apply patches on top of external resources
+- Cert-manager to manage certificates
+- metallb to manage ip allocation in the cluster
+- calico as the CNI
+- longhorn for disk and storage provisioning
+- ExternalDNS to expose DNS records to Cloudflare
+
+* Kustomize
+
+#+begin_example
+kustomize build --enable-alpha-plugins something/overlays/prod
+kustomize build --enable-alpha-plugins something/overlays/prod | kubectl apply -f -
+#+end_example
+
+* ExternalDNS
+https://github.com/kubernetes-sigs/external-dns/blob/master/docs/faq.md#are-other-ingress-controllers-supported
