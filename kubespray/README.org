@@ -15,15 +15,15 @@ To deploy (within the nix environment):
        #+end_example
    b. Update the hashes in =./inventory/group_vars/k8s-cluster/k8s-net-calico.yml=
 2. Download Calico CRD (because it fails for some reason with kubespray)
-#+begin_example
-kubectl apply -f https://docs.projectcalico.org/manifest/calico.yaml
-#+end_example
+    #+begin_example
+    kubectl apply -f https://docs.projectcalico.org/manifest/calico.yaml
+    #+end_example
 3. Run the kubespray ansible playbook
-#+begin_example
-  nicolas:keanu.ovh$ cd kubespray/kubespray
-  nicolas:kubespray$ pipenv shell
-  nicolas:kubespray$ ansible-playbook -i ../inventory/hosts.yaml cluster.yml --become
-#+end_example
+    #+begin_example
+    nicolas:keanu.ovh$ cd kubespray/kubespray
+    nicolas:kubespray$ pipenv shell
+    nicolas:kubespray$ ansible-playbook -i ../inventory/hosts.yaml cluster.yml --become
+    #+end_example
 4. Reboot physical nodes (optional but was required in my case)
 
 * Playbook

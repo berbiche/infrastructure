@@ -153,16 +153,14 @@ host.
                 $ wget -q -O- https://github.com/projectcalico/calico/archive/${VERSION}.tar.gz | sha256sum -
         2.  Update the hashes in `./inventory/group_vars/k8s-cluster/k8s-net-calico.yml`
     2.  Download Calico CRD (because it fails for some reason with kubespray)
-    
-        kubectl apply -f https://docs.projectcalico.org/manifest/calico.yaml
-    
-    1.  Run the kubespray ansible playbook
-    
-        nicolas:keanu.ovh$ cd kubespray/kubespray
-        nicolas:kubespray$ pipenv shell
-        nicolas:kubespray$ ansible-playbook -i ../inventory/hosts.yaml cluster.yml --become
-    
-    1.  Reboot physical nodes (optional but was required in my case)
+        
+            kubectl apply -f https://docs.projectcalico.org/manifest/calico.yaml
+    3.  Run the kubespray ansible playbook
+        
+            nicolas:keanu.ovh$ cd kubespray/kubespray
+            nicolas:kubespray$ pipenv shell
+            nicolas:kubespray$ ansible-playbook -i ../inventory/hosts.yaml cluster.yml --become
+    4.  Reboot physical nodes (optional but was required in my case)
 
 2.  Playbook
 
