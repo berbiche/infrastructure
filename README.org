@@ -1,10 +1,11 @@
 #+OPTIONS: toc:nil
-* My OVH VPS configuration
+* My new infrastructure repository
 :PROPERTIES:
 :CUSTOM_ID: TopLevel
 :END:
 
-In this repository resides the configuration for my OVH VPS host.
+In this repository resides the configuration for my new homelab
+and some of my VPS hosts.
 
 Technologies used:
 
@@ -12,6 +13,7 @@ Technologies used:
 - [[https://github.com/serokel/deploy-rs][deploy-rs]] to deploy my NixOS configuration
 - [[https://terraform.io][Terraform]] for the automated DNS and OVH configuration
 - [[https://www.backblaze.com][Backblaze]] for the cheap object storage
+- [[github:ansible/ansible][Ansible]] for imperative configuration management with tasks, roles, etc.
 
 TODO: https://plantuml.com/nwdiag
 

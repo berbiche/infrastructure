@@ -1,8 +1,9 @@
 
 
-# My OVH VPS configuration
+# My new infrastructure repository
 
-In this repository resides the configuration for my OVH VPS host.
+In this repository resides the configuration for my new homelab
+and some of my VPS hosts.
 
 Technologies used:
 
@@ -10,6 +11,7 @@ Technologies used:
 -   [deploy-rs](https://github.com/serokel/deploy-rs) to deploy my NixOS configuration
 -   [Terraform](https://terraform.io) for the automated DNS and OVH configuration
 -   [Backblaze](https://www.backblaze.com) for the cheap object storage
+-   [Ansible](https://github.com/ansible/ansible) for imperative configuration management with tasks, roles, etc.
 
 TODO: <https://plantuml.com/nwdiag>
 
