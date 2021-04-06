@@ -1,23 +1,4 @@
 
-# Table of Contents
-
-1.  [My OVH VPS configuration](#my-ovh-vps-configuration)
-    1.  [Initial configuration](#initial-configuration)
-        1.  [Configuring the VPS](#configuring-the-vps)
-        2.  [Configuring Terraform](#configuring-terraform)
-    2.  [SOPS Cheatsheet](#sops-cheatsheet)
-    3.  [Terraform](#terraform)
-    4.  [Backblaze](#backblaze)
-    5.  [Kubernetes deployment](#kubernetes-deployment)
-        1.  [Proxmox](#proxmox)
-    6.  [Kubespray](#kubespray)
-        1.  [Kubespray deployment](#kubespray-deployment)
-    7.  [NixOS](#nixos)
-        1.  [Deployment](#deployment)
-        2.  [Modules](#modules)
-
-
-<a id="my-ovh-vps-configuration"></a>
 
 # My OVH VPS configuration
 
@@ -32,13 +13,27 @@ Technologies used:
 
 TODO: <https://plantuml.com/nwdiag>
 
+1.  [Initial configuration](#org4b4fd7a)
+    1.  [Configuring the VPS](#org31b147a)
+    2.  [Configuring Terraform](#org7322ff7)
+2.  [SOPS Cheatsheet](#orgd3a90e7)
+3.  [Terraform](#orgbfda07a)
+4.  [Backblaze](#orgedc070f)
+5.  [Kubernetes](#org9f28f7c)
+    1.  [Creating nodes inside of Proxmox](#orgd9c1ae7)
+    2.  [Kubespray cluster deployment](#org1bc3f5c)
+    3.  [Applications](#org2201832)
+6.  [NixOS](#orgf10797b)
+    1.  [Deployment](#org7403a1b)
+    2.  [Modules](#org1280bbc)
 
-<a id="initial-configuration"></a>
+
+<a id="org4b4fd7a"></a>
 
 ## Initial configuration
 
 
-<a id="configuring-the-vps"></a>
+<a id="org31b147a"></a>
 
 ### Configuring the VPS
 
@@ -46,18 +41,18 @@ TODO: <https://plantuml.com/nwdiag>
 -   `nixos-infect` the VPS
 
 
-<a id="configuring-terraform"></a>
+<a id="org7322ff7"></a>
 
 ### Configuring Terraform
 
 Enter the shell with `nix-shell` to get access to all the required
 variables and to be able to use the `terraform-provider-b2`.
 
--   Get an API token from OVH and update `secrets/ovh.yaml`
--   Get an API token from Cloudflare and update `secrets/cloudflare.yaml`
--   Get an API token from Backblaze and update `secrets/backblaze.yaml`
+-   Get an API token from OVH and update [secrets/ovh.yaml](./secrets/ovh.yaml)
+-   Get an API token from Cloudflare and update [secrets/cloudflare.yaml](./secrets/cloudflare.yaml)
+-   Get an API token from Backblaze and update [secrets/backblaze.yaml](./secrets/backblaze.yaml)
 -   Create a Backblaze bucket and application key for that bucket for the
-    Terraform state and update `secrets/terraform-backend.yaml`
+    Terraform state and update [secrets/terraform-backend.yaml](./secrets/terraform-backend.yaml)
 
 All required secrets keys are public in the appropriate SOPS file in
 `secrets/` (but not their values).
@@ -65,7 +60,7 @@ All required secrets keys are public in the appropriate SOPS file in
 -   `cd terraform && terraform init`
 
 
-<a id="sops-cheatsheet"></a>
+<a id="orgd3a90e7"></a>
 
 ## SOPS Cheatsheet
 
@@ -79,7 +74,7 @@ All required secrets keys are public in the appropriate SOPS file in
     bash-4.4$
 
 
-<a id="terraform"></a>
+<a id="orgbfda07a"></a>
 
 ## Terraform
 
@@ -93,7 +88,7 @@ its binary and the paths needs to be =patchelf=d.
 Terraform B2 plugin to work.
 
 
-<a id="backblaze"></a>
+<a id="orgedc070f"></a>
 
 ## Backblaze
 
@@ -103,14 +98,14 @@ Documentation about capabilities:
 Retention settings for the dovecot email bucket: 30 days
 
 
-<a id="kubernetes-deployment"></a>
+<a id="org9f28f7c"></a>
 
-## Kubernetes deployment
+## Kubernetes
 
 
-<a id="proxmox"></a>
+<a id="orgd9c1ae7"></a>
 
-### Proxmox
+### Creating nodes inside of Proxmox
 
 I use Proxmox VMs as Kubernetes nodes since I don&rsquo;t have enough
 baremetal servers.
@@ -140,7 +135,7 @@ can also be done manually:
 2.  Download Ubuntu 20.04 Focal with
     `wget -P /var/lib/vz/template/iso/ https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img`
 3.  Create the VM:
-    `qm create 1000 --memory 16384 --net0 virtio,bridge=vmbr0,tag=42 --cpu=host --socket=1 --cores=6 --ostype=other --serial0=socket --agent=1 --name`&ldquo;cloudimage-ubuntu-template&rdquo;=
+    `qm create 1000 --memory 16384 --net0 virtio,bridge=vmbr0,tag=42 --cpu=host --socket=1 --cores=6 --ostype=other --serial0=socket --agent=1 --name="cloudimage-ubuntu-template"`
 4.  `qm importdisk 1000 /var/lib/vz/template/iso/focal-server-cloudimg-amd64.img proxthin`
 5.  `qm set 1000 --ide2=proxthin:cloudinit --boot=c --bootdisk=scsi0`
 6.  `qm set 1000 --scsihw=virtio-scsi-pci --scsi0=proxthin:vm-1000-disk-0`
@@ -150,51 +145,67 @@ Where `proxthin` is the name of the LVM thin provisioner on the Proxmox
 host.
 
 
-<a id="kubespray"></a>
+<a id="org1bc3f5c"></a>
 
-## Kubespray
-
-
-<a id="kubespray-deployment"></a>
-
-### Kubespray deployment
-
-After deploying the Proxmox VMs, update the `inventory/hosts.yml` file.
-
-To deploy (within the nix environment):
-
-1.  Upgrading calico version
-    1.  Get the latest sha256 of calicoctl of calicocrd
-        
-            $ wget -q -O- https://github.com/projectcalico/calicoctl/releases/download/${VERSION}/calicoctl-linux-amd64 | sha256sum -
-            $ wget -q -O- https://github.com/projectcalico/calico/archive/${VERSION}.tar.gz | sha256sum -
-    2.  Update the hashes in `./inventory/group_vars/k8s-cluster/k8s-net-calico.yml`
-2.  Download Calico CRD (because it fails for some reason with kubespray)
-
-    kubectl apply -f https://docs.projectcalico.org/manifest/calico.yaml
-
-1.  Run the kubespray ansible playbook
-
-    nicolas:keanu.ovh$ cd kubespray/kubespray
-    nicolas:kubespray$ pipenv shell
-    nicolas:kubespray$ ansible-playbook -i ../inventory/hosts.yml cluster.yml -u automation -b --private-key=~/.ssh/automation
-
-1.  Reboot physical nodes (optional but was required in my case)
+### Kubespray cluster deployment
 
 
-<a id="nixos"></a>
+1.  Kubespray deployment
+
+    After deploying the Proxmox VMs, update the `inventory/hosts.yml` file.
+    
+    Update the `ansible.cfg` and set the private key and user used to authenticate on nodes.
+    
+    To deploy (within the nix environment):
+    
+    1.  Upgrading calico version
+        1.  Get the latest sha256 of calicoctl of calicocrd
+            
+                $ wget -q -O- https://github.com/projectcalico/calicoctl/releases/download/${VERSION}/calicoctl-linux-amd64 | sha256sum -
+                $ wget -q -O- https://github.com/projectcalico/calico/archive/${VERSION}.tar.gz | sha256sum -
+        2.  Update the hashes in `./inventory/group_vars/k8s-cluster/k8s-net-calico.yml`
+    2.  Download Calico CRD (because it fails for some reason with kubespray)
+    
+        kubectl apply -f https://docs.projectcalico.org/manifest/calico.yaml
+    
+    1.  Run the kubespray ansible playbook
+    
+        nicolas:keanu.ovh$ cd kubespray/kubespray
+        nicolas:kubespray$ pipenv shell
+        nicolas:kubespray$ ansible-playbook -i ../inventory/hosts.yaml cluster.yml --become
+    
+    1.  Reboot physical nodes (optional but was required in my case)
+
+2.  Playbook
+
+    A playbook to run after the kubespray deployment is available in `playbook.yaml`.
+    
+        ansible-playbook playbook.yaml
+
+
+<a id="org2201832"></a>
+
+### Applications
+
+This requires the [kustomize-sops plugin](https://github.com/viaduct-ai/kustomize-sops).
+This plugin is automatically exposed in the flake shell.
+
+To encrypt a secret: `sops -i -e k8s/something/overlays/prod/secrets/some-secret` for instance.
+
+
+<a id="orgf10797b"></a>
 
 ## NixOS
 
 
-<a id="deployment"></a>
+<a id="org7403a1b"></a>
 
 ### Deployment
 
 Using deploy-rs, `deploy .#mouse --auto-rollback=false` for instance.
 
 
-<a id="modules"></a>
+<a id="org1280bbc"></a>
 
 ### Modules
 

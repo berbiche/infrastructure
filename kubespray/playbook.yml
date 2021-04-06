@@ -1,18 +1,24 @@
-# One-off roles to be executed on Nodes outside of initial provisioning
 ---
+# - name: Deploy Kubespray
+#   tags: deploy
+#   become: yes
+#   become_user: root
+#   remote_user: automation
+#   include_playbook: kubespray/cluster.yml
+
 - name: Roles for OpenEBS nodes
+  tags: provision
   hosts: openebs-node
   become: yes
   become_user: root
   remote_user: automation
   tasks:
-    - name: 'Create the Hugepage configuration (at least 1Gb)'
+    - name: 'Create the Hugepage configuration (at least 512Mb, creating 1Gb)'
       copy:
         dest: /etc/sysctl.d/20-openebs-hugepages.conf
         mode: '0644'
         owner: root
         group: root
-        # Allow for even more hugepages
         content: |
           vm.nr_hugepages=1024
       notify:

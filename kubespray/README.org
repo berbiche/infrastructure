@@ -1,7 +1,6 @@
+#+TITLE: Kubespray deployment
+
 * Kubespray deployment
-  :PROPERTIES:
-  :CUSTOM_ID: kubespray-deployment
-  :END:
 After deploying the Proxmox VMs, update the =inventory/hosts.yml= file.
 
 Update the =ansible.cfg= and set the private key and user used to authenticate on nodes.

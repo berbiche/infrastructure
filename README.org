@@ -1,7 +1,7 @@
+#+TITLE: My OVH VPS configuration
+#+OPTIONS: toc:nil
 * My OVH VPS configuration
-  :PROPERTIES:
-  :CUSTOM_ID: my-ovh-vps-configuration
-  :END:
+
 In this repository resides the configuration for my OVH VPS host.
 
 Technologies used:
@@ -13,40 +13,30 @@ Technologies used:
 
 TODO: https://plantuml.com/nwdiag
 
-** Initial configuration
-   :PROPERTIES:
-   :CUSTOM_ID: initial-configuration
-   :END:
-*** Configuring the VPS
-    :PROPERTIES:
-    :CUSTOM_ID: configuring-the-vps
-    :END:
+#+TOC: headlines 3 local
 
+** Initial configuration
+
+*** Configuring the VPS
 - Create a VPS at =$HOSTING_PROVIDER=
 - =nixos-infect= the VPS
 
 *** Configuring Terraform
-    :PROPERTIES:
-    :CUSTOM_ID: configuring-terraform
-    :END:
 Enter the shell with =nix-shell= to get access to all the required
 variables and to be able to use the =terraform-provider-b2=.
 
-- Get an API token from OVH and update =secrets/ovh.yaml=
-- Get an API token from Cloudflare and update =secrets/cloudflare.yaml=
-- Get an API token from Backblaze and update =secrets/backblaze.yaml=
+- Get an API token from OVH and update [[./secrets/ovh.yaml][secrets/ovh.yaml]]
+- Get an API token from Cloudflare and update [[./secrets/cloudflare.yaml][secrets/cloudflare.yaml]]
+- Get an API token from Backblaze and update [[./secrets/backblaze.yaml][secrets/backblaze.yaml]]
 - Create a Backblaze bucket and application key for that bucket for the
-  Terraform state and update =secrets/terraform-backend.yaml=
+  Terraform state and update [[./secrets/terraform-backend.yaml][secrets/terraform-backend.yaml]]
 
 All required secrets keys are public in the appropriate SOPS file in
 =secrets/= (but not their values).
 
-- =cd terraform && terraform init=
+- ~cd terraform && terraform init~
 
 ** SOPS Cheatsheet
-   :PROPERTIES:
-   :CUSTOM_ID: sops-cheatsheet
-   :END:
 #+begin_example
   $ sops -i secrets/cloudflare.yaml
   edit stuff in $EDITOR
@@ -61,9 +51,6 @@ All required secrets keys are public in the appropriate SOPS file in
 #+end_example
 
 ** Terraform
-   :PROPERTIES:
-   :CUSTOM_ID: terraform
-   :END:
 The Terraform state is managed outside of the repository in a B2 bucket.
 
 Terraform needs to be run from the FHS provided in the flake default
@@ -74,22 +61,13 @@ its binary and the paths needs to be =patchelf=d.
 Terraform B2 plugin to work.
 
 ** Backblaze
-   :PROPERTIES:
-   :CUSTOM_ID: backblaze
-   :END:
 Documentation about capabilities:
 [[https://www.backblaze.com/b2/docs/application_keys.html]]
 
 Retention settings for the dovecot email bucket: 30 days
 
 ** Kubernetes
-   :PROPERTIES:
-   :CUSTOM_ID: kubernetes-deployment
-   :END:
 *** Creating nodes inside of Proxmox
-    :PROPERTIES:
-    :CUSTOM_ID: proxmox
-    :END:
 I use Proxmox VMs as Kubernetes nodes since I don't have enough
 baremetal servers.
 
@@ -118,41 +96,29 @@ can also be done manually:
 
 1. ssh into an host
 2. Download Ubuntu 20.04 Focal with
-   =wget -P /var/lib/vz/template/iso/ https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img=
+   ~wget -P /var/lib/vz/template/iso/ https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img~
 3. Create the VM:
-   =qm create 1000 --memory 16384 --net0 virtio,bridge=vmbr0,tag=42 --cpu=host --socket=1 --cores=6 --ostype=other --serial0=socket --agent=1 --name="cloudimage-ubuntu-template"=
-4. =qm importdisk 1000 /var/lib/vz/template/iso/focal-server-cloudimg-amd64.img proxthin=
-5. =qm set 1000 --ide2=proxthin:cloudinit --boot=c --bootdisk=scsi0=
-6. =qm set 1000 --scsihw=virtio-scsi-pci --scsi0=proxthin:vm-1000-disk-0=
-7. =qm template 1000=
+   ~qm create 1000 --memory 16384 --net0 virtio,bridge=vmbr0,tag=42 --cpu=host --socket=1 --cores=6 --ostype=other --serial0=socket --agent=1 --name="cloudimage-ubuntu-template"~
+4. ~qm importdisk 1000 /var/lib/vz/template/iso/focal-server-cloudimg-amd64.img proxthin~
+5. ~qm set 1000 --ide2=proxthin:cloudinit --boot=c --bootdisk=scsi0~
+6. ~qm set 1000 --scsihw=virtio-scsi-pci --scsi0=proxthin:vm-1000-disk-0~
+7. ~qm template 1000~
 
 Where =proxthin= is the name of the LVM thin provisioner on the Proxmox
 host.
 
 *** Kubespray cluster deployment
-   :PROPERTIES:
-   :CUSTOM_ID: kubespray
-   :END:
 #+INCLUDE: "./kubespray/README.org"
 
 *** Applications
 This requires the [[github:viaduct-ai/kustomize-sops][kustomize-sops plugin]].
 This plugin is automatically exposed in the flake shell.
 
-To encrypt a secret: =sops -i -e k8s/something/overlays/prod/secrets/some-secret= for instance.
+To encrypt a secret: ~sops -i -e k8s/something/overlays/prod/secrets/some-secret~ for instance.
 
 ** NixOS
-   :PROPERTIES:
-   :CUSTOM_ID: nixos
-   :END:
 *** Deployment
-   :PROPERTIES:
-   :CUSTOM_ID: deployment
-   :END:
-Using deploy-rs, =deploy .#mouse --auto-rollback=false= for instance.
+Using deploy-rs, ~deploy .#mouse --auto-rollback=false~ for instance.
 
 *** Modules
-    :PROPERTIES:
-    :CUSTOM_ID: modules
-    :END:
 I host different services on my NixOS VMs.
