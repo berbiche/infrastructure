@@ -1,0 +1,11 @@
+apiVersion: builtin
+kind: HelmChartInflationGenerator
+metadata:
+  name: traefik
+chartName: traefik
+chartRepoUrl: https://helm.traefik.io/traefik
+chartVersion: v9.18.2
+releaseName: traefik
+releaseNamespace: traefik
+extraArgs:
+  - --include-crds

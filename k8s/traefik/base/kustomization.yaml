@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: traefik
+
+resources:
+  - ./resources/namespace.yaml
+  - ./resources/ingress-class.yaml
+  - ./resources/monitoring.yaml
+  - ./resources/monitoring-rbac.yaml
+
+generators:
+  - ./generators/helm-chart.yaml
+
+patchesStrategicMerge:
+  - ./patches/deployment.yaml
+
+commonLabels:
+  app.kubernetes.io/name: traefik
