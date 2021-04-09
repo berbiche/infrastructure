@@ -80,6 +80,7 @@
         pkgs.kubetail
         pkgs.kubectx
         pkgs.kustomize
+        pkgs.kubernetes-helm
         (pkgs.runCommandLocal "calico-3.18.1" rec {
           pname = "calico";
           version = "3.18.1";
