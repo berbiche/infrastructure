@@ -11,7 +11,6 @@ resources:
 
 configMapGenerator:
   - name: traefik-forward-auth-config
-    namespace: traefik
     files:
       - traefik-forward-auth.ini=configs/traefik-forward-auth.ini
 

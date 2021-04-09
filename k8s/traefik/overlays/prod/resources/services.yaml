@@ -7,8 +7,6 @@ spec:
     - name: dashboard-http
       port: 80
       targetPort: 9000
-  selector:
-    app.kubernetes.io/name: traefik
   type: ClusterIP
 ---
 apiVersion: v1
@@ -20,8 +18,6 @@ spec:
     - name: traefik-forward-auth
       port: 80
       targetPort: 4181
-  selector:
-    app.kubernetes.io/name: traefik
   type: ClusterIP
 ---
 apiVersion: v1
@@ -33,6 +29,4 @@ spec:
     - name: metrics
       port: 9100
       targetPort: traefik
-  selector:
-    app.kubernetes.io/name: traefik
   type: ClusterIP

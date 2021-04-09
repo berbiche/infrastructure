@@ -12,7 +12,7 @@ spec:
     - hosts:
         - traefik.k8s.qt.rs
         - auth.k8s.qt.rs
-      secretName: traefik-k8s-tq-rs-tls
+      secretName: traefik-k8s-qt-rs-tls
   rules:
     - host: traefik.k8s.qt.rs
       http:
