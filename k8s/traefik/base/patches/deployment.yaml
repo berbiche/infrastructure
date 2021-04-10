@@ -21,6 +21,7 @@ spec:
             - "--entryPoints.websecure.address=:8443/tcp"
             - "--api.dashboard=true"
             - "--api.insecure=true"
+            - "--accesslog=true"
             - "--metrics.prometheus=true"
             - "--ping=true"
             - "--providers.kubernetescrd"
