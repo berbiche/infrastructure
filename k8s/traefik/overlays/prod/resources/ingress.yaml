@@ -6,6 +6,9 @@ metadata:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     traefik.ingress.kubernetes.io/router.middlewares: traefik-forward-auth@kubernetescrd
     traefik.ingress.kubernetes.io/router.tls: "true"
+    # Next field is required but doesn't matter
+    external-dns.alpha.kubernetes.io/hostname: auth.k8s.qt.rs
+    external-dns.alpha.kubernetes.io/target: k8s.qt.rs
 spec:
   ingressClassName: traefik
   tls:

@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: external-dns
+spec:
+  template:
+    spec:
+      containers:
+        - name: external-dns
+          args:
+            - --source=service
+            - --source=ingress
+            - --registry=txt
+            - --domain-filter=qt.rs
+            - --zone-id-filter=$(CF_ZONE_ID)
+            - --provider=cloudflare
+            - --txt-prefix=txt-
+            # We are IPv4 natted, our ISP doesn't give us an IPv6 address
+            # and this is an IPv4 only stack so we only publish CNAMEs
+            - --managed-record-types=CNAME
+            # We don't want cloudflare to proxy the request
+            # - --cloudflare-proxied
+          envFrom:
+            - secretRef:
+                name: cloudflare-external-dns-secrets
