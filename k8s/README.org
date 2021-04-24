@@ -37,3 +37,9 @@ For this reason, I chose to use the cStor backend.
 OpenEBS automatically detects disks attached to nodes with [[github:openebs/node-disk-manager][Node Disk Manager]].
 Nodes that serve a storage backend for NDM have a label set on them: ~openebs.io/nodegroup: storage-node~.
 +These nodes additionnaly have a label to identify the OpenEBS engine running on them: ~openebs.io/engine: mayastor~.+
+
+The cStor pool definition will need to be filled out manually.
+After deploying the configuration with ~kustomize build openebs/overlays/prod | kubectl apply -f -~,
+obtain the discovered block devices with ~kubectl get blockdevices~.
+
+The list of block devices name will have to be used in the definition of the cStor pool.
