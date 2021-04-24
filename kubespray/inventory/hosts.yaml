@@ -33,11 +33,12 @@ all:
         node3:
     openebs-node:
       hosts:
-        node1:
         node2:
+        node3:
         node4:
       vars:
         node_labels:
+          openebs.io/nodegroup: storage-node
           openebs.io/engine: mayastor
     k8s-cluster:
       children:
