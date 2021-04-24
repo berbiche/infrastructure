@@ -1,0 +1,15 @@
+apiVersion: builtin
+kind: HelmChartInflationGenerator
+metadata:
+  name: openebs
+chartName: openebs
+chartRepoUrl: https://openebs.github.io/charts
+chartVersion: 2.8.0
+releaseName: openebs
+releaseNamespace: openebs
+extraArgs:
+  - --include-crds
+  # - --set rbac.create=true
+  # - --set rbac.pspEnabled=false
+  # - --set serviceAccount.create=true
+values: ./configs/openebs-helm-chart-values.yaml

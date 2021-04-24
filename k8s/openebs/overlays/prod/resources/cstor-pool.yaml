@@ -1,0 +1,59 @@
+apiVersion: cstor.openebs.io/v1
+kind: CStorPoolCluster
+metadata:
+  name: cstor-raidz-disk-pool
+  annotations:
+    cas.openebs.io/config: |
+spec:
+  resources:
+    requests:
+      memory: "2Gi"
+      cpu: "250m"
+    limits:
+      memory: "4Gi"
+      cpu: "500m"
+  auxResources:
+    requests:
+      memory: "500Mi"
+      cpu: "100m"
+    limits:
+      memory: "1Gi"
+      cpu: "200m"
+  pools:
+    - nodeSelector:
+        kubernetes.io/hostname: node2
+      poolConfig:
+        dataRaidGroupType: stripe
+        compression: lz4
+      dataRaidGroups:
+        - blockDevices:
+          - blockDeviceName: blockdevice-8e64805462d6300a6a7f25699f35df03
+    - nodeSelector:
+        kubernetes.io/hostname: node3
+      poolConfig:
+        dataRaidGroupType: stripe
+        compression: lz4
+      dataRaidGroups:
+        - blockDevices:
+          - blockDeviceName: blockdevice-f0cfa829381a9c2bc5eeee6c1e01d907
+    - nodeSelector:
+        kubernetes.io/hostname: node4
+      poolConfig:
+        dataRaidGroupType: stripe
+        compression: lz4
+      dataRaidGroups:
+        - blockDevices:
+          - blockDeviceName: blockdevice-44a67d14131c0e6d0d0da533bde9d0dd
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: openebs-sc-iscsi
+  annotations:
+    openebs.io/cas-type: cstor
+    cas.openebs.io/config: |
+      - name: StoragePoolClaim
+        value: cstor-raidz-disk-pool
+      - name: ReplicaCount
+        value: "3"
+provisioner: openebs.io/provisioner-iscsi

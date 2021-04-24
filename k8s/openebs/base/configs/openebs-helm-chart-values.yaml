@@ -1,0 +1,61 @@
+# Overrides the stuff we always want and always won't want
+
+rbac:
+  create: true
+  # PSP is deprecated in k8s 1.21
+  pspEnabled: false
+
+serviceAccount:
+  create: true
+
+apiserver:
+  enabled: true
+  sparse:
+    enabled: "false"
+  nodeSelector:
+    openebs.io/nodegroup: storage-node
+
+
+defaultStorageConfig:
+  enabled: "false"
+
+provisioner:
+  enabled: true
+  nodeSelector:
+    openebs.io/nodegroup: storage-node
+
+localprovisioner:
+  enabled: false
+
+snapshotOperator:
+  enabled: true
+  nodeSelector:
+    openebs.io/nodegroup: storage-node
+
+ndm:
+  enabled: true
+  sparse: {}
+  probes:
+    enableSeachest: false
+  nodeSelector:
+    openebs.io/nodegroup: storage-node
+
+ndmOperator:
+  enabled: true
+  nodeSelector:
+    openebs.io/nodegroup: storage-node
+
+webhook:
+  enabled: true
+  nodeSelector:
+    openebs.io/nodegroup: storage-node
+
+crd:
+  enableInstall: true
+
+policies:
+  monitoring:
+    enabled: true
+
+analytics:
+  enabled: false

@@ -1,0 +1,27 @@
+# Overrides the stuff we always want and always won't want
+
+rbac:
+  create: true
+  # PSP is deprecated in k8s 1.21
+  pspEnabled: false
+
+serviceAccount:
+  create: true
+
+# OpenEBS NDM is installed in the other chart
+openebsNDM:
+  enabled: false
+  ndm:
+    nodeSelector:
+      openebs.io/nodegroup: storage-node
+
+# csiController:
+#   nodeSelector:
+#     openebs.io/nodegroup: storage-node
+
+csiNode:
+  nodeSelector:
+    openebs.io/nodegroup: storage-node
+
+analytics:
+  enabled: false
