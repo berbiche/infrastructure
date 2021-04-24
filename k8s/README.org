@@ -16,4 +16,24 @@ kustomize build --enable-alpha-plugins something/overlays/prod | kubectl apply -
 #+end_example
 
 * ExternalDNS
-https://github.com/kubernetes-sigs/external-dns/blob/master/docs/faq.md#are-other-ingress-controllers-supported
+ExternalDNS automatically inserts CNAME entries to ~k8s.qt.rs~ for each ingress I define
+and annotate with the ~external-dns.alpha.kubernetes.io/target: k8s.qt.rs~.
+
+While I could use a generic =*= CNAME entry that points to ~k8s.qt.rs~, I prefer having
+unresolvable domains (this is not a security by obscurity thing, I'd rather have an NX domain than a 404 status page).
+
+Domains that only allow access by administrators (myself) are gated behind a OAuth middleware in Traefik.
+
+* OpenEBS
+I use OpenEBS for storage because I have local disks attached directly to my server (i.e. a "hyper-converged" installation).
+
++I use the Mayastor backend instead of the Jiva/cStor because the performance of the backend seemed good.+
+Mayastor's model currently uses a busy-loop mecanism to ensure events are always processed
+in due time.
+The downside is that it uses a full cpu core on a node, increasing the heat and power usage.
+I observed an increase in power usage of at least 60W using Mayastor on 4 k8s nodes in Proxmox.
+For this reason, I chose to use the cStor backend.
+
+OpenEBS automatically detects disks attached to nodes with [[github:openebs/node-disk-manager][Node Disk Manager]].
+Nodes that serve a storage backend for NDM have a label set on them: ~openebs.io/nodegroup: storage-node~.
++These nodes additionnaly have a label to identify the OpenEBS engine running on them: ~openebs.io/engine: mayastor~.+
