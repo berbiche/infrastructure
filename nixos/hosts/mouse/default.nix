@@ -23,8 +23,7 @@
   configurations.qemu-node = {
     enable = true;
     dnsServers = [ "127.0.0.1" "::1" "8.8.8.8" "8.8.4.4" ];
-    VLAN-1-ipv4CIDR = "192.168.0.6/24";
-    VLAN-1-gateway = "192.168.0.1";
+    VLAN-42-gateway = "192.168.42.1";
     VLAN-42-ipv4CIDR = "192.168.42.6/24";
   };
 

@@ -19,13 +19,14 @@ in
                   900 IN NS    ns
 
           ; A/AAAA records
-          @                     900 IN A 192.168.0.6
-          mouse.node            900 IN A 192.168.0.6
-          apoc.node             900 IN A 192.168.0.7
-          switch.node           900 IN A 192.168.0.8
+          @                     900 IN A 192.168.42.6
+          mouse.node            900 IN A 192.168.42.6
+          apoc.node             900 IN A 192.168.42.7
+          switch.node           900 IN A 192.168.42.8
           proxmox.node          900 IN A 192.168.0.4
           proxmox-morpheus.node 900 IN A 192.168.0.4
           proxmox-zion.node     900 IN A 192.168.0.3
+          truenas.node          900 IN A 192.168.42.5
 
           ; CNAME records
           ns           900 IN CNAME @
@@ -64,26 +65,24 @@ in
         }
         chaos
         health :8080
+        errors
         cache
         log
       }
-      # 192.168.0.0/24 192.168.42.0/24 {
-      #   whoami
-      # }
 
       lan {
         cancel 1s
         chaos
         log
         errors
-        forward . 192.168.0.1
+        forward . 192.168.42.1
         cache
       }
 
       . {
         any
         # Forward to my router because of the dns adblock
-        forward . 192.168.0.1 8.8.8.8 1.1.1.1 8.8.4.4 1.0.0.1 9.9.9.9 {
+        forward . 192.168.42.1 8.8.8.8 1.1.1.1 8.8.4.4 1.0.0.1 9.9.9.9 {
           prefer_udp
           policy sequential
         }
