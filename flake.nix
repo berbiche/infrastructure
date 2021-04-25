@@ -81,6 +81,8 @@
         pkgs.kubectx
         pkgs.kustomize
         pkgs.kubernetes-helm
+        pkgs.jsonnet
+        pkgs.jsonnet-bundler
         (pkgs.runCommandLocal "calico-3.18.1" rec {
           pname = "calico";
           version = "3.18.1";
@@ -101,9 +103,6 @@
           kubectl completion bash > $out/share/bash-completions/completions/kubectl
           chmod +x $out/share/zsh/site-functions/_kubectl $out/share/bash-completions/completions/kubectl
         '');
-
-      # For calico
-      DATASTORE_TYPE = "kubernetes";
 
       shellHook = ''
         export KUBECONFIG=$PWD/kubespray/inventory/artifacts/admin.conf

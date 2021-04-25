@@ -8,6 +8,9 @@ tmp/
 *.tfstate*
 .direnv/
 *.out
-secrets/world-readable-secrets.nix
 
+# Should never be committed
 kubeconfig
+
+# Jsonnet
+vendor/
