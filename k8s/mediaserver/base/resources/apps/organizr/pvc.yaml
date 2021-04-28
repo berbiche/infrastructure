@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: organizr-config
+  labels:
+    app.kubernetes.io/name: organizr
+spec:
+  storageClassName: openebs-sc-iscsi
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi

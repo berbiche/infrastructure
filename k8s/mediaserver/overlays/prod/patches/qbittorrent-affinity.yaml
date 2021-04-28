@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qbittorrent-movies
+  labels:
+    app.kubernetes.io/name: qbittorrent-movies
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: qbittorrent-movies
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: qbittorrent-movies
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - qbittorrent-anime
+              topologyKey: kubernetes.io/hostname
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qbittorrent-anime
+  labels:
+    app.kubernetes.io/name: qbittorrent-anime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: qbittorrent-anime
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: qbittorrent-anime
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - qbittorrent-movies
+              topologyKey: kubernetes.io/hostname

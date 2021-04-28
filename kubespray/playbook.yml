@@ -28,3 +28,17 @@
       become: yes
       become_user: root
       command: /usr/sbin/sysctl --system
+
+- name: Roles for all nodes
+  hosts: k8s-cluster
+  become: yes
+  become_user: root
+  remote_user: automation
+  tasks:
+    - name: 'Install missing packages'
+      apt:
+        pkg:
+          - nfs-common
+          - open-iscsi
+        state: present
+        update_cache: yes

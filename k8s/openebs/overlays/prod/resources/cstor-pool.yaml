@@ -2,8 +2,7 @@ apiVersion: cstor.openebs.io/v1
 kind: CStorPoolCluster
 metadata:
   name: cstor-raidz-disk-pool
-  annotations:
-    cas.openebs.io/config: |
+  namespace: openebs
 spec:
   resources:
     requests:
@@ -44,16 +43,3 @@ spec:
       dataRaidGroups:
         - blockDevices:
           - blockDeviceName: blockdevice-44a67d14131c0e6d0d0da533bde9d0dd
----
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: openebs-sc-iscsi
-  annotations:
-    openebs.io/cas-type: cstor
-    cas.openebs.io/config: |
-      - name: StoragePoolClaim
-        value: cstor-raidz-disk-pool
-      - name: ReplicaCount
-        value: "3"
-provisioner: openebs.io/provisioner-iscsi

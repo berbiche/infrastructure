@@ -12,8 +12,8 @@ apiserver:
   enabled: true
   sparse:
     enabled: "false"
-  nodeSelector:
-    openebs.io/nodegroup: storage-node
+  # nodeSelector:
+  #   openebs.io/nodegroup: storage-node
 
 
 defaultStorageConfig:
@@ -21,16 +21,16 @@ defaultStorageConfig:
 
 provisioner:
   enabled: true
-  nodeSelector:
-    openebs.io/nodegroup: storage-node
+  # nodeSelector:
+  #   openebs.io/nodegroup: storage-node
 
 localprovisioner:
   enabled: false
 
 snapshotOperator:
   enabled: true
-  nodeSelector:
-    openebs.io/nodegroup: storage-node
+  # nodeSelector:
+  #   openebs.io/nodegroup: storage-node
 
 ndm:
   enabled: true
@@ -47,8 +47,8 @@ ndmOperator:
 
 webhook:
   enabled: true
-  nodeSelector:
-    openebs.io/nodegroup: storage-node
+  # nodeSelector:
+  #   openebs.io/nodegroup: storage-node
 
 crd:
   enableInstall: true

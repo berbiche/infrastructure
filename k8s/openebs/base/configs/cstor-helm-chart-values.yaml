@@ -15,13 +15,5 @@ openebsNDM:
     nodeSelector:
       openebs.io/nodegroup: storage-node
 
-# csiController:
-#   nodeSelector:
-#     openebs.io/nodegroup: storage-node
-
-csiNode:
-  nodeSelector:
-    openebs.io/nodegroup: storage-node
-
 analytics:
   enabled: false

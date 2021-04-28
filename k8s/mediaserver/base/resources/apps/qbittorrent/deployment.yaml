@@ -1,0 +1,144 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qbittorrent-anime
+  labels:
+    app.kubernetes.io/name: qbittorrent-anime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: qbittorrent-anime
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: qbittorrent-anime
+    spec:
+      containers:
+        - name: qbittorrent
+          image: linuxserver/qbittorrent:latest
+          imagePullPolicy: Always
+          ports:
+            - name: "http"
+              containerPort: 8080
+              protocol: TCP
+            - name: "bt-tcp"
+              containerPort: 31136
+              protocol: TCP
+            - name: "bt-udp"
+              containerPort: 31136
+              protocol: UDP
+          volumeMounts:
+            - name: qbittorrent-config-anime
+              mountPath: /config
+            - name: data
+              mountPath: /data
+            - name: mediaserver-anime
+              mountPath: /mediaserver/anime
+          envFrom:
+            - configMapRef:
+                name: mediaserver-permissions
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "2Gi"
+            limits:
+              cpu: "2000m"
+              memory: "4Gi"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 5
+      volumes:
+        - name: qbittorrent-config-anime
+          persistentVolumeClaim:
+            claimName: qbittorrent-config-anime
+        - name: mediaserver-anime
+          persistentVolumeClaim:
+            claimName: mediaserver-anime
+        - name: data
+          emptyDir: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qbittorrent-movies
+  labels:
+    app.kubernetes.io/name: qbittorrent-movies
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: qbittorrent-movies
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: qbittorrent-movies
+    spec:
+      containers:
+        - name: qbittorrent
+          image: linuxserver/qbittorrent:latest
+          imagePullPolicy: Always
+          ports:
+            - name: "http"
+              containerPort: 8080
+              protocol: TCP
+            - name: "bt-tcp"
+              containerPort: 31137
+              protocol: TCP
+            - name: "bt-udp"
+              containerPort: 31137
+              protocol: UDP
+          volumeMounts:
+            - name: qbittorrent-config-movies
+              mountPath: /config
+            - name: data
+              mountPath: /data
+            - name: mediaserver-movies
+              mountPath: /mediaserver/movies
+            - name: mediaserver-tv
+              mountPath: /mediaserver/tv
+          envFrom:
+            - configMapRef:
+                name: mediaserver-permissions
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "2Gi"
+            limits:
+              cpu: "2000m"
+              memory: "4Gi"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 5
+      volumes:
+        - name: qbittorrent-config-movies
+          persistentVolumeClaim:
+            claimName: qbittorrent-config-movies
+        - name: mediaserver-movies
+          persistentVolumeClaim:
+            claimName: mediaserver-movies
+        - name: mediaserver-tv
+          persistentVolumeClaim:
+            claimName: mediaserver-tv
+        - name: data
+          emptyDir: {}

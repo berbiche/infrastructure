@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: mediaserver
+
+resources:
+  - ./resources/namespace.yaml
+  - ./resources/apps/jackett
+  - ./resources/apps/qbittorrent
+  - ./resources/apps/radarr
+  - ./resources/apps/sonarr
+  # - ./resources/apps/tautulli
+  - ./resources/apps/organizr

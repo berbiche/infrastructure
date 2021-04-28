@@ -7,3 +7,4 @@ resources:
   - ../../base
   # - ./resources/mayastor-pool.yaml
   - ./resources/cstor-pool.yaml
+  - ./resources/storage-class.yaml

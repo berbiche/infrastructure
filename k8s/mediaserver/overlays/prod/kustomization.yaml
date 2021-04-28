@@ -1,0 +1,37 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: mediaserver
+
+resources:
+- ../../base
+- ./resources/ingress.yaml
+- ./resources/nfs-volume.yaml
+- ./resources/nfs-pvc.yaml
+
+patchesStrategicMerge:
+- ./patches/qbittorrent-affinity.yaml
+
+images:
+- name: linuxserver/jackett
+  newTag: latest
+- name: linuxserver/radarr
+  newTag: latest
+- name: linuxserver/sonarr
+  newTag: latest
+- name: linuxserver/qbittorrent
+  newTag: version-14.3.4.99202104180633-7350-2c8f322afubuntu20.04.1
+- name: linuxserver/tautulli
+  newTag: latest
+- name: linuxserver/organizr
+  newTag: latest
+
+configMapGenerator:
+  - name: mediaserver-permissions
+    literals:
+      - PUID=950
+      - PGID=950
+  # - name: plex-env-vars
+  #   literals:
+  #   - TZ=America/Toronto
+  #   - ADVERTISE_IP=https://plex.qt.rs/

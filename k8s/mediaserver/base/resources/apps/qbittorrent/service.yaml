@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: qbittorrent
+  labels:
+    app.kubernetes.io/name: qbittorrent
+spec:
+  ports:
+    - name: http
+      protocol: TCP
+      targetPort: 8080
+      port: 80
+  selector:
+    app.kubernetes.io/name: qbittorrent
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qbt-anime-v4
+  labels:
+    app.kubernetes.io/name: qbittorrent
+  annotations:
+    metallb.universe.tf/allow-shared-ip: "mediaserver-qbt-v4"
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  ports:
+    - name: bt
+      protocol: TCP
+      targetPort: 31136
+      port: 31136
+  selector:
+    app.kubernetes.io/name: qbittorrent
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qbt-anime-v4
+  labels:
+    app.kubernetes.io/name: qbittorrent
+  annotations:
+    metallb.universe.tf/allow-shared-ip: "mediaserver-qbt-v4"
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  ports:
+    - name: bt
+      protocol: UDP
+      targetPort: 31136
+      port: 31136
+  selector:
+    app.kubernetes.io/name: qbittorrent
