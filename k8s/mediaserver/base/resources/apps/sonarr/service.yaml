@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: sonarr
+  name: sonarr-anime
   labels:
-    app.kubernetes.io/name: sonarr
+    app.kubernetes.io/name: sonarr-anime
 spec:
   ports:
     - name: http
@@ -11,5 +11,21 @@ spec:
       targetPort: 8989
       port: 80
   selector:
-    app.kubernetes.io/name: sonarr
+    app.kubernetes.io/name: sonarr-anime
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sonarr-tv
+  labels:
+    app.kubernetes.io/name: sonarr-tv
+spec:
+  ports:
+    - name: http
+      protocol: TCP
+      targetPort: 8989
+      port: 80
+  selector:
+    app.kubernetes.io/name: sonarr-tv
   type: ClusterIP

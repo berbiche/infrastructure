@@ -1,21 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: qbittorrent-config-anime
-  labels:
-    app.kubernetes.io/name: qbittorrent
-spec:
-  storageClassName: openebs-sc-iscsi
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 2Gi
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: qbittorrent-config-movies
+  name: qbittorrent-config
   labels:
     app.kubernetes.io/name: qbittorrent
 spec:

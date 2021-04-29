@@ -17,7 +17,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: qbt-anime-v4
+  name: qbt-tcp-v4
   labels:
     app.kubernetes.io/name: qbittorrent
   annotations:
@@ -36,7 +36,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: qbt-anime-v4
+  name: qbt-udp-v4
   labels:
     app.kubernetes.io/name: qbittorrent
   annotations:

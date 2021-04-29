@@ -11,23 +11,32 @@ spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - sonarr.k8s.qt.rs
+        - sonarr-anime.k8s.qt.rs
+        - sonarr-tv.k8s.qt.rs
         - radarr.k8s.qt.rs
         - jackett.k8s.qt.rs
         - tautulli.k8s.qt.rs
+        - qbittorrent.k8s.qt.rs
       secretName: mediaserver-k8s-qt-rs
-    - hosts:
-        - '*.qbittorrent.k8s.qt.rs'
-      secretName: qbittorrent-k8s-qt-rs
   rules:
-    - host: sonarr.k8s.qt.rs
+    - host: sonarr-anime.k8s.qt.rs
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: sonarr
+                name: sonarr-anime
+                port:
+                  name: http
+    - host: sonarr-tv.k8s.qt.rs
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: sonarr-tv
                 port:
                   name: http
     - host: radarr.k8s.qt.rs
@@ -50,24 +59,14 @@ spec:
                 name: jackett
                 port:
                   name: http
-    - host: 1.qbittorrent.k8s.qt.rs
+    - host: qbittorrent.k8s.qt.rs
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: qbittorrent-anime
-                port:
-                  name: http
-    - host: 2.qbittorrent.k8s.qt.rs
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: qbittorrent-movies
+                name: qbittorrent
                 port:
                   name: http
     - host: tautulli.k8s.qt.rs

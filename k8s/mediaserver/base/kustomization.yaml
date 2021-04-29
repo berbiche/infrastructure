@@ -9,5 +9,5 @@ resources:
   - ./resources/apps/qbittorrent
   - ./resources/apps/radarr
   - ./resources/apps/sonarr
-  # - ./resources/apps/tautulli
-  - ./resources/apps/organizr
+  - ./resources/apps/tautulli
+  # - ./resources/apps/organizr

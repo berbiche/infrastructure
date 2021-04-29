@@ -1,9 +1,23 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: sonarr-config
+  name: sonarr-config-anime
   labels:
-    app.kubernetes.io/name: sonarr
+    app.kubernetes.io/name: sonarr-anime
+spec:
+  storageClassName: openebs-sc-iscsi
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sonarr-config-tv
+  labels:
+    app.kubernetes.io/name: sonarr-tv
 spec:
   storageClassName: openebs-sc-iscsi
   accessModes:

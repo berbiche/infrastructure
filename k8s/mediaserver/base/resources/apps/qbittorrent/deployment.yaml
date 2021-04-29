@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: qbittorrent-anime
+  name: qbittorrent
   labels:
-    app.kubernetes.io/name: qbittorrent-anime
+    app.kubernetes.io/name: qbittorrent
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: qbittorrent-anime
+      app.kubernetes.io/name: qbittorrent
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: qbittorrent-anime
+        app.kubernetes.io/name: qbittorrent
     spec:
       containers:
         - name: qbittorrent
@@ -29,80 +29,12 @@ spec:
               containerPort: 31136
               protocol: UDP
           volumeMounts:
-            - name: qbittorrent-config-anime
+            - name: qbittorrent-config
               mountPath: /config
             - name: data
               mountPath: /data
             - name: mediaserver-anime
               mountPath: /mediaserver/anime
-          envFrom:
-            - configMapRef:
-                name: mediaserver-permissions
-          resources:
-            requests:
-              cpu: "500m"
-              memory: "2Gi"
-            limits:
-              cpu: "2000m"
-              memory: "4Gi"
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 8080
-            periodSeconds: 10
-            failureThreshold: 3
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 8080
-            initialDelaySeconds: 60
-            periodSeconds: 10
-            failureThreshold: 5
-      volumes:
-        - name: qbittorrent-config-anime
-          persistentVolumeClaim:
-            claimName: qbittorrent-config-anime
-        - name: mediaserver-anime
-          persistentVolumeClaim:
-            claimName: mediaserver-anime
-        - name: data
-          emptyDir: {}
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: qbittorrent-movies
-  labels:
-    app.kubernetes.io/name: qbittorrent-movies
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: qbittorrent-movies
-  template:
-    metadata:
-      labels:
-        app.kubernetes.io/name: qbittorrent-movies
-    spec:
-      containers:
-        - name: qbittorrent
-          image: linuxserver/qbittorrent:latest
-          imagePullPolicy: Always
-          ports:
-            - name: "http"
-              containerPort: 8080
-              protocol: TCP
-            - name: "bt-tcp"
-              containerPort: 31137
-              protocol: TCP
-            - name: "bt-udp"
-              containerPort: 31137
-              protocol: UDP
-          volumeMounts:
-            - name: qbittorrent-config-movies
-              mountPath: /config
-            - name: data
-              mountPath: /data
             - name: mediaserver-movies
               mountPath: /mediaserver/movies
             - name: mediaserver-tv
@@ -116,7 +48,7 @@ spec:
               memory: "2Gi"
             limits:
               cpu: "2000m"
-              memory: "4Gi"
+              memory: "6Gi"
           readinessProbe:
             httpGet:
               path: /
@@ -131,14 +63,17 @@ spec:
             periodSeconds: 10
             failureThreshold: 5
       volumes:
-        - name: qbittorrent-config-movies
+        - name: qbittorrent-config
           persistentVolumeClaim:
-            claimName: qbittorrent-config-movies
+            claimName: qbittorrent-config
+        - name: data
+          emptyDir: {}
+        - name: mediaserver-anime
+          persistentVolumeClaim:
+            claimName: mediaserver-anime
         - name: mediaserver-movies
           persistentVolumeClaim:
             claimName: mediaserver-movies
         - name: mediaserver-tv
           persistentVolumeClaim:
             claimName: mediaserver-tv
-        - name: data
-          emptyDir: {}
