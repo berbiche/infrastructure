@@ -33,26 +33,26 @@ spec:
           envFrom:
             - configMapRef:
                 name: mediaserver-permissions
-          # resources:
-          #   requests:
-          #     cpu: "100m"
-          #     memory: "250Mi"
-          #   limits:
-          #     cpu: "100m"
-          #     memory: "500Mi"
-          # readinessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: 80
-          #   periodSeconds: 10
-          #   failureThreshold: 3
-          # livenessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: 80
-          #   initialDelaySeconds: 600
-          #   periodSeconds: 10
-          #   failureThreshold: 5
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "250Mi"
+            limits:
+              cpu: "500m"
+              memory: "500Mi"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 600
+            periodSeconds: 10
+            failureThreshold: 5
       volumes:
         - name: organizr-config
           persistentVolumeClaim:

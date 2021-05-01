@@ -11,32 +11,21 @@ spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - sonarr-anime.k8s.qt.rs
-        - sonarr-tv.k8s.qt.rs
+        - sonarr.k8s.qt.rs
         - radarr.k8s.qt.rs
         - jackett.k8s.qt.rs
         - tautulli.k8s.qt.rs
         - qbittorrent.k8s.qt.rs
       secretName: mediaserver-k8s-qt-rs
   rules:
-    - host: sonarr-anime.k8s.qt.rs
+    - host: sonarr.k8s.qt.rs
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: sonarr-anime
-                port:
-                  name: http
-    - host: sonarr-tv.k8s.qt.rs
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: sonarr-tv
+                name: sonarr
                 port:
                   name: http
     - host: radarr.k8s.qt.rs

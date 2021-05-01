@@ -1,55 +1,13 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mediaserver-anime
+  name: mediaserver
   labels:
-    app.kubernetes.io/name: mediaserver-anime
+    app.kubernetes.io/name: mediaserver
 spec:
   storageClassName: ""
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: 15Ti
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mediaserver-movies
-  labels:
-    app.kubernetes.io/name: mediaserver-movies
-spec:
-  storageClassName: ""
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 3Ti
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mediaserver-tv
-  labels:
-    app.kubernetes.io/name: mediaserver-tv
-spec:
-  storageClassName: ""
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 2Ti
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mediaserver-music
-  labels:
-    app.kubernetes.io/name: mediaserver-music
-spec:
-  storageClassName: ""
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 1Ti
+      storage: 23Ti

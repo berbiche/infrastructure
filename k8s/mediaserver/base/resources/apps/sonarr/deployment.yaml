@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sonarr-anime
+  name: sonarr
   labels:
-    app.kubernetes.io/name: sonarr-anime
+    app.kubernetes.io/name: sonarr
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: sonarr-anime
+      app.kubernetes.io/name: sonarr
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: sonarr-anime
+        app.kubernetes.io/name: sonarr
     spec:
       containers:
         - name: sonarr
@@ -27,8 +27,8 @@ spec:
               mountPath: /config
             - name: data
               mountPath: /data
-            - name: mediaserver-anime
-              mountPath: /mediaserver/anime
+            - name: mediaserver
+              mountPath: /mediaserver
           envFrom:
             - configMapRef:
                 name: mediaserver-permissions
@@ -55,73 +55,10 @@ spec:
       volumes:
         - name: sonarr-config
           persistentVolumeClaim:
-            claimName: sonarr-config-anime
+            claimName: sonarr-config
         - name: data
-          emptyDir: {}
-        - name: mediaserver-anime
           persistentVolumeClaim:
-            claimName: mediaserver-anime
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: sonarr-tv
-  labels:
-    app.kubernetes.io/name: sonarr-tv
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: sonarr-tv
-  template:
-    metadata:
-      labels:
-        app.kubernetes.io/name: sonarr-tv
-    spec:
-      containers:
-        - name: sonarr
-          image: linuxserver/sonarr:latest
-          imagePullPolicy: Always
-          ports:
-            - name: "http"
-              containerPort: 8989
-              protocol: TCP
-          volumeMounts:
-            - name: sonarr-config
-              mountPath: /config
-            - name: data
-              mountPath: /data
-            - name: mediaserver-tv
-              mountPath: /mediaserver/tv
-          envFrom:
-            - configMapRef:
-                name: mediaserver-permissions
-          resources:
-            requests:
-              cpu: "250m"
-              memory: "250Mi"
-            limits:
-              cpu: "500m"
-              memory: "500Mi"
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 8989
-            periodSeconds: 10
-            failureThreshold: 3
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 8989
-            initialDelaySeconds: 60
-            periodSeconds: 10
-            failureThreshold: 5
-      volumes:
-        - name: sonarr-config
+            claimName: mediaserver
+        - name: mediaserver
           persistentVolumeClaim:
-            claimName: sonarr-config-tv
-        - name: data
-          emptyDir: {}
-        - name: mediaserver-tv
-          persistentVolumeClaim:
-            claimName: mediaserver-tv
+            claimName: mediaserver

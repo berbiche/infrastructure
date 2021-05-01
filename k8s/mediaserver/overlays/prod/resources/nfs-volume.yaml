@@ -1,79 +1,19 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: mediaserver-anime
+  name: mediaserver
 spec:
   accessModes:
     - ReadWriteMany
   claimRef:
-    name: mediaserver-anime
+    name: mediaserver
     namespace: mediaserver
   persistentVolumeReclaimPolicy: Retain
   nfs:
-    path: /mnt/tank/anime
+    path: /mnt/tank/media
     server: truenas.node.tq.rs
     readOnly: false
   mountOptions:
     - vers=3
   capacity:
-    storage: 15Ti
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: mediaserver-movies
-spec:
-  accessModes:
-    - ReadWriteMany
-  claimRef:
-    name: mediaserver-movies
-    namespace: mediaserver
-  persistentVolumeReclaimPolicy: Retain
-  nfs:
-    path: /mnt/tank/movies
-    server: truenas.node.tq.rs
-    readOnly: false
-  mountOptions:
-    - vers=3
-  capacity:
-    storage: 3Ti
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: mediaserver-tv
-spec:
-  accessModes:
-    - ReadWriteMany
-  claimRef:
-    name: mediaserver-tv
-    namespace: mediaserver
-  persistentVolumeReclaimPolicy: Retain
-  nfs:
-    path: /mnt/tank/tv
-    server: truenas.node.tq.rs
-    readOnly: false
-  mountOptions:
-    - vers=3
-  capacity:
-    storage: 2Ti
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: mediaserver-music
-spec:
-  accessModes:
-    - ReadWriteMany
-  claimRef:
-    name: mediaserver-music
-    namespace: mediaserver
-  persistentVolumeReclaimPolicy: Retain
-  nfs:
-    path: /mnt/tank/music
-    server: truenas.node.tq.rs
-    readOnly: false
-  mountOptions:
-    - vers=3
-  capacity:
-    storage: 1Ti
+    storage: 23Ti

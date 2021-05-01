@@ -27,22 +27,18 @@ spec:
               mountPath: /config
             - name: data
               mountPath: /data
-            - name: mediaserver-anime
-              mountPath: /mediaserver/anime
-            - name: mediaserver-movies
-              mountPath: /mediaserver/movies
-            - name: mediaserver-tv
-              mountPath: /mediaserver/tv
+            - name: mediaserver
+              mountPath: /mediaserver
           envFrom:
             - configMapRef:
                 name: mediaserver-permissions
-          # resources:
-          #   requests:
-          #     cpu: "100m"
-          #     memory: "250Mi"
-          #   limits:
-          #     cpu: "100m"
-          #     memory: "500Mi"
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "250Mi"
+            limits:
+              cpu: "500m"
+              memory: "500Mi"
           readinessProbe:
             httpGet:
               path: /
@@ -57,17 +53,12 @@ spec:
             periodSeconds: 10
             failureThreshold: 5
       volumes:
-        - name: mediaserver-anime
-          persistentVolumeClaim:
-            claimName: mediaserver-anime
-        - name: mediaserver-movies
-          persistentVolumeClaim:
-            claimName: mediaserver-movies
-        - name: mediaserver-tv
-          persistentVolumeClaim:
-            claimName: mediaserver-tv
         - name: radarr-config
           persistentVolumeClaim:
             claimName: radarr-config
         - name: data
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: mediaserver
+        - name: mediaserver
+          persistentVolumeClaim:
+            claimName: mediaserver
