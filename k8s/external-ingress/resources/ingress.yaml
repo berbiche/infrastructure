@@ -1,0 +1,36 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: traefik-external-tq-rs-https
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: 'HostSNI(`*.tq.rs`)'
+      kind: Rule
+      services:
+        - name: traefik-external-tq-rs
+          port: 443
+          passHostHeader: true
+          # proxyProtocol:
+          #   version: 2
+  tls:
+    passthrough: true
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-external-tq-rs-http
+spec:
+  entryPoints:
+    - web
+  routes:
+    - kind: Rule
+      match: 'Host(`*.tq.rs`)'
+      services:
+        - kind: Service
+          name: traefik-external-tq-rs-
+          port: 80
+          passHostHeader: true
+          # proxyProtocol:
+          #   version: 2
