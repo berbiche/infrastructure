@@ -258,36 +258,10 @@ in
             };
           };
         };
-        services.tautulli = let
-          tautulliPort = config.services.tautulli.port;
-        in {
-          loadBalancer = {
-            servers = [
-              { url = "http://apoc.node.tq.rs:${toString tautulliPort}/"; }
-            ];
-            healthCheck = {
-              path = "/";
-              port = tautulliPort;
-              interval = "15s";
-              timeout = "3s";
-            };
-          };
-        };
         services.traefik-forward-auth = {
           loadBalancer = {
+            # No healthcheck because it doesn't work correctly
             servers = [{ url = "http://localhost:4181/"; }];
-            # healthCheck  ={
-            #   path = "/";
-            #   port = 4181;
-            #   interval = "15s";
-            #   timeout = "3s";
-            # };
-          };
-        };
-        services.proxmox = {
-          loadBalancer = {
-            servers = [{ url = "https://proxmox.node.tq.rs:8006"; }];
-            serversTransport = "proxmox";
           };
         };
         serversTransports.proxmox.insecureSkipVerify = true;
@@ -297,39 +271,6 @@ in
             healthCheck = {
               path = "/";
               port = 15000;
-              interval = "15s";
-              timeout = "3s";
-            };
-          };
-        };
-        services.sonarr = {
-          loadBalancer = {
-            servers = [{ url = "http://switch.node.tq.rs:8989"; }];
-            healthCheck = {
-              path = "/";
-              port = 8989;
-              interval = "15s";
-              timeout = "3s";
-            };
-          };
-        };
-        services.radarr = {
-          loadBalancer = {
-            servers = [{ url = "http://switch.node.tq.rs:7878"; }];
-            healthCheck = {
-              path = "/";
-              port = 7878;
-              interval = "15s";
-              timeout = "3s";
-            };
-          };
-        };
-        services.jackett = {
-          loadBalancer = {
-            servers = [{ url = "http://switch.node.tq.rs:9117"; }];
-            healthCheck = {
-              path = "/";
-              port = 9117;
               interval = "15s";
               timeout = "3s";
             };

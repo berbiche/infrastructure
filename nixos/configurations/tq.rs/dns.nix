@@ -15,7 +15,7 @@ in
         prometheus localhost:9253
         cancel 1s
         file ${pkgs.writeText "coredns-tq-rs-zone" ''
-          @       900 IN SOA   ns.tq.rs.   nicberbiche.gmail.com. (2021031305 3600 600 604800 600)
+          @       900 IN SOA   ns.tq.rs.   nicberbiche.gmail.com. (2021050201 3600 600 604800 600)
                   900 IN NS    ns
 
           ; A/AAAA records
@@ -23,9 +23,9 @@ in
           mouse.node            900 IN A 192.168.42.6
           apoc.node             900 IN A 192.168.42.7
           switch.node           900 IN A 192.168.42.8
-          proxmox.node          900 IN A 192.168.0.4
-          proxmox-morpheus.node 900 IN A 192.168.0.4
-          proxmox-zion.node     900 IN A 192.168.0.3
+          proxmox.node          900 IN A 192.168.42.4
+          proxmox-morpheus.node 900 IN A 192.168.42.4
+          proxmox-zion.node     900 IN A 192.168.42.3
           truenas.node          900 IN A 192.168.42.5
 
           ; CNAME records
@@ -47,20 +47,15 @@ in
           4            900 IN PTR   proxmox.node.tq.rs
           4            900 IN PTR   proxmox-morpheus.node.tq.rs
           6            900 IN PTR   ns.tq.rs.
-          6            900 IN PTR   www.tq.rs.
           6            900 IN PTR   traefik.tq.rs.
           6            900 IN PTR   proxmox.tq.rs.
           6            900 IN PTR   auth.tq.rs.
           6            900 IN PTR   plex.tq.rs.
           6            900 IN PTR   qbittorrent.tq.rs.
-          6            900 IN PTR   rtorrent.tq.rs.
-          6            900 IN PTR   sonarr.tq.rs.
-          6            900 IN PTR   radarr.tq.rs.
-          6            900 IN PTR   jackett.tq.rs.
           6            900 IN PTR   mouse.node.tq.rs.
           7            900 IN PTR   apoc.node.tq.rs.
           8            900 IN PTR   switch.node.tq.rs.
-        ''} tq.rs 42.168.192.in-addr.arpa 0.168.192.in-addr.arpa {
+        ''} tq.rs 42.168.192.in-addr.arpa {
           reload 0
         }
         chaos
