@@ -1,36 +1,59 @@
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRouteTCP
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
-  name: traefik-external-tq-rs-https
+  name: plex
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.middlewares: external-ingress-plex-cors@kubernetescrd
+    traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
-  entryPoints:
-    - websecure
-  routes:
-    - match: 'HostSNI(`*.tq.rs`)'
-      kind: Rule
-      services:
-        - name: traefik-external-tq-rs
-          port: 443
-          passHostHeader: true
-          # proxyProtocol:
-          #   version: 2
+  ingressClassName: traefik
   tls:
-    passthrough: true
+    - hosts:
+        - plex.tq.rs
+        - qbittorrent.tq.rs
+        - proxmox.node.tq.rs
+      secretName: media-tq-rs
+  rules:
+    - host: plex.tq.rs
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: plex-tq-rs
+                port:
+                  name: http
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
-  name: traefik-external-tq-rs-http
+  name: qbittorrent-proxmox
+  annotations:
+    # Certs provisioned above
+    traefik.ingress.kubernetes.io/router.middlewares: traefik-forward-auth@kubernetescrd
+    traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
-  entryPoints:
-    - web
-  routes:
-    - kind: Rule
-      match: 'Host(`*.tq.rs`)'
-      services:
-        - kind: Service
-          name: traefik-external-tq-rs-
-          port: 80
-          passHostHeader: true
-          # proxyProtocol:
-          #   version: 2
+  ingressClassName: traefik
+  rules:
+    - host: qbittorrent.tq.rs
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: qbittorrent-tq-rs
+                port:
+                  name: http
+    - host: proxmox.node.tq.rs
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: proxmox-tq-rs
+                port:
+                  name: https
