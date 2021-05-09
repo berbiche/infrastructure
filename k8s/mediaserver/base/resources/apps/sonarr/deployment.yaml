@@ -57,8 +57,7 @@ spec:
           persistentVolumeClaim:
             claimName: sonarr-config
         - name: data
-          persistentVolumeClaim:
-            claimName: mediaserver
+          emptyDir: {}
         - name: mediaserver
           persistentVolumeClaim:
             claimName: mediaserver

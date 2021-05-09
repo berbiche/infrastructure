@@ -57,8 +57,7 @@ spec:
           persistentVolumeClaim:
             claimName: radarr-config
         - name: data
-          persistentVolumeClaim:
-            claimName: mediaserver
+          emptyDir: {}
         - name: mediaserver
           persistentVolumeClaim:
             claimName: mediaserver

@@ -63,8 +63,7 @@ spec:
           persistentVolumeClaim:
             claimName: qbittorrent-config
         - name: data
-          persistentVolumeClaim:
-            claimName: mediaserver-anime
+          emptyDir: {}
         - name: mediaserver
           persistentVolumeClaim:
-            claimName: mediaserver-anime
+            claimName: mediaserver

@@ -23,8 +23,8 @@ images:
   newTag: version-14.3.4.99202104180633-7350-2c8f322afubuntu20.04.1
 - name: linuxserver/tautulli
   newTag: latest
-# - name: linuxserver/organizr
-#   newTag: latest
+- name: organizr/organizr
+  newTag: latest
 
 configMapGenerator:
   - name: mediaserver-permissions
