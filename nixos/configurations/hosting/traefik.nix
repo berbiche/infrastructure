@@ -42,12 +42,6 @@ let
     # Secure headers middleware
     security = {
       headers = {
-
-        #   map $scheme $hsts_header {
-        #       https "max-age=31536000; includeSubdomains; preload"
-        #   }
-        #   add_header Strict-Transport-Security $hsts_header
-
         # Remove origin information in referrer header
         # Minimize information leaked to other domains
         referrerPolicy = "origin-when-cross-origin";

@@ -33,9 +33,7 @@ in
     mounts = mkOption {
       type = types.attrsOf types.str;
       default = {
-        "/metacortex/anime" = "/mnt/tank/anime";
-        "/metacortex/movies" = "/mnt/tank/movies";
-        "/metacortex/tv" = "/mnt/tank/tv";
+        "/mediaserver" = "/mnt/tank/media";
       };
       description = ''
         NFS mounts to mount from the TrueNas host.
@@ -85,20 +83,34 @@ in
       });
     }
     (mkIf cfg.mediaserver.enableBindMount {
-      systemd.mounts = flip mapAttrsToList cfg.mounts (localFS: _: {
-        what = localFS;
-        where = "/mediaserver/${builtins.baseNameOf localFS}";
+      systemd.mounts = [{
+        what = "/mediaserver";
+        where = "/metacortex";
         type = "none";
         options = concatStringsSep "," [
           "bind"
           "defaults"
           "noauto"
-          "x-systemd.requires-mounts-for=${localFS}"
+          "x-systemd.requires-mounts-for=/mediaserver"
           "x-systemd.automount"
         ];
         mountConfig.DirectoryMode = "770";
         wantedBy = [ "multi-user.target" ];
-      });
+      }];
+      # systemd.mounts = flip mapAttrsToList cfg.mounts (localFS: _: {
+      #   what = localFS;
+      #   where = "/mediaserver/${builtins.baseNameOf localFS}";
+      #   type = "none";
+      #   options = concatStringsSep "," [
+      #     "bind"
+      #     "defaults"
+      #     "noauto"
+      #     "x-systemd.requires-mounts-for=${localFS}"
+      #     "x-systemd.automount"
+      #   ];
+      #   mountConfig.DirectoryMode = "770";
+      #   wantedBy = [ "multi-user.target" ];
+      # });
     })
   ]);
 }

@@ -23,14 +23,6 @@ in
       openFirewall = false;
     };
 
-    services.tautulli = rec {
-      enable = true;
-      user = "tautulli";
-      group = "tautulli";
-      dataDir = "/var/lib/tautulli";
-      configFile = "${dataDir}/config.ini";
-    };
-
     networking.firewall = {
       # Default port
       allowedTCPPorts = [ tautulliCfg.port 32400 ];
@@ -38,21 +30,13 @@ in
       allowedUDPPorts = [ 5353 32410 32412 32413 32414 ];
     };
     networking.hosts = {
-      "127.0.0.1" = [ "plex.tq.rs" "tautulli.tq.rs" ];
-      "::1" = [ "plex.tq.rs" "tautulli.tq.rs" ];
+      "127.0.0.1" = [ "plex.tq.rs" ];
+      "::1" = [ "plex.tq.rs" ];
     };
     systemd.tmpfiles.rules = [
       "d '${plexCfg.dataDir}' - ${plexCfg.user} ${plexCfg.group} - -"
     ];
 
-    users.users.${tautulliCfg.user} = {
-      uid = 951;
-      isSystemUser = true;
-      group = tautulliCfg.group;
-    };
-    users.groups.${tautulliCfg.group} = {
-      gid = 951;
-    };
     users.users.${plexCfg.user}.uid = lib.mkForce 950;
     users.groups.${plexCfg.group}.gid = lib.mkForce 950;
     # users.users.${plexCfg.user}.extraGroups = [ config.users.groups.mediaserver.name ];

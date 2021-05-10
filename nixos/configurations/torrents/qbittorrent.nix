@@ -40,17 +40,6 @@ in
       "d '${cfgQbit.dataDir}' - ${toString cfgQbit.uid} ${toString cfgQbit.gid} - -"
     ];
 
-    # systemd.services.qbittorrent = {
-    #   description = "";
-    #   after = [ "network.target" ];
-    #   wantedBy = [ "multi-user.target" ];
-    #   environment.CURL_CA_BUNDLE = config.environment.etc."ssl/certs/ca-certificates.crt".source;
-    #   # qbittorrent-nox --profile=${qFolder} --relative-fastresume # fastresume files are relative to the profile directory
-    #   serviceConfig = {
-
-    #   };
-    # };
-
     networking.firewall.allowedTCPPorts = [ cfgQbit.port webuiPort ];
     networking.firewall.allowedUDPPorts = [ cfgQbit.port ];
 
@@ -79,7 +68,7 @@ in
       volumes = [
         "${cfgQbit.dataDir}:/config"
         "${cfgQbit.downloadDirectory}:${cfgQbit.downloadDirectory}:rbind"
-        "/dev/null:/downloads"
+        "${cfgQbit.downloadDirectory}:/downloads"
       ];
 
       # user = "${toString cfgQbit.uid}:${toString cfgQbit.gid}";
@@ -100,9 +89,7 @@ in
 
     systemd.services.podman-qbittorrent = rec {
       requires = [
-        "mediaserver-anime.mount"
-        "mediaserver-tv.mount"
-        "mediaserver-movies.mount"
+        "mediaserver.mount"
       ];
       after = requires;
     };
