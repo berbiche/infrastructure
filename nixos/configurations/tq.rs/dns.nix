@@ -15,18 +15,18 @@ in
         prometheus localhost:9253
         cancel 1s
         file ${pkgs.writeText "coredns-tq-rs-zone" ''
-          @       900 IN SOA   ns.tq.rs.   nicberbiche.gmail.com. (2021050201 3600 600 604800 600)
+          @       900 IN SOA   ns.tq.rs.   nicberbiche.gmail.com. (2021062501 3600 600 604800 600)
                   900 IN NS    ns
 
           ; A/AAAA records
-          @                     900 IN A 192.168.42.6
-          mouse.node            900 IN A 192.168.42.6
-          apoc.node             900 IN A 192.168.42.7
-          switch.node           900 IN A 192.168.42.8
-          proxmox.node          900 IN A 192.168.42.4
-          proxmox-morpheus.node 900 IN A 192.168.42.4
-          proxmox-zion.node     900 IN A 192.168.42.3
-          truenas.node          900 IN A 192.168.42.5
+          @                     900 IN A 10.97.42.6
+          mouse.node            900 IN A 10.97.42.6
+          apoc.node             900 IN A 10.97.42.7
+          switch.node           900 IN A 10.97.42.8
+          proxmox.node          900 IN A 10.97.42.4
+          proxmox-morpheus.node 900 IN A 10.97.42.4
+          proxmox-zion.node     900 IN A 10.97.42.3
+          truenas.node          900 IN A 10.97.42.5
 
           ; CNAME records
           ns           900 IN CNAME @
@@ -35,12 +35,6 @@ in
           proxmox      900 IN CNAME @
           plex         900 IN CNAME @
           auth         900 IN CNAME @
-          tautulli     900 IN CNAME @
-          qbittorrent  900 IN CNAME @
-          rtorrent     900 IN CNAME @
-          sonarr       900 IN CNAME @
-          radarr       900 IN CNAME @
-          jackett      900 IN CNAME @
 
           ; PTR records
           3            900 IN PTR   proxmox-zion.node.tq.rs
@@ -51,11 +45,10 @@ in
           6            900 IN PTR   proxmox.tq.rs.
           6            900 IN PTR   auth.tq.rs.
           6            900 IN PTR   plex.tq.rs.
-          6            900 IN PTR   qbittorrent.tq.rs.
           6            900 IN PTR   mouse.node.tq.rs.
           7            900 IN PTR   apoc.node.tq.rs.
           8            900 IN PTR   switch.node.tq.rs.
-        ''} tq.rs 42.168.192.in-addr.arpa {
+        ''} tq.rs 42.97.10.in-addr.arpa {
           reload 0
         }
         chaos
@@ -70,14 +63,14 @@ in
         chaos
         log
         errors
-        forward . 192.168.42.1
+        forward . 10.97.42.1
         cache
       }
 
       . {
         any
         # Forward to my router because of the dns adblock
-        forward . 192.168.42.1 8.8.8.8 1.1.1.1 8.8.4.4 1.0.0.1 9.9.9.9 {
+        forward . 10.97.42.1 8.8.8.8 1.1.1.1 8.8.4.4 1.0.0.1 9.9.9.9 {
           prefer_udp
           policy sequential
         }

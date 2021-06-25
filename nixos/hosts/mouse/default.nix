@@ -22,9 +22,9 @@
 
   configurations.qemu-node = {
     enable = true;
-    dnsServers = [ "127.0.0.1" "::1" "8.8.8.8" "8.8.4.4" ];
-    VLAN-42-gateway = "192.168.42.1";
-    VLAN-42-ipv4CIDR = "192.168.42.6/24";
+    dnsServers = [ "127.0.0.1" "::1" "10.97.42.1" "8.8.8.8" "8.8.4.4" ];
+    VLAN-42-gateway = "10.97.42.1";
+    VLAN-42-ipv4CIDR = "10.97.42.6/24";
   };
 
   # We use coredns

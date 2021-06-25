@@ -37,16 +37,6 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: qbittorrent.tq.rs
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: qbittorrent-tq-rs
-                port:
-                  name: http
     - host: proxmox.node.tq.rs
       http:
         paths:

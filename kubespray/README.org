@@ -20,9 +20,8 @@ To deploy (within the nix environment):
     #+end_example
 3. Run the kubespray ansible playbook
     #+begin_example
-    nicolas:keanu.ovh$ cd kubespray/kubespray
-    nicolas:kubespray$ pipenv shell
-    nicolas:kubespray$ ansible-playbook -i ../inventory/hosts.yaml cluster.yml --become
+    nicolas:keanu.ovh$ cd kubespray
+    nicolas:kubespray$ ansible-playbook cluster.yml --become
     #+end_example
 4. Reboot physical nodes (optional but was required in my case)
 

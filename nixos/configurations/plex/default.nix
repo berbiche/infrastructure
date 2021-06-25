@@ -9,6 +9,7 @@ in
   options.configurations.plex.enable = lib.mkEnableOption "plex configuration";
   options.configurations.plex.domain = lib.mkOption {
     type = lib.types.str;
+    default = "plex.tq.rs";
     example = "plex.example.com";
     description = "The domain Plex will be bound to by Traefik";
   };
@@ -30,8 +31,8 @@ in
       allowedUDPPorts = [ 5353 32410 32412 32413 32414 ];
     };
     networking.hosts = {
-      "127.0.0.1" = [ "plex.tq.rs" ];
-      "::1" = [ "plex.tq.rs" ];
+      "127.0.0.1" = [ cfg.domain ];
+      "::1" = [ cfg.domain ];
     };
     systemd.tmpfiles.rules = [
       "d '${plexCfg.dataDir}' - ${plexCfg.user} ${plexCfg.group} - -"
