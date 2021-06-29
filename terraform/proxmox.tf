@@ -1,3 +1,7 @@
+locals {
+  ipv4_prefix = "10.97.42"
+}
+
 module "proxmox" {
   source = "./proxmox"
 
@@ -6,9 +10,9 @@ module "proxmox" {
   ssh_private_key_path = pathexpand("~/.ssh/keanu.ovh")
   node_count           = 3
   thinpool             = "proxthin"
-  ipv4_addresses       = [for s in range(4): "192.168.42.${50 + s}/24"]
-  ipv4_gateway         = "192.168.42.1"
-  nameservers          = [ "192.168.42.6", "192.168.42.1" ]
+  ipv4_addresses       = [for s in range(4): "${local.ipv4_prefix}.${50 + s}/24"]
+  ipv4_gateway         = "${local.ipv4_prefix}.1"
+  nameservers          = [ "${local.ipv4_prefix}.1" ]
 
   secrets = {
     hashed_password = data.sops_file.proxmox-secrets.data["k8s-node-nicolas-hashed-password"]
@@ -23,9 +27,9 @@ module "proxmox" {
 #   ssh_private_key_path = file("~/.ssh/keanu.ovh")
 #   node_count           = 3
 #   thinpool             = "proxthin"
-#   ipv4_addresses       = [for s in range(4): "192.168.42.${60 + s}/24"]
-#   ipv4_gateway         = "192.168.42.1"
-#   nameservers          = [ "192.168.42.6", "192.168.42.1" ]
+#   ipv4_addresses       = [for s in range(4): "${local.ipv4_prefix}.${60 + s}/24"]
+#   ipv4_gateway         = "${local.ipv4_prefix}.1"
+#   nameservers          = [ "${local.ipv4_prefix}.6", "${local.ipv4_prefix}.1" ]
 
 #   secrets = {
 #     hashed_password = data.sops_file.proxmox-secrets.data["k8s-node-nicolas-hashed-password"]
