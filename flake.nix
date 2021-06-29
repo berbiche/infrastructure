@@ -3,6 +3,7 @@
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-20.09";
   inputs.nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable-small";
+  inputs.nixpkgs-kustomize-3.url = "github:NixOS/nixpkgs/f294808d544abb5ef701738887138ea8ed9a9dd3";
   inputs.deploy-rs.url = "github:serokell/deploy-rs";
   inputs.flake-compat = { url = "github:edolstra/flake-compat"; flake = false; };
   # Secret management
@@ -13,7 +14,11 @@
 
   outputs = inputs@{ self, nixpkgs, deploy-rs, ... }: let
     system = "x86_64-linux";
-    pkgs = inputs.nixpkgs-unstable.legacyPackages.${system};
+
+    pkgs = import inputs.nixpkgs-unstable {
+      inherit system;
+      overlays = builtins.attrValues self.overlays;
+    };
     sops-nix = inputs.sops-nix.packages.${system};
     terraform = pkgs.terraform_0_14;
 
@@ -42,16 +47,17 @@
 
   in nodesConfigurations // {
 
-    packages = import ./scripts/bmc-access.nix { inherit nixpkgs; } // {
+    apps = import ./scripts/bmc-access.nix { inherit nixpkgs; } // {
       # nix run .#terraform-fhs
-      # nix run (because defaultPackage)
+      # nix run
       ${system}.terraform-fhs = terraformFHS // { meta.mainProgram = "fhs-1"; };
     };
 
     overlays.packages = import ./nixos/pkgs;
     overlays.inputs = final: prev: { inherit inputs; };
-
-    defaultPackage.${system} = self.packages.${system}.terraform-fhs;
+    overlays.kustomize-3 = final: prev: {
+      kustomize = inputs.nixpkgs-kustomize-3.legacyPackages.${system}.kustomize;
+    };
 
     devShell.x86_64-linux = pkgs.mkShell {
       nativeBuildInputs = [

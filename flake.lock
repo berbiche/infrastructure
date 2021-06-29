@@ -90,6 +90,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-kustomize-3": {
+      "locked": {
+        "lastModified": 1612945143,
+        "narHash": "sha256-NosDSWYCXDdgxT3CiqLoXuylb4pc5d0AV0AQCgPtCuM=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "f294808d544abb5ef701738887138ea8ed9a9dd3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "f294808d544abb5ef701738887138ea8ed9a9dd3",
+        "type": "github"
+      }
+    },
     "nixpkgs-unstable": {
       "locked": {
         "lastModified": 1620078665,
@@ -158,6 +174,7 @@
         "deploy-rs": "deploy-rs",
         "flake-compat": "flake-compat_2",
         "nixpkgs": "nixpkgs_2",
+        "nixpkgs-kustomize-3": "nixpkgs-kustomize-3",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "simple-nixos-mailserver": "simple-nixos-mailserver",
         "sops-nix": "sops-nix"
