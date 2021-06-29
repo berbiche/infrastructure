@@ -40,7 +40,7 @@ TODO: https://plantuml.com/nwdiag
 :PROPERTIES:
 :CUSTOM_ID: configuring-terraform
 :END:
-Enter the shell with =nix-shell= to get access to all the required
+Enter the shell with =nix run .#terraform-fhs= to get access to all the required
 variables and to be able to use the =terraform-provider-b2=.
 
 - Get an API token from OVH and update [[./secrets/ovh.yaml][secrets/ovh.yaml]]

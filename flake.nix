@@ -29,8 +29,8 @@
 
     # FHS for the terraform-provider-b2
     # because writing a derivation is complex (it embeds a python binary generated with pyinstaller)
-    terraformFHS = (pkgs.buildFHSUserEnv {
-      name = "fhs-1";
+    terraformFHS = pkgs.buildFHSUserEnv {
+      name = "terraform-keanu-fhs";
       targetPkgs = pkgs: [
         pkgs.sops
         terraform
@@ -43,14 +43,23 @@
           exec bash --norc
         ''}
       '';
-    });
+    } // {
+      meta.mainProgram = terraformFHS.name;
+    };
 
   in nodesConfigurations // {
 
-    apps = import ./scripts/bmc-access.nix { inherit nixpkgs; } // {
-      # nix run .#terraform-fhs
-      # nix run
-      ${system}.terraform-fhs = terraformFHS // { meta.mainProgram = "fhs-1"; };
+    # nix run .#terraform-fhs
+    # nix run .#bmc-access
+    apps.${system} = {
+      bmc-access = {
+        type = "app";
+        program = toString (import ./scripts/bmc-access.nix { inherit nixpkgs; }).bmc;
+      };
+      terraform-fhs = {
+        type = "app";
+        program = "${terraformFHS}/bin/${terraformFHS.name}";
+      };
     };
 
     overlays.packages = import ./nixos/pkgs;
