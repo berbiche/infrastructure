@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
 let
   cfg = config.configurations.plex;
@@ -22,6 +22,12 @@ in
     services.plex = {
       enable = true;
       openFirewall = false;
+      package = (import inputs.nixpkgs-unstable {
+        config = { inherit (pkgs.config) allowUnfree; };
+        system = pkgs.system;
+        overlays = builtins.attrValues inputs.self.overlays;
+      }).plex;
+      managePlugins = false;
     };
 
     networking.firewall = {
