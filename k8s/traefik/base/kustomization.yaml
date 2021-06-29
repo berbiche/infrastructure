@@ -5,8 +5,6 @@ namespace: traefik
 resources:
   - ./resources/namespace.yaml
   - ./resources/ingress-class.yaml
-  - ./resources/monitoring.yaml
-  - ./resources/monitoring-rbac.yaml
 
 generators:
   - ./generators/helm-chart.yaml

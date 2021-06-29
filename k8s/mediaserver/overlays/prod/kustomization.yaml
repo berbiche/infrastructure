@@ -16,9 +16,9 @@ images:
 - name: linuxserver/jackett
   newTag: latest
 - name: linuxserver/radarr
-  newTag: latest
+  newTag: develop
 - name: linuxserver/sonarr
-  newTag: latest
+  newTag: develop
 - name: linuxserver/qbittorrent
   newTag: version-14.3.4.99202104180633-7350-2c8f322afubuntu20.04.1
 - name: linuxserver/tautulli
@@ -31,7 +31,4 @@ configMapGenerator:
     literals:
       - PUID=950
       - PGID=950
-  # - name: plex-env-vars
-  #   literals:
-  #   - TZ=America/Toronto
-  #   - ADVERTISE_IP=https://plex.qt.rs/
+      - TZ=America/Toronto

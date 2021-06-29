@@ -6,7 +6,7 @@ spec:
   ports:
     - name: dashboard-http
       port: 80
-      targetPort: 9000
+      targetPort: traefik
   type: ClusterIP
 ---
 apiVersion: v1

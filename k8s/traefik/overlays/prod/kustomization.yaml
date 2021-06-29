@@ -8,6 +8,8 @@ resources:
   - ./resources/ingress.yaml
   - ./resources/middleware.yaml
   - ./resources/services.yaml
+  - ./resources/monitoring.yaml
+  - ./resources/monitoring-rbac.yaml
 
 configMapGenerator:
   - name: traefik-forward-auth-config

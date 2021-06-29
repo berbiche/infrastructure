@@ -2,7 +2,7 @@ apiVersion: builtin
 kind: HelmChartInflationGenerator
 metadata:
   name: openebs
-chartName: openebs
+chartName: openebs/openebs
 chartRepoUrl: https://openebs.github.io/charts
 chartVersion: 2.8.0
 releaseName: openebs

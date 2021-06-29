@@ -4,5 +4,18 @@ kind: Kustomization
 resources:
   - ../../base
 
+  # Installs the grafana operator only for the dashboard CRD
+#   - https://raw.githubusercontent.com/integr8ly/grafana-operator/v3.10.0/deploy/crds/GrafanaDashboard.yaml
+#   - https://raw.githubusercontent.com/integr8ly/grafana-operator/v3.10.0/deploy/roles/service_account.yaml
+#   - https://raw.githubusercontent.com/integr8ly/grafana-operator/v3.10.0/deploy/roles/role.yaml
+#   - https://raw.githubusercontent.com/integr8ly/grafana-operator/v3.10.0/deploy/roles/role_binding.yaml
+#   - https://raw.githubusercontent.com/integr8ly/grafana-operator/v3.10.0/deploy/operator.yaml
+#   - https://raw.githubusercontent.com/integr8ly/grafana-operator/v3.10.0/deploy/operatorMasterImage.yaml
+
+# patchesStrategicMerge:
+#   - ./patches/service-account-namespace.yaml
+#   - ./patches/role-binding-namespace.yaml
+#   - ./patches/role-namespace.yaml
+
 generators:
   - ./secrets-generator.yaml
