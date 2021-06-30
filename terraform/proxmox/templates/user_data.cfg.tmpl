@@ -21,23 +21,20 @@ timezone: ${jsonencode(timezone)}
 locale: en_US.UTF-8
 
 users:
+  - name: automation
+    shell: /bin/bash
+    lock_passwd: true
+    ssh_authorized_keys:
+      - ${jsonencode(chomp(authorized-key-automation))}
+    sudo: 'ALL=(ALL) NOPASSWD:ALL'
   - name: nicolas
     gecos: Nicolas Berbiche
     shell: /bin/bash
-    primary_group: nicolas
     groups: sudo, users
     ssh_authorized_keys:
       - ${jsonencode(chomp(authorized-key-nicolas))}
     lock_passwd: false
     passwd: ${jsonencode(hashed-password)}
-  - name: automation
-    primary_group: automation
-    shell: /bin/bash
-    system: true
-    lock_passwd: true
-    ssh_authorized_keys:
-      - ${jsonencode(chomp(authorized-key-automation))}
-    sudo: ALL=(ALL) NOPASSWD:ALL
 
 # growpart:
 #   mode: auto
@@ -73,8 +70,8 @@ network:
         - ${jsonencode(ip4)}
       gateway4: ${jsonencode(gateway4)}
 
-runcmd:
-  - [ chown, 'automation:automation', /home/automation ]
+# runcmd:
+#   - [ chown, 'automation:automation', /home/automation ]
 
 packages:
   - ca-certificates

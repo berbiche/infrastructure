@@ -49,7 +49,7 @@ resource "macaddress" "k8s_node_mac_addresses" {
 resource "null_resource" "cloud_init_config_files" {
   count = local.vm_count
   triggers = {
-    config_contents = filesha256("${path.module}/templates/user_data.cfg.tmpl")
+    config_contents = filesha512("${path.module}/templates/user_data.cfg.tmpl")
   }
   connection {
     type = "ssh"
@@ -87,7 +87,7 @@ resource "proxmox_vm_qemu" "cloud-vms" {
     null_resource.cloud_init_config_files
   ]
 
-  # force_recreate_on_change_of = filesha512("${path.module}/templates/user_data.cfg.tmpl")
+  force_recreate_on_change_of = "${filesha512("${path.module}/templates/user_data.cfg.tmpl")}:${null_resource.create_template_vm.id}"
 
   os_type = "cloud-init"
   agent = 1
@@ -98,8 +98,8 @@ resource "proxmox_vm_qemu" "cloud-vms" {
 
   cpu = "host"
   sockets = 1
-  cores = 6
-  memory = 16384
+  cores = var.cores
+  memory = var.memory
   scsihw = "virtio-scsi-pci"
 
   # Only boot from disk

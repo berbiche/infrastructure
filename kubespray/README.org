@@ -5,6 +5,10 @@ After deploying the Proxmox VMs, update the =inventory/hosts.yml= file.
 
 Update the =ansible.cfg= and set the private key and user used to authenticate on nodes.
 
+To reset the host in =~/.ssh/known_hosts=, run the following
+=for i in {0..nb_host}; do ssh-keygen -R $ip_address$i; done=
+(Assuming continuous IP space for the different hosts)
+
 To deploy (within the nix environment):
 
 1. Upgrading calico version

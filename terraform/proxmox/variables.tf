@@ -63,3 +63,15 @@ variable "secrets" {
     hashed_password = string
   })
 }
+
+variable "memory" {
+  description = "Amount of memory on nodes, in MiB"
+  type        = number
+  default     = 20480
+}
+
+variable "cores" {
+  description = "Amount of physical cores to assign to each node"
+  type        = number
+  default     = 6
+}
