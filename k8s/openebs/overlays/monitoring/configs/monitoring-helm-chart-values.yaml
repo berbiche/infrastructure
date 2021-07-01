@@ -1,7 +1,13 @@
 kube-prometheus-stack:
   install: false
+
 openebsMonitoringAddon:
   enabled: true
+  grafana:
+    sidecar:
+      dashboards:
+        enable: true
+        label: grafana_dashboard
 
 # I don't use these things
 alertRules:
