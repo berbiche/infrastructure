@@ -1,4 +1,12 @@
 # Overrides the stuff we always want and always won't want
+jiva:
+  enabled: false
+zfs-localpv:
+  enabled: false
+lvm-localpv:
+  enabled: false
+localpv-provisioner:
+  enabled: false
 
 rbac:
   create: true

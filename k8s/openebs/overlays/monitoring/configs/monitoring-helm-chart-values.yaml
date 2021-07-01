@@ -1,0 +1,22 @@
+kube-prometheus-stack:
+  install: false
+openebsMonitoringAddon:
+  enabled: true
+
+# I don't use these things
+alertRules:
+  Jiva:
+    enabled: false
+  volumes:
+    enabled: false
+customDashboards:
+  Jiva:
+    enabled: false
+  volumes:
+    enabled: false
+serviceMonitors:
+  jiva:
+    enabled: false
+# Not an option yet
+# podMonitors:
+#   jiva.enabled: false

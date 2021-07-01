@@ -26,7 +26,7 @@ spec:
         compression: lz4
       dataRaidGroups:
         - blockDevices:
-          - blockDeviceName: blockdevice-8e64805462d6300a6a7f25699f35df03
+          - blockDeviceName: blockdevice-8a87314da7282e6d55c08a58ae96e656
     - nodeSelector:
         kubernetes.io/hostname: node3
       poolConfig:
@@ -34,7 +34,7 @@ spec:
         compression: lz4
       dataRaidGroups:
         - blockDevices:
-          - blockDeviceName: blockdevice-f0cfa829381a9c2bc5eeee6c1e01d907
+          - blockDeviceName: blockdevice-86c69bca13a6c44e26e980ee4fbbfdff
     - nodeSelector:
         kubernetes.io/hostname: node4
       poolConfig:
@@ -42,4 +42,4 @@ spec:
         compression: lz4
       dataRaidGroups:
         - blockDevices:
-          - blockDeviceName: blockdevice-44a67d14131c0e6d0d0da533bde9d0dd
+          - blockDeviceName: blockdevice-7fa570ac5d6eb4e393fb19982a82fa1b

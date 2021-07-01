@@ -3,25 +3,6 @@ kind: Kustomization
 
 resources:
   - ./resources/namespace.yaml
-  # - https://raw.githubusercontent.com/openebs/charts/022f9e3fbad68578ae1f0bd4c4125e0cc5162de5/2.7.0/openebs-operator.yaml
-  # # - https://github.com/openebs/charts/archive/gh-pages.tar.gz//2.7.0/openebs-operator.yaml
-  # # Node Disk Manager stuff
-  # - https://raw.githubusercontent.com/openebs/node-disk-manager/v1.3.0/deploy/yamls/clusterrole.yaml
-  # - https://raw.githubusercontent.com/openebs/node-disk-manager/v1.3.0/deploy/yamls/clusterrolebinding.yaml
-  # - https://raw.githubusercontent.com/openebs/node-disk-manager/v1.3.0/deploy/yamls/serviceaccount.yaml
-  # # - github.com/openebs/node-disk-manager//deploy/yamls/node-disk-manager-config.yaml?ref=v1.3.0
-  # - https://raw.githubusercontent.com/openebs/node-disk-manager/v1.3.0/deploy/yamls/node-disk-manager.yaml
-  # - https://raw.githubusercontent.com/openebs/node-disk-manager/v1.3.0/deploy/yamls/node-disk-operator.yaml
-  # # Optional NDM stuff
-  # - https://raw.githubusercontent.com/openebs/node-disk-manager/v1.3.0/deploy/yamls/ndm-cluster-exporter.yaml
-  # - https://raw.githubusercontent.com/openebs/node-disk-manager/v1.3.0/deploy/yamls/ndm-node-exporter.yaml
-  # Mayastor stuff
-  # - https://raw.githubusercontent.com/openebs/mayastor/v0.8.0/deploy/moac-rbac.yaml
-  # - https://raw.githubusercontent.com/openebs/mayastor/v0.8.0/csi/moac/crds/mayastorpool.yaml
-  # - https://raw.githubusercontent.com/openebs/mayastor/v0.8.0/deploy/nats-deployment.yaml
-  # - https://raw.githubusercontent.com/openebs/mayastor/v0.8.0/deploy/csi-daemonset.yaml
-  # - https://raw.githubusercontent.com/openebs/mayastor/v0.8.0/deploy/moac-deployment.yaml
-  # - https://raw.githubusercontent.com/openebs/mayastor/v0.8.0/deploy/mayastor-daemonset.yaml
 
 generators:
   - ./generators/openebs-helm-chart.yaml

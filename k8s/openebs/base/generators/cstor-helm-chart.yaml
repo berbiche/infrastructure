@@ -4,12 +4,9 @@ metadata:
   name: openebs-cstor
 chartName: cstor
 chartRepoUrl: https://openebs.github.io/cstor-operators
-chartVersion: '2.8.0'
+chartVersion: '2.10.1'
 releaseName: openebs-cstor
 releaseNamespace: openebs
 extraArgs:
   - --include-crds
-  # - --set rbac.create=true
-  # - --set rbac.pspEnabled=false
-  # - --set serviceAccount.create=true
 values: ./configs/cstor-helm-chart-values.yaml
