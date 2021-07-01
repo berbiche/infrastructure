@@ -4,7 +4,7 @@ metadata:
   name: traefik
 chartName: traefik
 chartRepoUrl: https://helm.traefik.io/traefik
-chartVersion: v9.18.2
+chartVersion: v9.19.2
 releaseName: traefik
 releaseNamespace: traefik
 extraArgs:
