@@ -11,8 +11,6 @@ spec:
   tls:
     - hosts:
         - plex.tq.rs
-        - qbittorrent.tq.rs
-        - proxmox.node.tq.rs
       secretName: media-tq-rs
   rules:
     - host: plex.tq.rs
@@ -25,25 +23,3 @@ spec:
                 name: plex-tq-rs
                 port:
                   name: http
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: qbittorrent-proxmox
-  annotations:
-    # Certs provisioned above
-    traefik.ingress.kubernetes.io/router.middlewares: traefik-forward-auth@kubernetescrd
-    traefik.ingress.kubernetes.io/router.tls: "true"
-spec:
-  ingressClassName: traefik
-  rules:
-    - host: proxmox.node.tq.rs
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: proxmox-tq-rs
-                port:
-                  name: https
