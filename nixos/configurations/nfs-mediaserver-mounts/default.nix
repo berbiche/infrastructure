@@ -13,7 +13,7 @@ in
 
     host = mkOption {
       type = types.str;
-      default = "192.168.42.5";
+      default = "10.97.42.5";
     };
 
     uid = mkOption {
