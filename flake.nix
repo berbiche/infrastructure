@@ -40,7 +40,8 @@
       runScript = ''
         sops exec-env secrets/terraform-backend.yaml ${pkgs.writeShellScript "fhs-terraform-sops" ''
           export PS1="\e[0;32m(keanu-shell)\e[m \e[0;34m\w\e[m \e[0;31m$\e[m "
-          exec bash --norc
+          export name="terraform"
+          exec zsh
         ''}
       '';
     } // {
@@ -68,7 +69,7 @@
       kustomize = inputs.nixpkgs-kustomize-3.legacyPackages.${system}.kustomize;
     };
 
-    devShell.x86_64-linux = pkgs.mkShell {
+    devShell.${system} = pkgs.mkShell {
       nativeBuildInputs = [
         sops-nix.sops-pgp-hook
       ];
@@ -98,17 +99,6 @@
         pkgs.kubernetes-helm
         pkgs.jsonnet
         pkgs.jsonnet-bundler
-        (pkgs.runCommandLocal "calico-3.18.1" rec {
-          pname = "calico";
-          version = "3.18.1";
-          src = pkgs.fetchurl {
-            url = "https://github.com/projectcalico/calicoctl/releases/download/v${version}/calicoctl-linux-amd64";
-            hash = "sha256-KdDcZ0WMH7iVC1wVfeQQRdT1AuuAeR14WMemJSwjkME=";
-          };
-        } ''
-          mkdir -p $out/bin
-          install -Dm0755 $src $out/bin/calicoctl
-        '')
       ];
 
       SFPATH =

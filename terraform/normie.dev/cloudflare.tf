@@ -12,12 +12,14 @@ locals {
 resource "ovh_ip_reverse" "normie_dev_ipv4" {
   for_each = local.ipv4_addresses
   ip = "${each.value}/32"
+  ipreverse = each.value
   reverse = "normie.dev."
 }
 
 resource "ovh_ip_reverse" "normie_dev_ipv6" {
   for_each = local.ipv6_addresses
   ip = "${each.value}/128"
+  ipreverse = each.value
   reverse = "normie.dev."
 }
 
@@ -52,13 +54,14 @@ resource "cloudflare_record" "www" {
   proxied = false
 }
 
-# resource "cloudflare_record" "MX" {
-#   zone_id = cloudflare_zone.normie_dev.id
+resource "cloudflare_record" "MX" {
+  zone_id = cloudflare_zone.normie_dev.id
 
-#   name  = "MX"
-#   type  = "MX"
-#   value =
-# }
+  name    = "mail"
+  type    = "MX"
+  value   = "normie.dev"
+  proxied = false
+}
 
 resource "cloudflare_record" "cloud" {
   zone_id = cloudflare_zone.normie_dev.id
