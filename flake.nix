@@ -71,7 +71,7 @@
 
     devShell.${system} = pkgs.mkShell {
       nativeBuildInputs = [
-        sops-nix.sops-pgp-hook
+        sops-nix.sops-import-keys-hook
       ];
 
       KUSTOMIZE_PLUGIN_HOME = pkgs.buildEnv {
