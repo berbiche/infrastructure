@@ -104,7 +104,7 @@ Retention settings for the dovecot email bucket: 30 days
 I use Proxmox VMs as Kubernetes nodes since I don't have enough
 baremetal servers.
 
-My VMs are CPU and memory overcommitted.
+My VMs are not overcommitted.
 
 1. Create a user to access and control Proxmox for Terraform
 
@@ -139,6 +139,16 @@ can also be done manually:
 
 Where =proxthin= is the name of the LVM thin provisioner on the Proxmox
 host.
+
+*** Pinning CPUs to specific nodes
+:PROPERTIES:
+:CUSTOM_ID: pinning-cpus-to-specific-nodes
+:END:
+To improve performance of the nodes, verify whether the CPU supports pinning nodes
+with =numactl --hardware=.
+Qemu supports pinning VMs to specific cores thanks to NUMA.
+If numa is supported, set each nodes' numa configuration:
+~qm set <vm-id> --numa<numa number node> cpus=0,1,2,3-5, ....~
 
 *** Kubespray cluster deployment
 :PROPERTIES:
