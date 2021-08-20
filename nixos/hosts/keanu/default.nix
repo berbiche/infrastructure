@@ -30,7 +30,6 @@
     defaultGateway = "51.222.12.1";
     defaultGateway6 = "2607:5300:205:200::1";
     dhcpcd.enable = false;
-    usePredictableInterfaceNames = lib.mkForce false;
     resolvconf.dnsExtensionMechanism = false;
     interfaces = {
       eth0 = {
@@ -52,7 +51,5 @@
     ATTR{address}=="fa:16:3e:b6:86:3d", NAME="eth0"
   '';
 
-  services.resolved.enable = true;
-  services.resolved.dnssec = "allow-downgrade";
-
+  services.dnsmasq.enable = true;
 }
