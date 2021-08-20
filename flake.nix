@@ -32,14 +32,16 @@
     terraformFHS = pkgs.buildFHSUserEnv {
       name = "terraform-keanu-fhs";
       targetPkgs = pkgs: [
-        pkgs.sops
         terraform
+        pkgs.gnupg
+        pkgs.sops
         pkgs.zlib
       ];
       # Only one line can be in the runScript option
-      runScript = ''
+      runScript = pkgs.writeShellScript "terraform-fhs-run-script" ''
+        echo >&2 "This file must be executed from the root of the project"
         sops exec-env secrets/terraform-backend.yaml ${pkgs.writeShellScript "fhs-terraform-sops" ''
-          export PS1="\e[0;32m(keanu-shell)\e[m \e[0;34m\w\e[m \e[0;31m$\e[m "
+          : # export nix-shell name
           export name="terraform"
           exec zsh
         ''}
@@ -88,25 +90,25 @@
         deploy-rs.defaultPackage.${system}
         terraform
         sops-nix.ssh-to-pgp
-        pkgs.sops
-        pkgs.python38
         pkgs.ansible_2_9
-        pkgs.pipenv
-        pkgs.kubectl
-        pkgs.kubetail
-        pkgs.kubectx
-        pkgs.kustomize
-        pkgs.kubernetes-helm
         pkgs.jsonnet
         pkgs.jsonnet-bundler
+        pkgs.kubectl
+        pkgs.kubectx
+        pkgs.kubernetes-helm
+        pkgs.kubetail
+        pkgs.kustomize
+        pkgs.ltrace
+        pkgs.pipenv
+        pkgs.python38
+        pkgs.sops
       ];
 
       SFPATH =
-        (pkgs.runCommandLocal "zsh-kubectl-completions" { buildInputs = [ pkgs.kubectl ]; } ''
-          mkdir -p $out/share/zsh/site-functions/ $out/share/bash-completions/completions
-          kubectl completion zsh > $out/share/zsh/site-functions/_kubectl
-          kubectl completion bash > $out/share/bash-completions/completions/kubectl
-          chmod +x $out/share/zsh/site-functions/_kubectl $out/share/bash-completions/completions/kubectl
+        (pkgs.runCommandLocal "zsh-kubectl-completions" { buildInputs = [ pkgs.kubectl pkgs.installShellFiles ]; } ''
+          kubectl completion zsh > kubectl.zsh
+          kubectl completion bash > kubectl.bash
+          installShellCompletion kubectl.{zsh,bash}
         '');
 
       shellHook = ''
@@ -114,7 +116,7 @@
         # export XDG_DATA_DIRS="''${XDG_DATA_DIRS-}''${XDG_DATA_DIRS+:}$SFPATH/share/bash-completions/completions"
         # . ${pkgs.bash-completion}/etc/profile.d/bash_completion.sh
         # if [ -n "''${ZSH_VERSION:-}" ]; then
-        #   export fpath=($fpath $SFPATH/share/zsh/site-functions)
+        #  export fpath=($fpath $SFPATH/share/zsh/site-functions)
         # fi
       '';
     };
