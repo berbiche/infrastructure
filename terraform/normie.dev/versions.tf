@@ -25,7 +25,7 @@ terraform {
 
     ovh = {
       source  = "ovh/ovh"
-      version = ">= 0.10.0, < 1.0.0"
+      version = ">= 0.15.0, < 1.0.0"
     }
 
     sops = {

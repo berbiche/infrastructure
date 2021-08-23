@@ -38,8 +38,10 @@
         pkgs.zlib
       ];
       # Only one line can be in the runScript option
-      runScript = pkgs.writeShellScript "terraform-fhs-run-script" ''
+      runScript = pkgs.writeShellScript "fhs-terraform-run-script" ''
         echo >&2 "This file must be executed from the root of the project"
+        echo "You may need to allow GPG decryption of the secrets"
+        echo "Please input your password if required"
         sops exec-env secrets/terraform-backend.yaml ${pkgs.writeShellScript "fhs-terraform-sops" ''
           : # export nix-shell name
           export name="terraform"
@@ -104,21 +106,23 @@
         pkgs.sops
       ];
 
+      /*
       SFPATH =
         (pkgs.runCommandLocal "zsh-kubectl-completions" { buildInputs = [ pkgs.kubectl pkgs.installShellFiles ]; } ''
           kubectl completion zsh > kubectl.zsh
           kubectl completion bash > kubectl.bash
           installShellCompletion kubectl.{zsh,bash}
         '');
+      */
 
       shellHook = ''
         export KUBECONFIG=$PWD/kubespray/inventory/artifacts/admin.conf
+      '';
         # export XDG_DATA_DIRS="''${XDG_DATA_DIRS-}''${XDG_DATA_DIRS+:}$SFPATH/share/bash-completions/completions"
         # . ${pkgs.bash-completion}/etc/profile.d/bash_completion.sh
         # if [ -n "''${ZSH_VERSION:-}" ]; then
         #  export fpath=($fpath $SFPATH/share/zsh/site-functions)
         # fi
-      '';
     };
 
     checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
