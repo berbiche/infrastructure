@@ -15,12 +15,12 @@ terraform {
   required_providers {
     b2 = {
       source  = "Backblaze/b2"
-      version = "0.2.1"
+      version = "~> 0.6.0"
     }
 
     cloudflare = {
       source  = "cloudflare/cloudflare"
-      version = "~> 2.0, != 2.18"
+      version = "~> 2.25.0"
     }
 
     ovh = {
@@ -30,7 +30,7 @@ terraform {
 
     sops = {
       source  = "carlpett/sops"
-      version = "~> 0.5"
+      version = "~> 0.6.0"
     }
   }
 }

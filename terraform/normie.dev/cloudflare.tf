@@ -93,3 +93,25 @@ resource "cloudflare_record" "google_site_verification" {
   ttl     = 1800
   proxied = false
 }
+
+resource "cloudflare_record" "sshfp" {
+  zone_id = cloudflare_zone.normie_dev.id
+
+  for_each = {
+    # "algorithm type fingeprint"
+    0: {algorithm = 1, type = 1, fingerprint = "cf1c4f9d33ae03e8461779f98a8715d686870125"},
+    1: {algorithm = 1, type = 2, fingerprint = "a5cd4cd55ac00b357408b2ccdd8b95d2b04e9d5c1c01e40f5f35fff28d5be27a"},
+    2: {algorithm = 4, type = 1, fingerprint = "144affbdd168f91d2ecd8f4c7616fc0ac7723969"},
+    3: {algorithm = 4, type = 2, fingerprint = "5c65db83a95de8b27a5f0a2fffa941c6dd61619ef4fbac18c52408d145a301e2"},
+  }
+
+  name = "@"
+  type = "SSHFP"
+  proxied = false
+
+  data = {
+    algorithm = each.value.algorithm
+    fingerprint = each.value.fingerprint
+    type = each.value.type
+  }
+}
