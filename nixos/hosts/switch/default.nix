@@ -10,7 +10,7 @@
   networking.hostName = "switch";
   networking.domain = "node.tq.rs";
 
-  configurations.torrents.enable = true;
+  configurations.torrents.enable = false;
   configurations.torrents.qbittorrent = {
     downloadDirectory = "/mediaserver";
   };
