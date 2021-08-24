@@ -10,16 +10,58 @@ in
 
   config = lib.mkIf cfg.enable {
     sops.secrets.admin-pass = { };
+    # sops.secrets.roundcube-db-pass = { };
+
+    networking.firewall.allowedTCPPorts = [ 80 443 ];
 
     mailserver = {
       enable = true;
-      fdqn = "mail.normie.dev";
+      fqdn = "mail.normie.dev";
       domains = [ "normie.dev" ];
+
       loginAccounts = {
         "nicolas@normie.dev" = {
           hashedPasswordFile = config.sops.secrets.admin-pass.path;
         };
       };
+      extraVirtualAliases = {
+        "postmaster@normie.dev" = "nicolas@normie.dev";
+        "abuse@normie.dev" = "nicolas@normie.dev";
+      };
+      forwards = { "nicolas@normie.dev" = "nic.berbiche@gmail.com"; };
+
+
+      # Store mails in /var/vmail/example.com/user/folder/subfolder
+      useFsLayout = true;
+      hierarchySeparator = "/";
+
+      dkimKeyBits = 2048;
+
+      # Monit monitoring
+      monitoring.enable = true;
+      monitoring.alertAddress = "nic.berbiche@gmail.com";
+
+      # Uses Let's Encrypt HTTP challenge to get a certificate
+      certificateScheme = 3;
+
+      fullTextSearch.indexAttachments = false;
+    };
+
+    services.roundcube = {
+      enable = true;
+      hostName = "${config.mailserver.fqdn}";
+      package = pkgs.roundcube.withPlugins (ps: [ ps.persistent_login ]);
+      plugins = [ "persistent_login" ];
+      dicts =
+        let ps = pkgs.aspellDicts; in
+        [ ps.en ps.fr ];
+
+      extraConfig = ''
+        $config['smtp_port'] = 587;
+        $config['smtp_server'] = 'tls://${config.mailserver.fqdn}';
+        $config['smtp_user'] = '%u';
+        $config['smtp_pass'] = '%p';
+      '';
     };
   };
 }

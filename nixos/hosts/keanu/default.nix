@@ -6,6 +6,8 @@
     (modulesPath + "/profiles/headless.nix")
   ];
 
+  configurations.mail.enable = true;
+
   sops.defaultSopsFile = rootPath + "/secrets/keanu.yaml";
 
   boot.cleanTmpDir = true;
@@ -51,5 +53,6 @@
     ATTR{address}=="fa:16:3e:b6:86:3d", NAME="eth0"
   '';
 
-  services.dnsmasq.enable = true;
+  # Kres is being setup by nixos-simple-mailserver
+  # services.dnsmasq.enable = true;
 }
