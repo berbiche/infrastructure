@@ -1,7 +1,7 @@
 {
   description = "Deployment for my OVH VPS";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-20.09";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-21.05";
   inputs.nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable-small";
   inputs.nixpkgs-kustomize-3.url = "github:NixOS/nixpkgs/f294808d544abb5ef701738887138ea8ed9a9dd3";
   inputs.deploy-rs.url = "github:serokell/deploy-rs";

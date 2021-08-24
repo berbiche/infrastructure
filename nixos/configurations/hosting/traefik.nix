@@ -283,7 +283,7 @@ in
       imageDigest = "sha256:69a2c985d2c518b6f0e77161a98628a148a5d964e4e84fc52cc62e19bb4da634";
       finalImageName = "thomseddon/traefik-forward-auth";
       finalImageTag = "2";
-      sha256 = "sha256-dvRU4PUethX7qEG9lFsmZ65+BT/cobgj8sEXgabs+o4=";
+      sha256 = "sha256-MZsD8Ncguv6q7GCChYYgjGNtKilg3tWLhsps9d8KjIQ=";
     };
     # Unused because environment secrets cannot be injected as a file
     configFile = pkgs.writeText "traefik-forward-auth-config.txt" ''

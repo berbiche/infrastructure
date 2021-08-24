@@ -44,7 +44,10 @@ in
       "d '${plexCfg.dataDir}' - ${plexCfg.user} ${plexCfg.group} - -"
     ];
 
-    users.users.${plexCfg.user}.uid = lib.mkForce 950;
+    users.users.${plexCfg.user} = {
+      uid = lib.mkForce 950;
+      isSystemUser = true;
+    };
     users.groups.${plexCfg.group}.gid = lib.mkForce 950;
     # users.users.${plexCfg.user}.extraGroups = [ config.users.groups.mediaserver.name ];
     # users.users.mediaserver = {

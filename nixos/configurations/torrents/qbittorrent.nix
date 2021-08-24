@@ -62,7 +62,7 @@ in
         imageDigest = "sha256:9c1a0a3853f46d3f68eb572069a33c91be5f5955e421503fa98aa2949f78931b";
         finalImageName = imageName;
         finalImageTag = "version-14.3.3.99202101191832-7248-da0b276d5ubuntu20.04.1";
-        sha256 = "sha256-wPIfQUU22e7GgwWPNyTS/t91QrDJZN5UOeM2N1B4srM=";
+        sha256 = "sha256-/8hO1wo2Pp+y/ofMqKRtreilFBSdOgb0iqp7cCCCOUU=";
       };
 
       volumes = [
