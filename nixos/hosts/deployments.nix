@@ -50,7 +50,7 @@ rec {
       "apoc"
       "keanu"
       "mouse"
-      "switch"
+      # "switch"
     ];
   in
     lib.recursiveUpdate generatedNodes {
