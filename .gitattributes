@@ -2,3 +2,8 @@
 *.yaml  linguist-detectable=true
 *.yml   linguist-language=YAML
 *.yaml  linguist-language=YAML
+
+secrets/*.txt diff=sopsdiffer
+secrets/*.yaml diff=sopsdiffer
+nixos/secrets/*.txt diff=sopsdiffer
+nixos/secrets/*.yaml diff=sopsdiffer
