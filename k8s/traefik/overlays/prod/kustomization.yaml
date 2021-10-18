@@ -21,9 +21,9 @@ generators:
 
 images:
   - name: traefik
-    newTag: "v2.4.8"
+    newTag: "v2.4.14"
   - name: thomseddon/traefik-forward-auth
-    newTag: "2"
+    newTag: "latest"
 
 commonLabels:
   app.kubernetes.io/name: traefik
