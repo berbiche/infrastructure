@@ -7,6 +7,7 @@
   ];
 
   configurations.mail.enable = true;
+  configurations.discord-bot.jmusicbot.enable = true;
 
   sops.defaultSopsFile = rootPath + "/secrets/keanu.yaml";
 
