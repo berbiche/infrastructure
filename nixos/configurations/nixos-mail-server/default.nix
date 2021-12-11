@@ -18,15 +18,24 @@ in
       enable = true;
       fqdn = "mail.normie.dev";
       domains = [ "normie.dev" ];
+      certificateDomains = [ "normie.dev" "mail.normie.dev" ];
+
+      enableImap = false;
+      enableImapSsl = true;
+      enableSubmission = false;
+      enableSubmissionSsl = true;
 
       loginAccounts = {
         "nicolas@normie.dev" = {
           hashedPasswordFile = config.sops.secrets.admin-pass.path;
+          catchAll = [ "normie.dev" ];
         };
       };
       extraVirtualAliases = {
         "postmaster@normie.dev" = "nicolas@normie.dev";
         "abuse@normie.dev" = "nicolas@normie.dev";
+        "nic.berbiche+era@normie.dev" = "nicolas@normie.dev";
+        "nic.berbiche@normie.dev" = "nicolas@normie.dev";
       };
       forwards = { "nicolas@normie.dev" = "nic.berbiche@gmail.com"; };
 
@@ -57,6 +66,11 @@ in
         [ ps.en ps.fr ];
 
       extraConfig = ''
+        $config['default_port'] = 993;
+        $config['default_host'] = 'ssl://${config.mailserver.fqdn}';
+
+        $config['imap_auth_type'] = 'LOGIN';
+
         $config['smtp_port'] = 587;
         $config['smtp_server'] = 'tls://${config.mailserver.fqdn}';
         $config['smtp_user'] = '%u';
