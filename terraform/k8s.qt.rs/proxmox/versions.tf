@@ -2,12 +2,12 @@ terraform {
   required_providers {
     sops = {
       source  = "carlpett/sops"
-      version = "~> 0.5"
+      version = "~> 0.6"
     }
 
     proxmox = {
       source  = "Telmate/proxmox"
-      version = "~> 2.6.0"
+      version = "~> 2.9.3"
     }
 
     macaddress = {

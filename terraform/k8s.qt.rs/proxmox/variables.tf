@@ -4,7 +4,7 @@ variable "host" {
 }
 
 variable "node_count" {
-  description = "The amount of K8s node vms to spawn, excluding the master node so N nodes + 1 for the master."
+  description = "The amount of K8s node vms to spawn, including the master node."
   type        = number
   validation {
     condition     = var.node_count >= 0
@@ -20,7 +20,22 @@ variable "ssh_host" {
 variable "ssh_user" {
   description = "SSH user to access the Proxmox instance"
   type        = string
-  default     = "root"
+}
+
+variable "authorized_key_user" {
+  type = string
+  validation {
+    condition     = var.authorized_key_user != ""
+    error_message = "The specified user SSH public key does not exist."
+  }
+}
+
+variable "authorized_key_admin" {
+  type = string
+  validation {
+    condition     = var.authorized_key_admin != ""
+    error_message = "The specified admin SSH public key does not exist."
+  }
 }
 
 variable "ssh_private_key_path" {

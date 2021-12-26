@@ -20,7 +20,7 @@ terraform {
 
     proxmox = {
       source  = "Telmate/proxmox"
-      version = "~> 2.6.0"
+      version = "~> 2.9.0"
     }
 
     random = {
@@ -30,7 +30,7 @@ terraform {
 
     sops = {
       source  = "carlpett/sops"
-      version = "~> 0.5"
+      version = "~> 0.6"
     }
   }
 }

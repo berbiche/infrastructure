@@ -5,12 +5,15 @@ locals {
 module "proxmox" {
   source = "./proxmox"
 
-  host                 = "proxmox-zion"
-  ssh_host             = "proxmox-zion.node.tq.rs"
+  host                 = "proxmox-t430"
+  ssh_host             = "proxmox-t430.node.tq.rs"
+  ssh_user             = "root"
   ssh_private_key_path = pathexpand("~/.ssh/keanu.ovh")
-  node_count           = 3
-  thinpool             = "proxthin"
-  ipv4_addresses       = [for s in range(4): "${local.ipv4_prefix}.${50 + s}/24"]
+  authorized_key_user  = file("${abspath(path.root)}/../../files/keanu.ovh.pub")
+  authorized_key_admin = file("${abspath(path.root)}/../../files/automation.pub")
+  node_count           = 4
+  thinpool             = "local-lvm"
+  ipv4_addresses       = [for s in range(4): "${local.ipv4_prefix}.${51 + s}/24"]
   ipv4_gateway         = "${local.ipv4_prefix}.1"
   nameservers          = [ "${local.ipv4_prefix}.1" ]
 

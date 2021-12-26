@@ -1,25 +1,26 @@
 all:
   hosts:
     node1:
-      ansible_host: 10.97.42.50
-      ip: 10.97.42.50
-      access_ip: 10.97.42.50
-    node2:
-      ansible_host: 10.97.42.51
+      ansible_host: node1.node.tq.rs
       ip: 10.97.42.51
       access_ip: 10.97.42.51
-    node3:
-      ansible_host: 10.97.42.52
+    node2:
+      ansible_host: node2.node.tq.rs
       ip: 10.97.42.52
       access_ip: 10.97.42.52
-    node4:
-      ansible_host: 10.97.42.53
+    node3:
+      ansible_host: node3.node.tq.rs
       ip: 10.97.42.53
       access_ip: 10.97.42.53
+    node4:
+      ansible_host: node4.node.tq.rs
+      ip: 10.97.42.54
+      access_ip: 10.97.42.54
   children:
     kube_control_plane:
       hosts:
         node1:
+        node2:
     kube_node:
       hosts:
         node1:
@@ -29,8 +30,8 @@ all:
     etcd:
       hosts:
         node1:
+        node2:
         node3:
-        node4:
     openebs_node:
       hosts:
         node1:

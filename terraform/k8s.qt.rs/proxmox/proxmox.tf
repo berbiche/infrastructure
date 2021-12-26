@@ -1,8 +1,3 @@
-locals {
-  # Amount of VMs to create: X nodes + 1 master
-  vm_count = var.node_count + 1
-}
-
 resource "null_resource" "create_template_vm" {
   connection {
     type = "ssh"
@@ -13,7 +8,6 @@ resource "null_resource" "create_template_vm" {
   provisioner "remote-exec" {
     inline = [
       "wget -q -O /var/lib/vz/template/iso/focal-server-cloudimg-amd64.img https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img",
-      # "qm create 1000 --memory 16384 --net0 virtio,bridge=vmbr0,tag=42 --cpu=host --socket=1 --cores=6 --ostype=other --serial0=socket --vga=serial0 --agent=1
       "qm create 1000 --memory 1024 --net0 virtio,bridge=vmbr0 --cpu=host --name='cloudimage-ubuntu-template'",
       "qm importdisk 1000 /var/lib/vz/template/iso/focal-server-cloudimg-amd64.img ${var.thinpool}",
       "qm set 1000 --ide2=${var.thinpool}:cloudinit --boot=c --bootdisk=scsi0",
@@ -41,13 +35,13 @@ resource "random_integer" "mac_address_prefix" {
 }
 
 resource "macaddress" "k8s_node_mac_addresses" {
-  count = local.vm_count
+  count = var.node_count
   # 4A:XX:XX
   prefix = [74, random_integer.mac_address_prefix[0].result, random_integer.mac_address_prefix[1].result]
 }
 
 resource "null_resource" "cloud_init_config_files" {
-  count = local.vm_count
+  count = var.node_count
   triggers = {
     config_contents = filesha512("${path.module}/templates/user_data.cfg.tmpl")
   }
@@ -61,8 +55,8 @@ resource "null_resource" "cloud_init_config_files" {
     content = templatefile("${path.module}/templates/user_data.cfg.tmpl", {
       hostname = "k8s-${var.host}-node${count.index + 1}"
       fqdn = "k8s-${var.host}-node${count.index + 1}node.tq.rs"
-      authorized-key-nicolas = file("${path.root}/../files/keanu.ovh.pub")
-      authorized-key-automation = file("${path.root}/../files/automation.pub")
+      authorized-key-nicolas = var.authorized_key_user
+      authorized-key-automation = var.authorized_key_admin
       timezone = "America/Montreal"
       ip4 = var.ipv4_addresses[count.index]
       gateway4 = var.ipv4_gateway
@@ -75,7 +69,7 @@ resource "null_resource" "cloud_init_config_files" {
 }
 
 resource "proxmox_vm_qemu" "cloud-vms" {
-  count = local.vm_count
+  count = var.node_count
   name = "k8s-${var.host}-node${count.index + 1}.node.tq.rs"
   desc = "Kubernetes Ubuntu 20.04 (Focal) node"
   target_node = var.host
@@ -100,18 +94,20 @@ resource "proxmox_vm_qemu" "cloud-vms" {
   sockets = 1
   cores = var.cores
   memory = var.memory
-  scsihw = "virtio-scsi-pci"
+  scsihw = "virtio-scsi-single"
 
   # Only boot from disk
   boot = "c"
   bootdisk = "scsi0"
 
   disk {
-    format = "qcow2"
     type = "scsi"
     storage = var.thinpool
     size = "64000M"
+    # iothread only works with virtio-scsi-single; it enables one controller per disk
+    # instead of one controller for all disks
     iothread = 1
+    discard = "on"
   }
   network {
     model = "virtio"
