@@ -1,0 +1,69 @@
+apiVersion: v1
+baseDomain: node.tq.rs
+compute:
+- architecture: amd64
+  hyperthreading: Enabled
+  name: worker
+  platform:
+    ovirt:
+      cpu:
+        cores: 4
+        sockets: 1
+      memoryMB: 16384
+      osDisk:
+        sizeGB: 100
+      affinityGroupsNames:
+      - compute
+  replicas: 7
+controlPlane:
+  architecture: amd64
+  hyperthreading: Enabled
+  name: master
+  platform:
+    ovirt:
+      cpu:
+        cores: 4
+        sockets: 1
+      memoryMB: 16384
+      osDisk:
+        sizeGB: 100
+      affinityGroupsNames:
+      - controlplane
+  replicas: 1
+metadata:
+  creationTimestamp: null
+  name: metacortex
+networking:
+  clusterNetwork:
+  - cidr: 10.128.0.0/14
+    hostPrefix: 23
+  machineNetwork:
+  - cidr: 192.168.126.0/24
+  networkType: Calico
+  serviceNetwork:
+  - 172.30.0.0/16
+platform:
+  ovirt:
+    affinityGroups:
+    - description: AffinityGroup for spreading each compute machine to a different
+        host
+      enforcing: false
+      name: compute
+      priority: 3
+    - description: AffinityGroup for spreading each control plane machine to a different
+        host
+      enforcing: true
+      name: controlplane
+      priority: 5
+    # api_vip: OpenShift API ip
+    api_vip: 10.97.42.254
+    ingress_vip: 10.97.42.200
+    ovirt_cluster_id: 6a4de9b0-66c7-11ec-b38d-00163e01600f
+    ovirt_network_name: ovirtmgmt
+    ovirt_storage_domain_id: 6a52b7f9-080e-4ba5-a742-6928df49227b
+    vnicProfileID: 0000000a-000a-000a-000a-000000000398
+# publish: Required to be 'External' on non-cloud platforms
+publish: External
+pullSecret: '{"auths":{"fake":{"auth":"aWQ6cGFzcwo="}}}'
+sshKey: |
+  ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIXqBarGejSu6/XzblEbsWocVCIyPxuQUCVLnMtnfrvi

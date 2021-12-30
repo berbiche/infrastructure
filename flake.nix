@@ -105,6 +105,7 @@
         pkgs.pipenv
         pkgs.python38
         pkgs.sops
+        pkgs.openshift
       ];
 
       /*
@@ -117,7 +118,7 @@
       */
 
       shellHook = ''
-        export KUBECONFIG=$PWD/kubespray/inventory/artifacts/admin.conf
+        export KUBECONFIG=$PWD/kubeconfig
       '';
         # export XDG_DATA_DIRS="''${XDG_DATA_DIRS-}''${XDG_DATA_DIRS+:}$SFPATH/share/bash-completions/completions"
         # . ${pkgs.bash-completion}/etc/profile.d/bash_completion.sh
