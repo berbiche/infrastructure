@@ -1,12 +1,10 @@
 {
   description = "Deployment for my OVH VPS";
 
-  # inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-21.05";
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-21.11";
   inputs.nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable-small";
-  inputs.nixpkgs-kustomize-3.url = "github:NixOS/nixpkgs/f294808d544abb5ef701738887138ea8ed9a9dd3";
   inputs.deploy-rs.url = "github:serokell/deploy-rs";
-  inputs.flake-compat = { url = "github:edolstra/flake-compat"; flake = false; };
+  inputs.flake-utils.url = "github:numtide/flake-utils";
   # Secret management
   inputs.sops-nix.url = "github:Mic92/sops-nix";
 
@@ -14,8 +12,12 @@
   inputs.simple-nixos-mailserver.url = "gitlab:simple-nixos-mailserver/nixos-mailserver";
 
   outputs = inputs@{ self, nixpkgs, deploy-rs, ... }: let
-    system = "x86_64-linux";
-
+    supportedSystems = [ "x86_64-linux" "x86_64-darwin" "aarch64-darwin" ];
+  in {
+    overlays.packages = import ./nixos/pkgs;
+    overlays.inputs = final: prev: { inherit inputs; };
+  }
+  // inputs.flake-utils.lib.eachSystem supportedSystems (system: let
     pkgs = import inputs.nixpkgs-unstable {
       inherit system;
       overlays = builtins.attrValues self.overlays;
@@ -57,24 +59,18 @@
 
     # nix run .#terraform-fhs
     # nix run .#bmc-access
-    apps.${system} = {
+    apps = {
       bmc-access = {
         type = "app";
         program = toString (import ./scripts/bmc-access.nix { inherit nixpkgs; }).bmc;
       };
       terraform-fhs = {
         type = "app";
-        program = "${terraformFHS}/bin/${terraformFHS.name}";
+        program = "${terraformFHS}/bin/${terraformFHS.meta.mainProgram}";
       };
     };
 
-    overlays.packages = import ./nixos/pkgs;
-    overlays.inputs = final: prev: { inherit inputs; };
-    overlays.kustomize-3 = final: prev: {
-      kustomize = inputs.nixpkgs-kustomize-3.legacyPackages.${system}.kustomize;
-    };
-
-    devShell.${system} = pkgs.mkShell {
+    devShell = pkgs.mkShell {
       nativeBuildInputs = [
         sops-nix.sops-import-keys-hook
       ];
@@ -100,8 +96,8 @@
         pkgs.kubectx
         pkgs.kubernetes-helm
         pkgs.kubetail
-        pkgs.kustomize
-        pkgs.ltrace
+        pkgs.kustomize_3
+        # pkgs.ltrace
         pkgs.pipenv
         pkgs.python38
         pkgs.sops
@@ -128,5 +124,5 @@
     };
 
     checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
-  };
+  });
 }
