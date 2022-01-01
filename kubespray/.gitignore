@@ -1,4 +1,0 @@
-inventory/*
-!inventory/group_vars
-!inventory/hosts.yaml
-!inventory/inventory.ini
