@@ -1,0 +1,37 @@
+#+TITLE: Kubespray deployment
+
+* Kubespray deployment
+After deploying the Proxmox VMs, update the =inventory/hosts.yml= file.
+
+Update the =ansible.cfg= and set the private key and user used to authenticate on nodes.
+
+To reset the host in =~/.ssh/known_hosts=, run the following
+=for i in {0..nb_host}; do ssh-keygen -R $ip_address$i; done=
+(Assuming continuous IP space for the different hosts)
+
+To deploy (within the nix environment):
+
+1. Upgrading calico version
+   a. Get the latest sha256 of calicoctl of calicocrd
+       #+begin_example
+       $ wget -q -O- https://github.com/projectcalico/calicoctl/releases/download/${VERSION}/calicoctl-linux-amd64 | sha256sum -
+       $ wget -q -O- https://github.com/projectcalico/calico/archive/${VERSION}.tar.gz | sha256sum -
+       #+end_example
+   b. Update the hashes in =./inventory/group_vars/k8s-cluster/k8s-net-calico.yml=
+2. Download Calico CRD (because it fails for some reason with kubespray)
+    #+begin_example
+    kubectl apply -f https://docs.projectcalico.org/manifest/calico.yaml
+    #+end_example
+3. Run the kubespray ansible playbook
+    #+begin_example
+    nicolas:keanu.ovh$ cd kubespray
+    nicolas:kubespray$ ansible-playbook cluster.yml --become
+    #+end_example
+4. Reboot physical nodes (optional but was required in my case)
+
+* Playbook
+A playbook to run after the kubespray deployment is available in =playbook.yaml=.
+
+#+begin_example
+ansible-playbook playbook.yaml
+#+end_example
