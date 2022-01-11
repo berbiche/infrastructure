@@ -1,0 +1,35 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  # - ./resources/oauthclient.yaml
+  - ./resources/oauth-idp-provider.yaml
+  - ./resources/public-ingress-controller.yaml
+
+generators:
+- ./secrets-generator.yml
+
+patches:
+# Overrides the GitHub identity provider organization
+- target:
+    kind: OAuth
+    group: config.openshift.io
+    version: v1
+    name: cluster
+  patch: |-
+    - op: replace
+      path: /spec/identityProviders/0/github/organizations
+      value: [berbiche-infra]
+    - op: replace
+      path: /spec/identityProviders/0/github/clientID
+      value: 55a9ea58f24b16e53f93
+# Override the ingress controller domain
+- target:
+    kind: IngressController
+    group: operator.openshift.io
+    version: v1
+    name: public-ingress-controller
+  patch: |-
+    - op: replace
+      path: /spec/domain
+      value: 'k8s.qt.rs'

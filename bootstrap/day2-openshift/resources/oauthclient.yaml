@@ -1,0 +1,7 @@
+apiVersion: oauth.openshift.io/v1
+kind: OAuthClient
+metadata:
+  name: openshift-challenging-client
+grantMethod: auto
+accessTokenMaxAgeSeconds: 7889400 # forcibly renew after 3 months
+accessTokenInactivityTimeoutSeconds: 604800 # expire session after 7 days of inactivity

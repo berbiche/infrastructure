@@ -96,7 +96,8 @@
         pkgs.kubectx
         pkgs.kubernetes-helm
         pkgs.kubetail
-        pkgs.kustomize_3
+        # pkgs.kustomize_3
+        pkgs.kustomize
         # pkgs.ltrace
         pkgs.pipenv
         pkgs.python38

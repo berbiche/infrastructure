@@ -1,0 +1,23 @@
+apiVersion: config.openshift.io/v1
+kind: Infrastructure
+metadata:
+  creationTimestamp: null
+  name: cluster
+spec:
+  cloudConfig:
+    name: ""
+  platformSpec:
+    type: oVirt
+status:
+  apiServerInternalURI: https://api-int.ocp.tq.rs:6443
+  apiServerURL: https://api.ocp.tq.rs:6443
+  controlPlaneTopology: HighlyAvailable
+  etcdDiscoveryDomain: ""
+  infrastructureName: ocp-bs627
+  infrastructureTopology: HighlyAvailable
+  platform: oVirt
+  platformStatus:
+    ovirt:
+      apiServerInternalIP: 10.97.42.254
+      ingressIP: 10.97.42.200
+    type: oVirt

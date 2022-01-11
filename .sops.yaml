@@ -6,6 +6,10 @@ creation_rules:
     key_groups:
     - pgp:
       - *mine
+  - path_regex: bootstrap/.*\.yaml$
+    key_groups:
+    - pgp:
+      - *mine
   - path_regex: secrets/.*\.(txt|ya?ml)$
     key_groups:
     - pgp:

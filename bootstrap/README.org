@@ -2,62 +2,115 @@
 
 * Deploying oVirt Node
 
-Since I have a single server with 56 cores (VCPU) and 200GB of RAM,
+Since I have a single server with 56 cores (vCPU) and 200GB of RAM,
 I deploy my kubernetes cluster using OpenShift's free OKD distribution
 on a single oVirt Node host.
+
+In order to deploy OKD, the oVirt node has to be setup alongside a storage
+device.
+Afterwards, HostedEngine can be deployed in oVirt.
 
 * Setup GlusterFS
 
 1. Make sure to generate an ssh private key (with no password) for the root user.
-   Then, as the root user on the ovirt node, ssh on the ovirt node.
-   This will add the ovirt node to the ssh known_hosts file.
-
+   a. Then, as the root user on the ovirt node, ssh on the ovirt node (=ssh root@localhost=)
+      This will add the ovirt node to the ssh =known_hosts= file.
 2. Create a raid device
+3. Setup glusterfs through Cockpit's UI to use the raid device
+   a. Add a brick for the kubernetes cluster with at least 500GB of space.
 
 * Deploy HostedEngine VM
 
 HostedEngine needs to be deployed and should use the configured glusterfs storage.
 
-* Deploying OKD
+1) Deploy a hyperconverged HostedEngine VM through Cockpit's UI
 
-In order to deploy OKD, the `openshift-install` cli will need to be fetched from the official repository and unpacked.
+* Configuring a new user for OCP
 
-1. Generate the base configuration with `openshift-install create ....`
+1) Add a new user for the OCP deployment
+   a) SSH in the hosted engine
+   b) Run these commands:
+      #+begin_example
+      $ ovirt-aaa-jdbc-tool user add kubernetes --attribute=firstName=kubernetes
+      $ ovirt-aaa-jdbc-tool user password-reset kubernetes
+      $ ovirt-aaa-jdbc-tool user unlock kubernetes
+      $ ovirt-aaa-jdbc-tool group add okd
+      $ ovirt-aaa-jdbc-tool group-manage useradd okd --user kubernetes
+      #+end_example
+   c) Note down the password and modify the secret in the `install-config.yaml`
+   d) Add the user in the ovirt-engine administration portal under =Administration > Users=
+   e) Add the group in the ovirt-engine administration portal under =Administration > Users=
+   f) Add the following permissions to the *okd* group:
+      - =ClusterAdmin=
+      - =DiskCreator=
+      - =DiskOperator=
+      - =TemplateCreator=
+      - =TemplateOwner=
+      - =UserTemplateBasedVm=
 
+* Deploying OCP
 
+In order to deploy OCP, the required steps are the following:
 
+1. Configure a DHCP server to allocate IP addresses to the nodes
+2. Configure DNS entries for ~*.apps.{cluster}.{baseDomain}~, ~apps.{cluster}.{baseDomain}~, ~api.{cluster}.{baseDomain}~ and ~api-internal.{cluster}.{baseDomain}~.
+3. Installing the ~openshift-install~ CLI
+4. Generating the install configuration and manifests
+5. Patching the generated manifests
 
-------
+** Configuring OCP dns entries
 
-Update the =ansible.cfg= and set the private key and user used to authenticate on nodes.
+OCP resolve
 
-To reset the host in =~/.ssh/known_hosts=, run the following
-=for i in {0..nb_host}; do ssh-keygen -R $ip_address$i; done=
-(Assuming continuous IP space for the different hosts)
+The ~api~ entry should resolve to the publicly reachable IP address for the cluster, while the ~api-internal~ entry should resolve to the private IP address for the cluster.
+Both entries can have the same value in the event of a non-publicly reachable cluster.
 
-To deploy (within the nix environment):
+** Installing the ~openshift~ deployment CLI
 
-1. Upgrading calico version
-   a. Get the latest sha256 of calicoctl of calicocrd
-       #+begin_example
-       $ wget -q -O- https://github.com/projectcalico/calicoctl/releases/download/${VERSION}/calicoctl-linux-amd64 | sha256sum -
-       $ wget -q -O- https://github.com/projectcalico/calico/archive/${VERSION}.tar.gz | sha256sum -
-       #+end_example
-   b. Update the hashes in =./inventory/group_vars/k8s-cluster/k8s-net-calico.yml=
-2. Download Calico CRD (because it fails for some reason with kubespray)
-    #+begin_example
-    kubectl apply -f https://docs.projectcalico.org/manifest/calico.yaml
-    #+end_example
-3. Run the kubespray ansible playbook
-    #+begin_example
-    nicolas:keanu.ovh$ cd kubespray
-    nicolas:kubespray$ ansible-playbook cluster.yml --become
-    #+end_example
-4. Reboot physical nodes (optional but was required in my case)
+In order to deploy OKD, the =openshift-install= cli will need to be fetched from the official repository and unpacked.
 
-* Playbook
-A playbook to run after the kubespray deployment is available in =playbook.yaml=.
+** Generating the install configuration and manifests
+
+1. Generate the base configuration with =openshift-install create configs --dir .=
+2. Fetch the latest Tigera manifests from [[https://projectcalico.docs.tigera.io/getting-started/openshift/installation][here]] and add them to a folder named =calico=.
+
+   The script below provides an automated way of creating the =kustomization.yaml= for the Calico/Tigera manifests.
+
+   #+begin_example
+   $ mkdir -p calico
+   # Copy the block of code and run it through this
+   $ wl-paste | awk 'gsub(/manifests/, "calico", $4)' > script.sh
+   $ cat script.sh
+   $ bash script.sh
+   $ resources="$(find calico -type f -printf '%f\0' | sort -z | xargs -r0 printf '- ./%s\n')"
+   $ cat <<EOF >calico/kustomization.yaml
+   apiVersion: kustomize.config.k8s.io/v1beta1
+   kind: Kustomization
+
+   resources:
+   $resources
+   EOF
+   #+end_example
+3. Generate the openshift manifests with =openshift-install create manifests --dir .=
+4. Generate a =kustomization.yaml= file for the manifests in =./manifests= and =./openshift=
+5. Build the final manifests
+   #+begin_example
+   $ kustomize build --enable-alpha-plugins > final-configuration.yaml
+   $ mkdir -p install-dir
+   $ mv final-configuration.yaml install-dir
+   #+end_example
+
+** Installing OKD
 
 #+begin_example
-ansible-playbook playbook.yaml
+$ export OPENSHIFT_INSTALL_PRESERVE_BOOTSTRAP=1
+$ openshift-install create cluster --dir install-dir
+INFO Consuming Install Config from target directory
 #+end_example
+
+* Stuff to look at
+
+- [[https://docs.openshift.com/container-platform/4.9/networking/ingress-operator.html#nw-customize-ingress-error-pages_configuring-ingress][Customizing HAProxy error code response pages]]
+- [[https://docs.openshift.com/container-platform/4.9/networking/routes/route-configuration.html#nw-enabling-hsts-per-route_route-configuration][Enabling HTTP Strict Transport Security per-route]]
+- [[https://docs.openshift.com/container-platform/4.9/networking/routes/route-configuration.html#nw-ingress-creating-a-route-via-an-ingress_route-configuration][Creating a route through an Ingress object]]
+- [[https://docs.openshift.com/container-platform/4.9/operators/admin/olm-adding-operators-to-cluster.html#olm-installing-specific-version-cli_olm-adding-operators-to-a-cluster][Installing a specific version of an Operator]]

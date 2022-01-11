@@ -1,0 +1,25 @@
+apiVersion: operator.tigera.io/v1
+kind: Installation
+metadata:
+  name: default
+spec:
+  variant: Calico
+  registry: quay.io/
+  cni:
+    type: Calico
+    ipam:
+      type: Calico
+  calicoNetwork:
+    bgp: Enabled
+    hostPorts: enabled
+    ipPools:
+    - blockSize: 26
+      cidr: 10.128.0.0/14
+      encapsulation: None
+      natOutgoing: Enabled
+      nodeSelector: all()
+    linuxDataplane: Iptables
+    # No need for multus
+    multiInterfaceMode: None
+    nodeAddressAutodetectionV4:
+      firstFound: true

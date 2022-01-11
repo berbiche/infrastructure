@@ -1,0 +1,38 @@
+apiVersion: machine.openshift.io/v1beta1
+kind: Machine
+metadata:
+  creationTimestamp: null
+  labels:
+    machine.openshift.io/cluster-api-cluster: ocp-bs627
+    machine.openshift.io/cluster-api-machine-role: master
+    machine.openshift.io/cluster-api-machine-type: master
+  name: ocp-bs627-master-0
+  namespace: openshift-machine-api
+spec:
+  metadata: {}
+  providerSpec:
+    value:
+      affinity_groups_names:
+      - ocp-bs627-controlplane
+      apiVersion: ovirtproviderconfig.machine.openshift.io/v1beta1
+      auto_pinning_policy: none
+      cluster_id: 6a4de9b0-66c7-11ec-b38d-00163e01600f
+      cpu:
+        cores: 4
+        sockets: 1
+        threads: 1
+      credentialsSecret:
+        name: ovirt-credentials
+      id: ""
+      kind: OvirtMachineProviderSpec
+      memory_mb: 16384
+      metadata:
+        creationTimestamp: null
+      name: ""
+      os_disk:
+        size_gb: 100
+      template_name: ocp-bs627-rhcos
+      type: high_performance
+      userDataSecret:
+        name: master-user-data
+status: {}

@@ -1,0 +1,9 @@
+# Override the default policy of not replacing X-Forwarded-For headers, etc.
+# This is only relevant for workloads behind an existing load balancer, which is not my case.
+apiVersion: config.openshift.io/v1
+kind: Ingress
+metadata:
+  name: cluster
+spec:
+  httpHeaders:
+    forwardHeaderPolicy: replace

@@ -4,7 +4,7 @@ kind: Kustomization
 namespace: cert-manager
 
 resources:
-  - https://github.com/jetstack/cert-manager/releases/download/v1.4.0/cert-manager.yaml
+  - https://github.com/jetstack/cert-manager/releases/download/v1.6.1/cert-manager.yaml
 
 patchesStrategicMerge:
   - ./patches/certmanager_namespace.yaml

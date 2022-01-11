@@ -1,0 +1,24 @@
+# Publicly routable ingress traffic
+# The rest of my system will be unreachable
+#
+# To use this ingress, the Route must have a label of 'type: public-ingress'
+apiVersion: operator.openshift.io/v1
+kind: IngressController
+metadata:
+  name: public-ingress-controller
+  namespace: openshift-ingress-operator
+spec:
+  # Replace the variable
+  domain: null
+  nodePlacement:
+    nodeSelector:
+      matchLabels:
+        node-role.kubernetes.io/worker: ""
+  routeSelector:
+    matchLabels:
+      type: public-ingress
+  endpointPublishingStrategy:
+    type: NodePortService
+  tlsSecurityProfile:
+    modern: {}
+    type: Modern

@@ -14,7 +14,9 @@ Technologies used:
 - [[https://github.com/serokel/deploy-rs][deploy-rs]] to deploy my NixOS configuration
 - [[https://terraform.io][Terraform]] for the automated DNS and OVH configuration
 - [[https://www.backblaze.com][Backblaze]] for the cheap object storage
-- [[github:ansible/ansible][Ansible]] for imperative configuration management with tasks, roles, etc.
+- [[https://github.com/ansible/ansible][Ansible]] for imperative configuration management with tasks, roles, etc.
+- [[https://okd.io][OKD]] is an OpenShift (Kubernetes) distribution without license requirements
+- [[https://ovirt.org][Ovirt]] and Ovirt Node is used on my single server to host my Kubernetes deployment
 
 TODO: https://plantuml.com/nwdiag
 
@@ -97,71 +99,8 @@ Retention settings for the dovecot email bucket: 30 days
 :PROPERTIES:
 :CUSTOM_ID: kubernetes
 :END:
-*** Creating nodes inside of Proxmox
-:PROPERTIES:
-:CUSTOM_ID: creating-nodes-inside-of-proxmox
-:END:
-I use Proxmox VMs as Kubernetes nodes since I don't have enough
-baremetal servers.
 
-My VMs are not overcommitted.
-
-1. Create a user to access and control Proxmox for Terraform
-
-   The list of privileges to add to the user is specified in the
-   Terraform documentation for the provider.
-
-   #+begin_example
-     root@proxmox:~# pveum user add terraform@pve --password temporary-password
-     root@proxmox:~# pveum role add Terraform -privs "VM.Allocate VM.Clone VM.Config.CDROM VM.Config.CPU VM.Config.Cloudinit VM.Config.Disk VM.Config.HWType VM.Config.Memory VM.Config.Network VM.Config.Options VM.Monitor VM.Audit VM.PowerMgmt Datastore.AllocateSpace Datastore.Audit"
-     root@proxmox:~# pveum aclmod / -user terraform@pve -role Terraform
-     root@proxmox:~# pveum user token add terraform@pve terraform-token --privsep=0
-   #+end_example
-
-2. Create an API token for the user and update the secret file
-
-3. Change the user's password to a strong password generated only for
-   Terraform.
-
-   I had to set the password in the web interface as I couldn't find a
-   way to input the password without it being in the shell's history.
-
-A base VM template has to be created initially for the nodes used in
-Terraform.
-
-This is currently done with Terraform's =remote-exec= provisioner but
-can also be done manually:
-
-*OPTIONAL*
-
-1. ssh into an host
-2. Download Ubuntu 20.04 Focal with
-   ~wget -P /var/lib/vz/template/iso/ https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img~
-3. Create the VM:
-   ~qm create 1000 --memory 16384 --net0 virtio,bridge=vmbr0,tag=42 --cpu=host --socket=1 --cores=6 --ostype=other --serial0=socket --agent=1 --name="cloudimage-ubuntu-template"~
-4. ~qm importdisk 1000 /var/lib/vz/template/iso/focal-server-cloudimg-amd64.img proxthin~
-5. ~qm set 1000 --ide2=proxthin:cloudinit --boot=c --bootdisk=scsi0~
-6. ~qm set 1000 --scsihw=virtio-scsi-pci --scsi0=proxthin:vm-1000-disk-0~
-7. ~qm template 1000~
-
-Where =proxthin= is the name of the LVM thin provisioner on the Proxmox
-host.
-
-*** Pinning CPUs to specific nodes
-:PROPERTIES:
-:CUSTOM_ID: pinning-cpus-to-specific-nodes
-:END:
-To improve performance of the nodes, verify whether the CPU supports pinning nodes
-with =numactl --hardware=.
-Qemu supports pinning VMs to specific cores thanks to NUMA.
-If numa is supported, set each nodes' numa configuration:
-~qm set <vm-id> --numa<numa number node> cpus=0,1,2,3-5, ....~
-
-*** Kubespray cluster deployment
-:PROPERTIES:
-:CUSTOM_ID: kubespray-cluster-deployment
-:END:
-#+INCLUDE: "./kubespray/README.org"
+#+INCLUDE: "./bootstrap/README.org"
 
 *** Applications
 :PROPERTIES:

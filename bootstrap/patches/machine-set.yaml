@@ -1,0 +1,8 @@
+# Set the MachineSet deletion policy
+apiVersion: machine.openshift.io/v1beta1
+kind: MachineSet
+metadata:
+  name: not-important
+  namespace: openshift-machine-api
+spec:
+  deletePolicy: newest

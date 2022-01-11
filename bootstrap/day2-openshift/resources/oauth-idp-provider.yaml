@@ -1,0 +1,17 @@
+apiVersion: config.openshift.io/v1
+kind: OAuth
+metadata:
+  # Don't rename this?
+  name: cluster
+spec:
+  identityProviders:
+  - name: github
+    # Create the user if it does not exist
+    mappingMethod: claim
+    type: GitHub
+    github:
+      clientID: null
+      clientSecret:
+        name: github-client-secret
+      organizations: []
+      teams: []
