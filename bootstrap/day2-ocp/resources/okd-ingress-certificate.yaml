@@ -1,0 +1,23 @@
+# Source: https://github.com/openshift/okd/issues/469
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: okd-tq-rs
+  namespace: openshift-ingress
+spec:
+  secretName: okd-tq-rs
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: '*.apps.ocp.tq.rs'
+  dnsNames:
+  - '*.apps.ocp.tq.rs'
+---
+apiVersion: operator.openshift.io/v1
+kind: IngressController
+metadata:
+  name: default
+  namespace: openshift-ingress-operator
+spec:
+  defaultCertificate:
+    name: okd-tq-rs

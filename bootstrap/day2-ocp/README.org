@@ -15,6 +15,19 @@
 
 * Disabling the kubeadmin user
 
+* Adding an additional IngressController for domain sharding
+
+[[https://docs.openshift.com/container-platform/4.9/networking/configuring_ingress_cluster_traffic/configuring-ingress-cluster-traffic-ingress-controller.html#nw-ingress-sharding-namespace-labels_configuring-ingress-cluster-traffic-ingress-controller][Configuring Ingress Controller sharding by using namespace labels]]
+
+TLDR: an additional IP address used solely for a secondary ingress controller, this way "public" traffic can never hit "private" endpoints.
+
+I should also add network policies in Calico to ensure this behavior.
+
+* Replacing the default certificate with a signed Let's Encrypt certificate
+
+1. Deploy cert-manager from =k8s/cert-manager/overlays/prod=
+2. Run =kubectl apply -f ./resources/okd-ingress-certificate.yaml=
+
 * Adding an Alertmanager endpoint
 
 See https://docs.openshift.com/container-platform/4.9/monitoring/managing-alerts.html#applying-custom-alertmanager-configuration_managing-alerts
