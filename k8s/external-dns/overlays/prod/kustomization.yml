@@ -10,4 +10,4 @@ generators:
 
 images:
   - name: k8s.gcr.io/external-dns/external-dns
-    newTag: "v0.8.0"
+    newTag: "v0.10.2"
