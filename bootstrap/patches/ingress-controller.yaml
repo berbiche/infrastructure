@@ -6,6 +6,11 @@ metadata:
   name: default
   namespace: openshift-ingress-operator
 spec:
+  routeSelector:
+    matchExpressions:
+      - key: type
+        operator: NotIn
+        values: ['public-ingress']
   endpointPublishingStrategy:
     type: NodePortService
   tlsSecurityProfile:
