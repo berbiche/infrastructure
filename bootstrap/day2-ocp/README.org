@@ -40,12 +40,13 @@ See https://docs.openshift.com/container-platform/4.9/monitoring/managing-alerts
 
 2. Add the following YAML under each receivers in the configuration file, replacing the =$URL= variable with the webhook url
    #+begin_example
+   global:
+     slack_api_url: $URL
    receivers:
    - name: default
-     webhook_configs:
+     slack_configs:
      - send_resolved: false
-       url: >-
-         $URL
+       channel: alertes
    #+end_example
 
 3. Deploy
@@ -53,7 +54,7 @@ See https://docs.openshift.com/container-platform/4.9/monitoring/managing-alerts
    $ oc -n openshift-monitoring create secret generic alertmanager-main --from-file=alertmanager.yaml --dry-run -o=yaml | cat 1>&2 | oc -n openshift-monitoring replace secret --filename=-
    #+end_example
 
-** Overriding the default storage class
+* Overriding the default storage class
 
 1. Replace the default StorageClass with the patch =storage-class.yaml=:
 #+begin_example
@@ -61,3 +62,7 @@ $ oc replace --force -f ./resources/storage-class.yaml
 #+end_example
 
 2. Delete pvcs using this default storage class
+
+* Disabling remote health reporting
+
+See https://docs.openshift.com/container-platform/4.9/support/remote_health_monitoring/opting-out-of-remote-health-reporting.html#opting-out-remote-health-reporting
