@@ -7,9 +7,13 @@ kind: IngressController
 metadata:
   name: public-ingress-controller
   namespace: openshift-ingress-operator
+  annotations:
+    ingress.operator.openshift.io/default-enable-http2: "true"
 spec:
   # Replace the variable
   domain: null
+  httpHeaders:
+    forwardedHeaderPolicy: Replace
   nodePlacement:
     nodeSelector:
       matchLabels:
@@ -18,7 +22,11 @@ spec:
     matchLabels:
       type: public-ingress
   endpointPublishingStrategy:
-    type: NodePortService
+    type: LoadBalancerService
+    loadBalancer:
+      scope: External
+      providerParameters:
+        type: BareMetal
   tlsSecurityProfile:
     modern: {}
     type: Modern

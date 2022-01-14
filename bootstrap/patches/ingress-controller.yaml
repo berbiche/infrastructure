@@ -11,6 +11,8 @@ spec:
       - key: type
         operator: NotIn
         values: ['public-ingress']
+  httpHeaders:
+    forwardedHeaderPolicy: Replace
   endpointPublishingStrategy:
     type: NodePortService
   tlsSecurityProfile:

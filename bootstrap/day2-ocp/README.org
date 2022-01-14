@@ -23,7 +23,7 @@ TLDR: an additional IP address used solely for a secondary ingress controller, t
 
 I should also add network policies in Calico to ensure this behavior.
 
-* Replacing the default certificate with a signed Let's Encrypt certificate
+* Replacing the default certificate for the =default= _IngressController_ with a signed Let's Encrypt certificate
 
 1. Deploy cert-manager from =k8s/cert-manager/overlays/prod=
 2. Run =kubectl apply -f ./resources/okd-ingress-certificate.yaml=
