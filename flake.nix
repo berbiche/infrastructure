@@ -57,8 +57,32 @@
 
   in nodesConfigurations // {
 
-    # nix run .#terraform-fhs
-    # nix run .#bmc-access
+    packages = {
+      # nix shell .#openshift-install
+      openshift-install = let
+        url-and-hash = {
+          "x86_64-linux" = {
+            url = "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.9.15/openshift-install-linux-4.9.15.tar.gz";
+            hash = "sha256-cOuyouqZYp/QoRB72BmxgAUjzsSh+BQuRkujXPx9OR0=";
+          };
+          "x86_64-darwin" = {
+            url = "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.9.15/openshift-install-mac-4.9.15.tar.gz";
+            sha256 = pkgs.lib.fakeHash;
+          };
+        }."${system}" or (throw "Unsupported platform");
+        file = pkgs.fetchurl url-and-hash;
+      in pkgs.runCommandLocal "openshift-install" {
+        nativeBuildInputs = [ pkgs.gnutar ];
+        src = file;
+      } ''
+        mkdir -p "$out"/bin
+        tar -zxf "$src" -C "$out"/bin
+      '';
+    };
+
+    # nix run .#terraform-fhs --
+    # nix run .#bmc-access --
+    # nix run .#openshift-install --
     apps = {
       bmc-access = {
         type = "app";
@@ -67,6 +91,10 @@
       terraform-fhs = {
         type = "app";
         program = "${terraformFHS}/bin/${terraformFHS.meta.mainProgram}";
+      };
+      openshift-install = {
+        type = "app";
+        program = "${self.packages.${system}.openshift-install}/bin/openshift-install";
       };
     };
 
