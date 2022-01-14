@@ -5,4 +5,4 @@ metadata:
   name: not-important
   namespace: openshift-machine-api
 spec:
-  deletePolicy: newest
+  deletePolicy: Newest
