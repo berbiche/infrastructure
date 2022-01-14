@@ -3,4 +3,4 @@ address-pools:
     protocol: layer2
     avoid-buggy-ips: true
     addresses:
-      - 10.97.42.200-10.97.42.250
+      - 10.194.0.0/16

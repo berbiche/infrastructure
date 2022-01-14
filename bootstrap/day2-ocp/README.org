@@ -2,7 +2,19 @@
 
 * Deployment...
 
-* Adding permission to my user
+* MetalLB deployment patches
+
+The deployment needs special permissions in order to be deployed.
+
+#+begin_example
+$ oc new-project metallb-system
+$ oc adm policy add-scc-to-user anyuid -z controller -n metallb-system
+$ oc adm policy add-scc-to-user privileged -z speaker -n metallb-system
+#+end_example
+
+Run =kustomize= / =kubectl= command to apply MetalLB.
+
+* Adding permissions to my user
 
   #+begin_example
   $ kubectl apply -f ./resources/add-permission-to-user.yaml
@@ -22,6 +34,8 @@
 TLDR: an additional IP address used solely for a secondary ingress controller, this way "public" traffic can never hit "private" endpoints.
 
 I should also add network policies in Calico to ensure this behavior.
+
+This requires MetalLB in order to to configure the secondary IngressController with a LoadBalancer type IP.
 
 * Replacing the default certificate for the =default= _IngressController_ with a signed Let's Encrypt certificate
 
