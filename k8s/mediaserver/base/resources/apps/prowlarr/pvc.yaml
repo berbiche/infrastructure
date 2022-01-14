@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: jackett-config
-  labels:
-    app.kubernetes.io/name: jackett
+  name: prowlarr-config
+  # labels:
+  #   app.kubernetes.io/name: jackett
 spec:
-  storageClassName: openebs-sc-iscsi
+  storageClassName: ovirt-csi-sc
   accessModes:
     - ReadWriteOnce
   resources:

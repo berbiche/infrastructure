@@ -5,7 +5,7 @@ metadata:
   labels:
     app.kubernetes.io/name: qbittorrent
 spec:
-  storageClassName: openebs-sc-iscsi
+  storageClassName: ovirt-csi-sc
   accessModes:
     - ReadWriteOnce
   resources:

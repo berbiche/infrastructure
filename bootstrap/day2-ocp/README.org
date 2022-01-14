@@ -25,7 +25,7 @@ Run =kustomize= / =kubectl= command to apply MetalLB.
   On the username dropdown, click the "Copy login command" and paste the result
   in the console.
 
-* Disabling the kubeadmin user
+* Disabling the kubeadmin user or replacing the password
 
 * Adding an additional IngressController for domain sharding
 

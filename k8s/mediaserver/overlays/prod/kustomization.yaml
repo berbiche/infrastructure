@@ -9,19 +9,21 @@ resources:
 - ./resources/nfs-volume.yaml
 - ./resources/nfs-pvc.yaml
 
-# patchesStrategicMerge:
-# - ./patches/qbittorrent-affinity.yaml
-
 images:
-- name: linuxserver/jackett
+- name: linuxserver/prowlarr
+  newName: ghcr.io/linuxserver/prowlarr
   newTag: latest
 - name: linuxserver/radarr
+  newName: ghcr.io/linuxserver/radarr
   newTag: develop
 - name: linuxserver/sonarr
+  newName: ghcr.io/linuxserver/sonarr
   newTag: develop
 - name: linuxserver/qbittorrent
-  newTag: version-14.3.4.99202104180633-7350-2c8f322afubuntu20.04.1
+  newName: ghcr.io/linuxserver/qbittorrent
+  newTag: 4.4.0
 - name: linuxserver/tautulli
+  newName: ghcr.io/linuxserver/tautulli
   newTag: latest
 - name: ghcr.io/linuxserver/overseerr
   newTag: latest

@@ -1,51 +1,51 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: jackett
-  labels:
-    app.kubernetes.io/name: jackett
+  name: prowlarr
+  # labels:
+  #   app.kubernetes.io/name: prowlarr
 spec:
   replicas: 1
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: jackett
+  # selector:
+  #   matchLabels:
+  #     app.kubernetes.io/name: prowlarr
   template:
-    metadata:
-      labels:
-        app.kubernetes.io/name: jackett
+    # metadata:
+    #   labels:
+    #     app.kubernetes.io/name: prowlarr
     spec:
       containers:
-        - name: jackett
-          image: linuxserver/jackett:latest
+        - name: prowlarr
+          image: linuxserver/prowlarr:latest
           imagePullPolicy: Always
           ports:
             - name: "http"
               containerPort: 9117
               protocol: TCP
           volumeMounts:
-            - name: jackett-config
+            - name: prowlarr-config
               mountPath: /config
           resources:
             requests:
-              cpu: "100m"
+              cpu: "250m"
               memory: "250Mi"
             limits:
               cpu: "500m"
               memory: "500Mi"
           readinessProbe:
             httpGet:
-              path: /UI/Login
-              port: 9117
+              path: /
+              port: 9696
             periodSeconds: 10
             failureThreshold: 3
           livenessProbe:
             httpGet:
-              path: /UI/Login
-              port: 9117
+              path: /
+              port: 9696
             initialDelaySeconds: 60
             periodSeconds: 10
             failureThreshold: 5
       volumes:
-        - name: jackett-config
+        - name: prowlarr-config
           persistentVolumeClaim:
-            claimName: jackett-config
+            claimName: prowlarr-config

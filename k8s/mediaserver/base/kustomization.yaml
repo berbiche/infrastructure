@@ -5,7 +5,7 @@ namespace: mediaserver
 
 resources:
   - ./resources/namespace.yaml
-  - ./resources/apps/jackett
+  - ./resources/apps/prowlarr
   - ./resources/apps/qbittorrent
   - ./resources/apps/radarr
   - ./resources/apps/sonarr
