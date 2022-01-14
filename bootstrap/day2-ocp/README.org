@@ -59,7 +59,7 @@ See https://docs.openshift.com/container-platform/4.9/monitoring/managing-alerts
    receivers:
    - name: default
      slack_configs:
-     - send_resolved: false
+     - send_resolved: true
        channel: alertes
    #+end_example
 
@@ -80,3 +80,9 @@ $ oc replace --force -f ./resources/storage-class.yaml
 * Disabling remote health reporting
 
 See https://docs.openshift.com/container-platform/4.9/support/remote_health_monitoring/opting-out-of-remote-health-reporting.html#opting-out-remote-health-reporting
+
+* Adding persistent storage to prometheus
+
+See https://docs.okd.io/latest/monitoring/configuring-the-monitoring-stack.html#configuring-the-monitoring-stack_configuring-the-monitoring-stack
+
+Apply the patch in =resources/prometheus-pvc.yaml=.
