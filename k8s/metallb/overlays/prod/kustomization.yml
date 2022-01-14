@@ -13,5 +13,8 @@ configMapGenerator:
 generators:
   - ./generators/secrets-generator.yml
 
+patches:
+  - ./patches/disable-metallb-speaker.yaml
+
 generatorOptions:
   disableNameSuffixHash: true
