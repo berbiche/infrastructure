@@ -78,6 +78,30 @@
         mkdir -p "$out"/bin
         tar -zxf "$src" -C "$out"/bin
       '';
+
+      kubectl-slice = let
+        url-and-hash = {
+          "x86_64-linux" = {
+            url = "https://github.com/patrickdappollonio/kubectl-slice/releases/download/v1.1.0/kubectl-slice_1.1.0_linux_x86_64.tar.gz";
+            hash = "sha256-DKI8WQU7KOqlKosUNno4o61I6KSblUm3CHWPHAEMz/k=";
+          };
+          "x86_64-darwin" = {
+            url = "https://github.com/patrickdappollonio/kubectl-slice/releases/download/v1.1.0/kubectl-slice_1.1.0_darwin_x86_64.tar.gz";
+            sha256 = pkgs.lib.fakeHash;
+          };
+          "aarch64-darwin" = {
+            url = "https://github.com/patrickdappollonio/kubectl-slice/releases/download/v1.1.0/kubectl-slice_1.1.0_darwin_arm64.tar.gz";
+            sha256 = pkgs.lib.fakeHash;
+          };
+        }."${system}" or (throw "Unsupported platform");
+        file = pkgs.fetchurl url-and-hash;
+      in pkgs.runCommandLocal "kubectl-slice" {
+        src = file;
+        nativeBuildInputs = [ pkgs.gnutar ];
+      } ''
+        mkdir -p "$out"/bin
+        tar -zxf "$src" -C "$out"/bin
+      '';
     };
 
     # nix run .#terraform-fhs --
@@ -131,6 +155,9 @@
         pkgs.python38
         pkgs.sops
         pkgs.openshift
+
+        self.packages.${system}.openshift-install
+        self.packages.${system}.kubectl-slice
       ];
 
       /*
