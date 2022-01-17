@@ -13,8 +13,15 @@ resources:
 - ./cluster-scheduler-02-config.yml
 - ./cvo-overrides.yaml
 - ./kube-cloud-config.yaml
-- ./openshift-config-secret-pull-secret.yaml
 - ./openshift-kubevirt-infra-namespace.yaml
 
 generators:
-- ./secret-generator.yaml
+- |
+  apiVersion: viaduct.ai/v1
+  kind: ksops-exec
+  metadata:
+    name: openshift-manifests-secret-generator
+  files:
+    - ./kube-system-configmap-root-ca.yaml
+    - ./machine-config-server-tls-secret.yaml
+    - ./openshift-config-secret-pull-secret.yaml
