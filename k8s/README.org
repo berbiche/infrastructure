@@ -99,7 +99,7 @@ If any of these two things appear then the disks must be cleared, the node-disk-
 
 ** Other
 
-OpenEBS automatically detects disks attached to nodes with [[github:openebs/node-disk-manager][Node Disk Manager]].
+OpenEBS automatically detects disks attached to nodes with [[https://github.com/openebs/node-disk-manager][Node Disk Manager]].
 Nodes that serve a storage backend for NDM have a label set on them: ~openebs.io/nodegroup: storage-node~.
 +These nodes additionnaly have a label to identify the OpenEBS engine running on them: ~openebs.io/engine: mayastor~.+
 

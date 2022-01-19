@@ -14,7 +14,7 @@ Technologies used:
 - [[https://github.com/serokel/deploy-rs][deploy-rs]] to deploy my NixOS configuration
 - [[https://terraform.io][Terraform]] for the automated DNS and OVH configuration
 - [[https://www.backblaze.com][Backblaze]] for the cheap object storage
-- [[github:ansible/ansible][Ansible]] for imperative configuration management with tasks, roles, etc.
+- [[https://github.com/ansible/ansible][Ansible]] for imperative configuration management with tasks, roles, etc.
 
 TODO: https://plantuml.com/nwdiag
 
@@ -160,7 +160,7 @@ If numa is supported, set each nodes' numa configuration:
 :PROPERTIES:
 :CUSTOM_ID: applications
 :END:
-This requires the [[github:viaduct-ai/kustomize-sops][kustomize-sops plugin]].
+This requires the [[https://github.com/viaduct-ai/kustomize-sops][kustomize-sops plugin]].
 This plugin is automatically exposed in the flake shell.
 
 To encrypt a secret: ~sops -i -e k8s/something/overlays/prod/secrets/some-secret~ for instance.
