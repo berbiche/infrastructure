@@ -1,9 +1,0 @@
-apiVersion: crd.projectcalico.org/v1
-kind: BGPPeer
-metadata:
-  name: bgppeer-global-64512
-spec:
-  asNumber: 64512
-  peerIP: 10.97.42.1
-  keepOriginalNextHop: true
-  sourceAddress: "UseNodeIP"

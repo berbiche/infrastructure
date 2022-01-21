@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: calico-resources
+  namespace: tigera-operator
+data:
+  bgp-configuration.yaml: |
+    apiVersion: projectcalico.org/v3
+    kind: BGPConfiguration
+    metadata:
+      name: default
+    spec:
+      asNumber: 64513
+      listenPort: 179
+      logSeverityScreen: Info
+      nodeToNodeMeshEnabled: true
+      serviceLoadBalancerIPs:
+      # Keep in-sync with MetalLB
+      - cidr: 10.194.0.0/16
+      serviceClusterIPs:
+      - cidr: 10.128.0.0/14
+  bgp-peer.yaml: |
+    apiVersion: projectcalico.org/v3
+    kind: BGPPeer
+    metadata:
+      name: bgppeer-global-64512
+    spec:
+      asNumber: 64512
+      peerIP: 10.97.42.1
+      keepOriginalNextHop: true
+      sourceAddress: "UseNodeIP"
