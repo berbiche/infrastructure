@@ -6,4 +6,4 @@ metadata:
 spec:
   upstream: https://amd64.origin.releases.ci.openshift.org/graph
   channel: stable-4
-  clusterID: 45a6727c-58c0-4a9d-93d2-cadda11da710
+  clusterID: 633c8412-dd7e-4ed4-8a28-6a3c072bafad

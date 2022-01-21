@@ -3,30 +3,30 @@ kind: MachineSet
 metadata:
   creationTimestamp: null
   labels:
-    machine.openshift.io/cluster-api-cluster: ocp-bs627
+    machine.openshift.io/cluster-api-cluster: ocp-hkn6w
     machine.openshift.io/cluster-api-machine-role: worker
     machine.openshift.io/cluster-api-machine-type: worker
-  name: ocp-bs627-worker
+  name: ocp-hkn6w-worker
   namespace: openshift-machine-api
 spec:
   replicas: 5
   selector:
     matchLabels:
-      machine.openshift.io/cluster-api-cluster: ocp-bs627
-      machine.openshift.io/cluster-api-machineset: ocp-bs627-worker
+      machine.openshift.io/cluster-api-cluster: ocp-hkn6w
+      machine.openshift.io/cluster-api-machineset: ocp-hkn6w-worker
   template:
     metadata:
       labels:
-        machine.openshift.io/cluster-api-cluster: ocp-bs627
+        machine.openshift.io/cluster-api-cluster: ocp-hkn6w
         machine.openshift.io/cluster-api-machine-role: worker
         machine.openshift.io/cluster-api-machine-type: worker
-        machine.openshift.io/cluster-api-machineset: ocp-bs627-worker
+        machine.openshift.io/cluster-api-machineset: ocp-hkn6w-worker
     spec:
       metadata: {}
       providerSpec:
         value:
           affinity_groups_names:
-          - ocp-bs627-compute
+          - ocp-hkn6w-compute
           apiVersion: ovirtproviderconfig.machine.openshift.io/v1beta1
           auto_pinning_policy: none
           cluster_id: 6a4de9b0-66c7-11ec-b38d-00163e01600f
@@ -44,7 +44,7 @@ spec:
           name: ""
           os_disk:
             size_gb: 100
-          template_name: ocp-bs627-rhcos
+          template_name: ocp-hkn6w-rhcos
           type: server
           userDataSecret:
             name: worker-user-data

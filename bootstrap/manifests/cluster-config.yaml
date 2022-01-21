@@ -27,7 +27,7 @@ data:
           affinityGroupsNames:
           - controlplane
           cpu:
-            cores: 4
+            cores: 6
             sockets: 1
           memoryMB: 16384
           osDisk:

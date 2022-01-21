@@ -13,7 +13,7 @@ status:
   apiServerURL: https://api.ocp.tq.rs:6443
   controlPlaneTopology: HighlyAvailable
   etcdDiscoveryDomain: ""
-  infrastructureName: ocp-bs627
+  infrastructureName: ocp-hkn6w
   infrastructureTopology: HighlyAvailable
   platform: oVirt
   platformStatus:

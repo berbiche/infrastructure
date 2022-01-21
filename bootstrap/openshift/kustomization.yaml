@@ -1,6 +1,9 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+commonAnnotations:
+  qt.rs/installer-dir: openshift
+
 resources:
 - 99_openshift-cluster-api_master-machines-0.yaml
 - 99_openshift-cluster-api_master-machines-1.yaml

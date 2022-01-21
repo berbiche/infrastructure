@@ -7,6 +7,7 @@ creation_rules:
     - pgp:
       - *mine
   - path_regex: bootstrap/.*\.yaml$
+    encrypted_regex: '^(data|stringData)$'
     key_groups:
     - pgp:
       - *mine
