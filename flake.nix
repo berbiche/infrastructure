@@ -60,15 +60,17 @@
     packages = {
       # nix shell .#openshift-install
       openshift-install = let
-        url-and-hash = {
+        url-and-hash = rec {
           "x86_64-linux" = {
-            url = "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.9.15/openshift-install-linux-4.9.15.tar.gz";
-            hash = "sha256-cOuyouqZYp/QoRB72BmxgAUjzsSh+BQuRkujXPx9OR0=";
+            url = "https://github.com/openshift/okd/releases/download/4.9.0-0.okd-2022-01-14-230113/openshift-install-linux-4.9.0-0.okd-2022-01-14-230113.tar.gz";
+            hash = "sha256-I1tj/cO3tXd3G1Lwii+VuFVmjQZTlzn8Q34b/YiJ+Ao=";
           };
           "x86_64-darwin" = {
-            url = "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.9.15/openshift-install-mac-4.9.15.tar.gz";
+            url = "https://github.com/openshift/okd/releases/download/4.9.0-0.okd-2022-01-14-230113/openshift-install-mac-4.9.0-0.okd-2022-01-14-230113.tar.gz";
             sha256 = pkgs.lib.fakeHash;
           };
+          # Universal binary?
+          "aarch64-darwin" = x86_64-darwin;
         }."${system}" or (throw "Unsupported platform");
         file = pkgs.fetchurl url-and-hash;
       in pkgs.runCommandLocal "openshift-install" {
@@ -123,6 +125,8 @@
     };
 
     devShell = pkgs.mkShell {
+      name = "dev";
+
       nativeBuildInputs = [
         sops-nix.sops-import-keys-hook
       ];
