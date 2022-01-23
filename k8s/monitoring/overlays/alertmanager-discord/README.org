@@ -1,0 +1,26 @@
+#+TITLE: Configuring a Discord Alertmanager receiver
+
+I'd rather use something else than Discord.
+
+This is a copy paste from the [[file:~/dev/infra/infrastructure/bootstrap/day2-ocp/README.org][Day2 deployment README]].
+
+1. Extract the current Alertmanager configuration
+   #+begin_example
+   $ oc -n openshift-monitoring get secret alertmanager-main --template='{{ index .data "alertmanager.yaml" }}' | base64 --decode > alertmanager.yaml
+   #+end_example
+
+2. Add the following YAML under each receivers in the configuration file, replacing the =$URL= variable with the webhook url
+   #+begin_example
+   receivers:
+   - name: default
+     webhook_configs:
+     - url: http://alertmanager-discord:9094
+   - name: Critical
+     webhook_configs:
+     - url: http://alertmanager-discord:9094
+   #+end_example
+
+3. Deploy
+   #+begin_example
+   $ oc -n openshift-monitoring create secret generic alertmanager-main --from-file=alertmanager.yaml --dry-run -o=yaml | cat 1>&2 | oc -n openshift-monitoring replace secret --filename=-
+   #+end_example
