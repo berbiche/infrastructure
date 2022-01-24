@@ -1,16 +1,26 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: traefik
 
 resources:
-  - ./resources/namespace.yaml
-  - ./resources/ingress-class.yaml
-
-generators:
-  - ./generators/helm-chart.yaml
+- ./resources/namespace.yaml
+- ./resources/scc.yaml
 
 patchesStrategicMerge:
-  - ./patches/deployment.yaml
+- ./patches/scc-users.yaml
 
-commonLabels:
-  app.kubernetes.io/name: traefik
+# Somehow, the value specified in the Helm Chart is ignored
+replicas:
+- name: traefik
+  count: 3
+
+helmGlobals:
+  chartHome: ./charts
+
+helmCharts:
+- name: traefik
+  releaseName: traefik
+  namespace: traefik
+  version: v10.9.1
+  repo: https://helm.traefik.io/traefik
+  includeCRDs: true
+  valuesFile: ./resources/helm-chart-values.yaml

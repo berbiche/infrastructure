@@ -1,32 +1,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: traefik-dashboard
+  name: oauth2-proxy
+  namespace: traefik
+  labels:
+    app.kubernetes.io/name: traefik
 spec:
+  selector:
+    app.kubernetes.io/name: traefik
   ports:
-    - name: dashboard-http
-      port: 80
-      targetPort: traefik
-  type: ClusterIP
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: traefik-forward-auth
-spec:
-  ports:
-    - name: traefik-forward-auth
-      port: 80
-      targetPort: 4181
-  type: ClusterIP
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: traefik-prometheus
-spec:
-  ports:
-    - name: metrics
-      port: 9100
-      targetPort: traefik
+  - name: oauth2-proxy
+    port: 80
+    targetPort: oauth2-proxy
+    protocol: TCP
   type: ClusterIP

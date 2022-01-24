@@ -9,6 +9,9 @@ The deployment needs special permissions in order to be deployed.
 #+begin_example
 $ oc new-project metallb-system
 $ oc adm policy add-scc-to-user anyuid -z controller -n metallb-system
+
+
+# Only needed if MetalLB is deployed with the Speaker component
 $ oc adm policy add-scc-to-user privileged -z speaker -n metallb-system
 #+end_example
 
@@ -28,6 +31,10 @@ Run =kustomize= / =kubectl= command to apply MetalLB.
 * Disabling the kubeadmin user or replacing the password
 
 * Adding an additional IngressController for domain sharding
+
+**NOTE**: HAProxy requires additionnal configuration (in the form of additionnal plugins)
+to enable a middleware to authenticate requests (oauth2-proxy).
+For this reason, I will simply use Traefik alongside HAProxy.
 
 [[https://docs.openshift.com/container-platform/4.9/networking/configuring_ingress_cluster_traffic/configuring-ingress-cluster-traffic-ingress-controller.html#nw-ingress-sharding-namespace-labels_configuring-ingress-cluster-traffic-ingress-controller][Configuring Ingress Controller sharding by using namespace labels]]
 

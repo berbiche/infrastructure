@@ -1,29 +1,19 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+
 namespace: traefik
 
 resources:
   - ../../base
-  - ./resources/autoscaler.yaml
+  - ./resources/oauth-middleware.yaml
   - ./resources/ingress.yaml
-  - ./resources/middleware.yaml
   - ./resources/services.yaml
-  - ./resources/monitoring.yaml
-  - ./resources/monitoring-rbac.yaml
-
-configMapGenerator:
-  - name: traefik-forward-auth-config
-    files:
-      - traefik-forward-auth.ini=configs/traefik-forward-auth.ini
 
 generators:
-  - ./secrets-generator.yaml
-
-images:
-  - name: traefik
-    newTag: "v2.4.14"
-  - name: thomseddon/traefik-forward-auth
-    newTag: "latest"
-
-commonLabels:
-  app.kubernetes.io/name: traefik
+- |
+  apiVersion: viaduct.ai/v1
+  kind: ksops-exec
+  metadata:
+    name: not-important
+  files:
+  - ./secrets/oauth2-proxy-secrets.yaml

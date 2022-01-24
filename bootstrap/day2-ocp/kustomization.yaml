@@ -4,7 +4,7 @@ kind: Kustomization
 resources:
   # - ./resources/oauthclient.yaml
   - ./resources/oauth-idp-provider.yaml
-  - ./resources/public-ingress-controller.yaml
+  # - ./resources/public-ingress-controller.yaml
 
 generators:
 - ./secrets-generator.yml

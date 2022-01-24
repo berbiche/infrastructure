@@ -1,0 +1,104 @@
+nameOverride: traefik
+fullnameOverride: traefik
+
+globalArguments:
+- --global.checknewversion
+
+additionalArguments:
+- "--accesslog=true"
+- "--providers.kubernetesingress.ingressclass=traefik"
+
+serviceAccountAnnotations:
+  kustomize.config.k8s.io/behavior: replace
+
+autoscaling:
+  enabled: false
+deployment:
+  kind: Deployment
+  replicas: 2
+
+ingressClass:
+  enabled: true
+  isDefaultClass: false
+  fallbackApiVersion: v1
+
+ingressRoute:
+  dashboard:
+    # I have my own route setup
+    enabled: false
+
+pilot:
+  enabled: false
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+ports:
+  web:
+    redirectTo: websecure
+
+service:
+  ipFamilyPolicy: PreferDualStack
+
+nodeSelector:
+  node-role.kubernetes.io/worker: ""
+
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: app.kubernetes.io/name
+          operator: In
+          values: [traefik]
+      topologyKey: kubernetes.io/hostname
+
+deployment:
+  additionalContainers:
+  - image: quay.io/oauth2-proxy/oauth2-proxy:v7.2.0
+    imagePullPolicy: IfNotPresent
+    name: oauth2-proxy
+    ports:
+    - containerPort: 4180
+      name: oauth2-proxy
+      protocol: TCP
+    - containerPort: 44180
+      name: oauth2-metrics
+      protocol: TCP
+    livenessProbe:
+      httpGet:
+        path: /ping
+        port: oauth2-proxy
+        scheme: HTTP
+      initialDelaySeconds: 0
+      timeoutSeconds: 1
+    readinessProbe:
+      httpGet:
+        path: /ping
+        port: oauth2-proxy
+        scheme: HTTP
+      initialDelaySeconds: 0
+      timeoutSeconds: 1
+      successThreshold: 1
+      periodSeconds: 10
+    args:
+      - "--http-address=0.0.0.0:4180"
+      - "--metrics-address=0.0.0.0:44180"
+      - "--email-domain=*"
+      - "--cookie-name=_oauth2"
+      - "--provider=github"
+      - "--provider-display-name=GitHub"
+      - "--upstream=static://202"
+      - "--reverse-proxy=true"
+      - "--redirect-url=https://auth.k8s.qt.rs/oauth2/callback"
+      - "--cookie-domain=k8s.qt.rs"
+      - "--whitelist-domain=.k8s.qt.rs"
+      - "--skip-provider-button"
+      - "--cookie-secure=true"
+      - "--cookie-refresh=1h"
+      - "--cookie-expire=168h" # 1 week
+      # - "--cookie-samesite=strict"
+    envFrom:
+    - secretRef:
+        name: oauth2-proxy-secrets
