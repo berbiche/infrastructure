@@ -2,17 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prowlarr
-  # labels:
-  #   app.kubernetes.io/name: prowlarr
 spec:
   replicas: 1
-  # selector:
-  #   matchLabels:
-  #     app.kubernetes.io/name: prowlarr
   template:
-    # metadata:
-    #   labels:
-    #     app.kubernetes.io/name: prowlarr
     spec:
       containers:
         - name: prowlarr
@@ -20,7 +12,7 @@ spec:
           imagePullPolicy: Always
           ports:
             - name: "http"
-              containerPort: 9117
+              containerPort: 9696
               protocol: TCP
           volumeMounts:
             - name: prowlarr-config
@@ -35,13 +27,15 @@ spec:
           readinessProbe:
             httpGet:
               path: /
-              port: 9696
+              port: http
+              scheme: HTTP
             periodSeconds: 10
             failureThreshold: 3
           livenessProbe:
             httpGet:
               path: /
-              port: 9696
+              port: http
+              scheme: HTTP
             initialDelaySeconds: 60
             periodSeconds: 10
             failureThreshold: 5

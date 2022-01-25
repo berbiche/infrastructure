@@ -6,6 +6,5 @@ resources:
   - ./service.yaml
   - ./pvc.yaml
 
-
 commonLabels:
   app.kubernetes.io/name: organizr

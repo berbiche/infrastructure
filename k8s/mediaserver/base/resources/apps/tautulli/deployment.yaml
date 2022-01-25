@@ -35,13 +35,15 @@ spec:
           readinessProbe:
             httpGet:
               path: /
-              port: 8181
+              port: http
+              scheme: HTTP
             periodSeconds: 10
             failureThreshold: 3
           livenessProbe:
             httpGet:
               path: /
-              port: 8181
+              port: http
+              scheme: HTTP
             initialDelaySeconds: 60
             periodSeconds: 10
             failureThreshold: 5

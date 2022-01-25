@@ -12,7 +12,7 @@ resources:
 images:
 - name: linuxserver/prowlarr
   newName: ghcr.io/linuxserver/prowlarr
-  newTag: latest
+  newTag: nightly
 - name: linuxserver/radarr
   newName: ghcr.io/linuxserver/radarr
   newTag: develop

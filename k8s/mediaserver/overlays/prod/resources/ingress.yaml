@@ -13,7 +13,7 @@ spec:
     - hosts:
         - sonarr.k8s.qt.rs
         - radarr.k8s.qt.rs
-        - jackett.k8s.qt.rs
+        - prowlarr.k8s.qt.rs
         - tautulli.k8s.qt.rs
         - qbittorrent.k8s.qt.rs
         - overseerr.k8s.qt.rs
@@ -40,14 +40,14 @@ spec:
                 name: radarr
                 port:
                   name: http
-    - host: jackett.k8s.qt.rs
+    - host: prowlarr.k8s.qt.rs
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: jackett
+                name: prowlarr
                 port:
                   name: http
     - host: qbittorrent.k8s.qt.rs
@@ -90,7 +90,7 @@ metadata:
     external-dns.alpha.kubernetes.io/target: k8s.qt.rs
 spec:
   ingressClassName: traefik
-  # tls specified above
+  # tls specified in previous ingress
   rules:
     - host: overseerr.k8s.qt.rs
       http:
