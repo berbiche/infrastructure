@@ -5,8 +5,8 @@
 - Cert-manager to manage certificates
 - metallb to manage ip allocation in the cluster
 - calico as the CNI
-- longhorn for disk and storage provisioning
 - ExternalDNS to expose DNS records to Cloudflare
+- OKD provides the monitoring stack and a CSI driver with the oVirt deployment
 
 * Kustomize
 
@@ -18,93 +18,17 @@ kustomize build --enable-alpha-plugins something/overlays/prod | kubectl apply -
 * Deployment
 
 1. Deploy metallb
-2. Deploy external-dns (has no dependencies)
+2. Deploy external-dns
 3. Deploy cert-manager
-4. Reapply cert-manager
-5. Deploy OpenEBS ~overlays/prod~
-6. Fix OpenEBS disks pool
-7. Reapply OpenEBS ~overlays/prod~
-8. Deploy Traefik ~overlays/prod~
-9. Reapply Traefik for to apply ingresses
-10. Deploy Monitoring stack ~overlays/prod~
-11. Reapply Traefik for the monitoring stuff ~overlays/prod~
-12. Reapply OpenEBS for the monitoring stuff ~overlays/monitoring~
-13. Deploy the remaining resources
+4. Deploy Traefik (has a dependency on Cert Manager and MetalLB)
+5. Deploy the remaining resources
 
 * ExternalDNS
-ExternalDNS automatically inserts CNAME entries to ~k8s.qt.rs~ for each ingress I define
-and annotate with the ~external-dns.alpha.kubernetes.io/target: k8s.qt.rs~.
+ExternalDNS automatically inserts CNAME entries pointing to ~k8s.qt.rs~ for each ingress defined
+and annotated with ~external-dns.alpha.kubernetes.io/target: k8s.qt.rs~.
 
 While I could use a generic =*= CNAME entry that points to ~k8s.qt.rs~, I prefer having
-unresolvable domains (this is not a security by obscurity thing, I'd rather have an NX domain than a 404 status page).
+unresolvable domains.
+Also, when my ISP will properly support IPv6, I will add =AAAA= records and =CNAME= records for the IPv4 scenario.
 
-Domains that only allow access by administrators (myself) are gated behind a OAuth middleware in Traefik.
-
-* OpenEBS
-I use OpenEBS for storage because I have local disks attached directly to my server (i.e. a "hyper-converged" installation).
-
-OpenEBS has multiple backends. I use the cStor backend because it has better performance than the Jiva backend.
-
-+I use the Mayastor backend instead of the Jiva/cStor because the performance of the backend seemed good.+
-The in-development Mayastor backend currently (2021-06-30) uses a busy-loop which pins 1 cpu core per-host where OpenEBS has a pod running.
-This mecanism is used to ensure events are always processed in due time.
-The downside is that it uses a full cpu core on a node, increasing the heat and power usage.
-I observed an increase in power usage of at least 60W using Mayastor on 4 k8s nodes in Proxmox.
-For this reason, I chose to use the cStor backend.
-
-** Configuration
-
-1. Add raw disks to Proxmox VMs (disk passthrough)
-
-  For each VM, attach one disk for high availability (in case of disk failure or virtual node failure).
-
-  #+begin_example
-    # Identify disks
-    root@proxmox:~# ls -l /dev/disk/by-id
-    ...
-    root@proxmox:~# qm set $VM_ID -scsi1 /dev/disk/by-id/ata-something-something
-  #+end_example
-
-  If any disks were part of a zfs pool, the zfs_member label must be cleared:
-  #+begin_example
-    root@proxmox:~# lsblk -f
-    root@proxmox:~# zpool labelclear -f /dev/disk/by-id/the-disk
-  #+end_example
-
-** Debugging
-
-Sometimes BlockDevices will remain in an unclaimed state if they still have old information.
-This can be verified with the following command:
-#+begin_example
-  $ kubectl get bd -n openebs -o yaml | grep internal
-    internal.openebs.io/partition-uuid: <uuid>
-    internal.openebs.io/uuid-scheme: legacy
-    # Or
-    internal.openebs.io/fsuuid: <uuid>
-    internal.openebs.io/uuid-scheme: legacy
-#+end_example
-
-If any of these two things appear then the disks must be cleared, the node-disk-manager pods deleted (to be recreated) and the bd/bdc removed.
-
-#+begin_example
-  root@proxmox:~# for i in {a,b,c}; do
-    wipefs -fa /dev/sd$i;
-    dd if=/dev/zero of=/dev/sd$i bs=4M count=1 conv=notrunc oflag=sync status=progress;
-  done
-
-  $ kubectl delete -n openebs bd --all
-  $ kubectl delete -n openebs bdc --all
-  $ kubectl delete -n openebs pods -l name=openebs-ndm
-#+end_example
-
-** Other
-
-OpenEBS automatically detects disks attached to nodes with [[github:openebs/node-disk-manager][Node Disk Manager]].
-Nodes that serve a storage backend for NDM have a label set on them: ~openebs.io/nodegroup: storage-node~.
-+These nodes additionnaly have a label to identify the OpenEBS engine running on them: ~openebs.io/engine: mayastor~.+
-
-The cStor pool definition will need to be filled out manually.
-After deploying the configuration with ~kustomize build openebs/overlays/prod | kubectl apply -f -~,
-obtain the discovered block devices with ~kubectl get blockdevices~.
-
-The list of block devices name will have to be used in the definition of the cStor pool.
+Domains that only allow access by administrators (myself) are gated behind an OAuth middleware in Traefik.

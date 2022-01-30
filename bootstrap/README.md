@@ -1,20 +1,20 @@
 
 # Table of Contents
 
-1.  [Deploying oVirt Node](#org5037e15)
-2.  [Setup GlusterFS](#orgc8391bb)
-3.  [Deploy HostedEngine VM](#org31c74e5)
-4.  [Configuring a new user for OCP](#org26453f8)
-5.  [Deploying OCP](#orga6c67cd)
-    1.  [Configuring OCP dns entries](#orgc70e3a1)
-    2.  [Installing the `openshift` deployment CLI](#org5cd1e8d)
-    3.  [Generating the install configuration and manifests](#orge0e1436)
-    4.  [Installing OKD](#org5dcb9d0)
-6.  [Stuff to look at](#org98f72e9)
+1.  [Deploying oVirt Node](#orgbcdbb17)
+2.  [Installing and configuring GlusterFS](#org9188d5c)
+3.  [Deploying the HostedEngine VM](#orga4e34b9)
+4.  [Configuring a new user for OCP](#org0a4c9c9)
+5.  [Deploying OKD](#org7c94ae4)
+    1.  [Configuring OKD dns entries](#org079119f)
+    2.  [Installing the `openshift` deployment CLI](#org8d74092)
+    3.  [Generating the install configuration and manifests](#org4df47d6)
+    4.  [Creating the cluster](#org1c52cd7)
+6.  [Stuff to look at](#org241b137)
 
 
 
-<a id="org5037e15"></a>
+<a id="orgbcdbb17"></a>
 
 # Deploying oVirt Node
 
@@ -27,9 +27,9 @@ device.
 Afterwards, HostedEngine can be deployed in oVirt.
 
 
-<a id="orgc8391bb"></a>
+<a id="org9188d5c"></a>
 
-# Setup GlusterFS
+# Installing and configuring GlusterFS
 
 1.  Make sure to generate an ssh private key (with no password) for the root user.
     1.  Then, as the root user on the ovirt node, ssh on the ovirt node (`ssh root@localhost`)
@@ -39,16 +39,16 @@ Afterwards, HostedEngine can be deployed in oVirt.
     1.  Add a brick for the kubernetes cluster with at least 500GB of space.
 
 
-<a id="org31c74e5"></a>
+<a id="orga4e34b9"></a>
 
-# Deploy HostedEngine VM
+# Deploying the HostedEngine VM
 
 HostedEngine needs to be deployed and should use the configured glusterfs storage.
 
 1.  Deploy a hyperconverged HostedEngine VM through Cockpit&rsquo;s UI
 
 
-<a id="org26453f8"></a>
+<a id="org0a4c9c9"></a>
 
 # Configuring a new user for OCP
 
@@ -73,30 +73,32 @@ HostedEngine needs to be deployed and should use the configured glusterfs storag
         -   `UserTemplateBasedVm`
 
 
-<a id="orga6c67cd"></a>
+<a id="org7c94ae4"></a>
 
-# Deploying OCP
+# Deploying OKD
 
-In order to deploy OCP, the required steps are the following:
+The steps to deploy OKD are the following:
 
-1.  Configure a DHCP server to allocate IP addresses to the nodes
-2.  Configure DNS entries for `*.apps.{cluster}.{baseDomain}`, `apps.{cluster}.{baseDomain}`, `api.{cluster}.{baseDomain}` and `api-internal.{cluster}.{baseDomain}`.
-3.  Installing the `openshift-install` CLI
-4.  Generating the install configuration and manifests
-5.  Patching the generated manifests
-
-
-<a id="orgc70e3a1"></a>
-
-## Configuring OCP dns entries
-
-OCP resolve
-
-The `api` entry should resolve to the publicly reachable IP address for the cluster, while the `api-internal` entry should resolve to the private IP address for the cluster.
-Both entries can have the same value in the event of a non-publicly reachable cluster.
+1.  Configure a DHCP server to allocate IP addresses for the nodes
+2.  Configure DNS entries
+3.  Install the `openshift-install` CLI
+4.  Generate the install configuration and manifests
+5.  Patch the generated manifests
+6.  Create the cluster with the patched manifests
 
 
-<a id="org5cd1e8d"></a>
+<a id="org079119f"></a>
+
+## Configuring OKD dns entries
+
+OKD requires the following DNS entries during the bootstrap phase and after.
+
+-   `*.apps.{cluster}.baseDomain`: points to the Haproxy LoadBalancer IP
+-   `api-internal.{cluster}.baseDomain`: points to a virtual IP for the API server
+-   `api.{cluster}.baseDomain`: ditto
+
+
+<a id="org8d74092"></a>
 
 ## Installing the `openshift` deployment CLI
 
@@ -106,7 +108,7 @@ The cli is also available as a Nix derivation in the `Flake.nix`.
 It is automatically available when using direnv.
 
 
-<a id="orge0e1436"></a>
+<a id="org4df47d6"></a>
 
 ## Generating the install configuration and manifests
 
@@ -132,12 +134,13 @@ It is automatically available when using direnv.
         $resources
         EOF
 3.  Generate the openshift manifests with `openshift-install create manifests --dir .`
+    This may consume the `openshift-install.yaml` file.
 4.  Generate a `kustomization.yaml` file for the manifests in `manifests` and `openshift`
 
 
-<a id="org5dcb9d0"></a>
+<a id="org1c52cd7"></a>
 
-## Installing OKD
+## Creating the cluster
 
 1.  Generate the final resources
     
@@ -222,7 +225,7 @@ It is automatically available when using direnv.
         INFO Consuming Install Config from target directory
 
 
-<a id="org98f72e9"></a>
+<a id="org241b137"></a>
 
 # Stuff to look at
 

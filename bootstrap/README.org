@@ -10,7 +10,7 @@ In order to deploy OKD, the oVirt node has to be setup alongside a storage
 device.
 Afterwards, HostedEngine can be deployed in oVirt.
 
-* Setup GlusterFS
+* Installing and configuring GlusterFS
 
 1. Make sure to generate an ssh private key (with no password) for the root user.
    a. Then, as the root user on the ovirt node, ssh on the ovirt node (=ssh root@localhost=)
@@ -19,7 +19,7 @@ Afterwards, HostedEngine can be deployed in oVirt.
 3. Setup glusterfs through Cockpit's UI to use the raid device
    a. Add a brick for the kubernetes cluster with at least 500GB of space.
 
-* Deploy HostedEngine VM
+* Deploying the HostedEngine VM
 
 HostedEngine needs to be deployed and should use the configured glusterfs storage.
 
@@ -48,22 +48,24 @@ HostedEngine needs to be deployed and should use the configured glusterfs storag
       - =TemplateOwner=
       - =UserTemplateBasedVm=
 
-* Deploying OCP
+* Deploying OKD
 
-In order to deploy OCP, the required steps are the following:
+The steps to deploy OKD are the following:
 
-1. Configure a DHCP server to allocate IP addresses to the nodes
-2. Configure DNS entries for ~*.apps.{cluster}.{baseDomain}~, ~apps.{cluster}.{baseDomain}~, ~api.{cluster}.{baseDomain}~ and ~api-internal.{cluster}.{baseDomain}~.
-3. Installing the ~openshift-install~ CLI
-4. Generating the install configuration and manifests
-5. Patching the generated manifests
+1. Configure a DHCP server to allocate IP addresses for the nodes
+2. Configure DNS entries
+3. Install the ~openshift-install~ CLI
+4. Generate the install configuration and manifests
+5. Patch the generated manifests
+6. Create the cluster with the patched manifests
 
-** Configuring OCP dns entries
+** Configuring OKD dns entries
 
-OCP resolve
+OKD requires the following DNS entries during the bootstrap phase and after.
 
-The ~api~ entry should resolve to the publicly reachable IP address for the cluster, while the ~api-internal~ entry should resolve to the private IP address for the cluster.
-Both entries can have the same value in the event of a non-publicly reachable cluster.
+- ~*.apps.{cluster}.baseDomain~: points to the Haproxy LoadBalancer IP
+- ~api-internal.{cluster}.baseDomain~: points to a virtual IP for the API server
+- ~api.{cluster}.baseDomain~: ditto
 
 ** Installing the ~openshift~ deployment CLI
 
@@ -98,9 +100,10 @@ It is automatically available when using direnv.
    EOF
    #+end_example
 3. Generate the openshift manifests with =openshift-install create manifests --dir .=
+   This may consume the =openshift-install.yaml= file.
 4. Generate a =kustomization.yaml= file for the manifests in =manifests= and =openshift=
 
-** Installing OKD
+** Creating the cluster
 
 1. Generate the final resources
 
