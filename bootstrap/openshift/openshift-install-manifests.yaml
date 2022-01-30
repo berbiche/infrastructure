@@ -1,9 +1,0 @@
-apiVersion: v1
-data:
-  invoker: user
-  version: unreleased-master-5011-geb132dae953888e736c382f1176c799c0e1aa49e-dirty
-kind: ConfigMap
-metadata:
-  creationTimestamp: null
-  name: openshift-install-manifests
-  namespace: openshift-config

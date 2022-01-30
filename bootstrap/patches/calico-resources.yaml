@@ -18,7 +18,7 @@ data:
       # Keep in-sync with MetalLB
       - cidr: 10.194.0.0/16
       serviceClusterIPs:
-      - cidr: 10.128.0.0/14
+      - cidr: 172.30.0.0/16
   bgp-peer.yaml: |
     apiVersion: projectcalico.org/v3
     kind: BGPPeer

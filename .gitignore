@@ -14,10 +14,3 @@ kubeconfig
 
 # Jsonnet
 vendor/
-
-bootstrap/install-dir/**
-!bootstrap/install-dir/install-config.yaml
-!bootstrap/install-dir/manifests
-!bootstrap/install-dir/manifests/.keep
-!bootstrap/install-dir/openshift
-!bootstrap/install-dir/openshift/.keep

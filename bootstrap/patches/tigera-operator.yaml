@@ -11,9 +11,9 @@ spec:
       type: Calico
   calicoNetwork:
     bgp: Enabled
-    hostPorts: enabled
+    hostPorts: Enabled
     ipPools:
-    - blockSize: 26
+    - blockSize: 23
       cidr: 10.128.0.0/14
       encapsulation: None
       natOutgoing: Enabled

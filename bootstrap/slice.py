@@ -75,6 +75,13 @@ for doc in documents:
         continue
     filename = Path(args.output) / target_directory / name
 
+    # Create parents as needed
+    if not filename.parent.exists():
+        if DRY_RUN:
+            print(f"Would create directory {filename.parent}")
+        else:
+            filename.parent.mkdir(parents=True, exist_ok=True)
+
     if DRY_RUN:
         print(f"Would write {filename}")
     else:

@@ -69,6 +69,9 @@ Both entries can have the same value in the event of a non-publicly reachable cl
 
 In order to deploy OKD, the =openshift-install= cli will need to be fetched from the official repository and unpacked.
 
+The cli is also available as a Nix derivation in the =Flake.nix=.
+It is automatically available when using direnv.
+
 ** Generating the install configuration and manifests
 
 1. Generate the base configuration with =openshift-install create configs --dir .=
@@ -87,38 +90,40 @@ In order to deploy OKD, the =openshift-install= cli will need to be fetched from
    apiVersion: kustomize.config.k8s.io/v1beta1
    kind: Kustomization
 
+   commonAnnotations:
+     qt.rs/installer-dir: manifests
+
    resources:
    $resources
    EOF
    #+end_example
 3. Generate the openshift manifests with =openshift-install create manifests --dir .=
-4. Generate a =kustomization.yaml= file for the manifests in =./manifests= and =./openshift=
-5. Build the final manifests
-   #+begin_example
-   $ kustomize build --enable-alpha-plugins > final-configuration.yaml
-   $ mkdir -p install-dir
-   $ mv final-configuration.yaml install-dir
-   #+end_example
+4. Generate a =kustomization.yaml= file for the manifests in =manifests= and =openshift=
 
 ** Installing OKD
 
 1. Generate the final resources
 
   #+begin_example
-  $ kustomize build --enable-alpha-plugins bootstrap | ./slice.py -o install-dir
+  $ mkdir -p bootstrap/install-dir
+  $ kustomize build --enable-alpha-plugins bootstrap | ./slice.py -o bootstrap/install-dir
   #+end_example
 
-  Make sure the file =manifests/cluster-config.yaml= exists
+  Make sure the file =manifests/cluster-config.yaml= exists.
 
 2. Begin the installation
 
   Make sure to delete the file =install-config.yaml= in the installation directory
   or to move it out of the =install-dir= folder.
 
+  The hidden file =.openshift_install_state.json= **MUST** exist
+  otherwise the installer will not use ANY generated manifests.
+
   The installation directory should look like this:
 
   #+begin_example
   install-dir
+  ├── .openshift_install_state.json
   ├── manifests
   │   ├── 00-namespace-tigera-operator.yaml
   │   ├── 01-cr-apiserver.yaml
@@ -180,7 +185,8 @@ In order to deploy OKD, the =openshift-install= cli will need to be fetched from
   #+end_example
 
   #+begin_example
-  $ openshift-install create cluster --dir install-dir
+  $ openshift-install create cluster --dir install-dir --log-level=debug
+  DEBUG .....
   INFO Consuming Install Config from target directory
   #+end_example
 
