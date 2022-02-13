@@ -67,7 +67,7 @@
           };
           "x86_64-darwin" = {
             url = "https://github.com/openshift/okd/releases/download/4.9.0-0.okd-2022-01-14-230113/openshift-install-mac-4.9.0-0.okd-2022-01-14-230113.tar.gz";
-            sha256 = pkgs.lib.fakeHash;
+            sha256 = "sha256-gJ3MnOllGdCrWGT4I8IoVf8Mc2cW7DzXqg3EwQPq3qo=";
           };
           # Universal binary?
           "aarch64-darwin" = x86_64-darwin;
@@ -93,7 +93,7 @@
           };
           "aarch64-darwin" = {
             url = "https://github.com/patrickdappollonio/kubectl-slice/releases/download/v1.1.0/kubectl-slice_1.1.0_darwin_arm64.tar.gz";
-            sha256 = pkgs.lib.fakeHash;
+            sha256 = "sha256-mjqCD5jnBXk496IXOeakxvQ7jW8Js1MlHFxLmd76Wf8=";
           };
         }."${system}" or (throw "Unsupported platform");
         file = pkgs.fetchurl url-and-hash;
