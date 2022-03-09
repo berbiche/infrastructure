@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: traefik-status-page
+  namespace: traefik
+  labels:
+    app.kubernetes.io/name: traefik-status-page
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: traefik-status-page
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: traefik-status-page
+    spec:
+      imagePullSecrets:
+      - name: quay-io-berbiche-okd-pull-secret
+      containers:
+      - name: traefik-status-page
+        image: quay.io/berbiche/cringy-404-page
+        ports:
+        - name: web
+          containerPort: 80
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /404.html
+            port: web
+            scheme: HTTP
+          periodSeconds: 10
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /404.html
+            port: web
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          failureThreshold: 5
+        resources:
+          requests:
+            cpu: 50m
+          limits:
+            cpu: 100m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik-status-page
+  namespace: traefik
+  labels:
+    app.kubernetes.io/name: traefik-status-page
+spec:
+  selector:
+    app.kubernetes.io/name: traefik-status-page
+  ports:
+  - name: web
+    port: 80
+    targetPort: web
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: not-found-status-page
+  namespace: traefik
+spec:
+  errors:
+    status:
+    - "404"
+    query: "/{status}.html"
+    service:
+      name: traefik-status-page
+      port: web

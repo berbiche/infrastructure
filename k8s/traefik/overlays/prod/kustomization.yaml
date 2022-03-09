@@ -8,6 +8,7 @@ resources:
   - ./resources/oauth-middleware.yaml
   - ./resources/ingress.yaml
   - ./resources/services.yaml
+  - ./resources/404-page.yaml
 
 generators:
 - |

@@ -1,13 +1,23 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+buildMetadata: [originAnnotations]
+
 resources:
   # - ./resources/oauthclient.yaml
   - ./resources/oauth-idp-provider.yaml
   # - ./resources/public-ingress-controller.yaml
 
 generators:
-- ./secrets-generator.yml
+- |
+  apiVersion: viaduct.ai/v1
+  kind: ksops-exec
+  metadata:
+    name: day2-openshift-secrets
+  files:
+    # kustomize/kustomize-sops loads the secrets relative to the kustomization.yaml
+    - ./secrets/github-client-secret.yaml
+    - ./secrets/quay-io-berbiche-secret.yaml
 
 patches:
 # Overrides the GitHub identity provider organization

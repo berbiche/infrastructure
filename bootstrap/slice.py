@@ -81,6 +81,7 @@ for doc in documents:
             print(f"Would create directory {filename.parent}")
         else:
             filename.parent.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory {filename.parent}")
 
     if DRY_RUN:
         print(f"Would write {filename}")
