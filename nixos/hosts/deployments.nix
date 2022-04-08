@@ -1,13 +1,15 @@
-{ inputs, system, rootPath }:
+{ inputs, rootPath }:
 
 let
+  targetSystem = "x86_64-linux";
+
   inherit (inputs) nixpkgs;
   inherit (nixpkgs) lib;
 
-  activateNixos = inputs.deploy-rs.lib.${system}.activate.nixos;
+  activateNixos = inputs.deploy-rs.lib.${targetSystem}.activate.nixos;
 
   makeHost = host: lib.nixosSystem {
-    inherit system;
+    system = targetSystem;
     modules = [
       inputs.sops-nix.nixosModule
       (./. + "/${host}")
@@ -20,7 +22,7 @@ let
       inherit inputs rootPath;
     };
     pkgs = import nixpkgs {
-      inherit system;
+      system = targetSystem;
       overlays = builtins.attrValues inputs.self.overlays;
       config.allowUnfree = true;
     };

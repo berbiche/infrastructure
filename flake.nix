@@ -9,13 +9,27 @@
   inputs.sops-nix.url = "github:Mic92/sops-nix";
 
   # Modules
-  inputs.simple-nixos-mailserver.url = "gitlab:simple-nixos-mailserver/nixos-mailserver";
+  inputs.simple-nixos-mailserver.url = "gitlab:simple-nixos-mailserver/nixos-mailserver/nixos-21.11";
+  inputs.simple-nixos-mailserver.inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs-21_05.url = "github:nixos/nixpkgs/nixos-21.05";
+    nixpkgs-21_11.url = "github:nixos/nixpkgs/nixos-21.11";
+  };
 
   outputs = inputs@{ self, nixpkgs, deploy-rs, ... }: let
     supportedSystems = [ "x86_64-linux" "x86_64-darwin" "aarch64-darwin" ];
+
+    nodesConfigurations = import ./nixos/hosts/deployments.nix {
+      inherit inputs;
+      rootPath = ./nixos;
+    };
   in {
     overlays.packages = import ./nixos/pkgs;
     overlays.inputs = final: prev: { inherit inputs; };
+
+    inherit (nodesConfigurations) deploy;
+
+    checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
   }
   // inputs.flake-utils.lib.eachSystem supportedSystems (system: let
     pkgs = import inputs.nixpkgs-unstable {
@@ -24,11 +38,6 @@
     };
     sops-nix = inputs.sops-nix.packages.${system};
     terraform = pkgs.terraform_0_14;
-
-    nodesConfigurations = import ./nixos/hosts/deployments.nix {
-      inherit inputs system;
-      rootPath = ./nixos;
-    };
 
     # FHS for the terraform-provider-b2
     # because writing a derivation is complex (it embeds a python binary generated with pyinstaller)
@@ -55,8 +64,7 @@
       meta.mainProgram = terraformFHS.name;
     };
 
-  in nodesConfigurations // {
-
+  in {
     packages = {
       # nix shell .#openshift-install
       openshift-install = let
@@ -182,7 +190,5 @@
         #  export fpath=($fpath $SFPATH/share/zsh/site-functions)
         # fi
     };
-
-    checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
   });
 }
