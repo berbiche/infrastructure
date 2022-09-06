@@ -37,7 +37,7 @@
       overlays = builtins.attrValues self.overlays;
     };
     sops-nix = inputs.sops-nix.packages.${system};
-    terraform = pkgs.terraform_0_14;
+    terraform = pkgs.terraform_1;
 
     # FHS for the terraform-provider-b2
     # because writing a derivation is complex (it embeds a python binary generated with pyinstaller)
@@ -153,7 +153,7 @@
         deploy-rs.defaultPackage.${system}
         terraform
         sops-nix.ssh-to-pgp
-        pkgs.ansible_2_9
+        pkgs.ansible_2_13
         pkgs.jsonnet
         pkgs.jsonnet-bundler
         pkgs.kubectl
@@ -164,7 +164,7 @@
         pkgs.kustomize
         # pkgs.ltrace
         pkgs.pipenv
-        pkgs.python38
+        pkgs.python311
         pkgs.sops
         pkgs.openshift
 
