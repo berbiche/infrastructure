@@ -1,7 +1,7 @@
 {
   description = "Deployment for my OVH VPS";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-21.11";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.05";
   inputs.nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable-small";
   inputs.deploy-rs.url = "github:serokell/deploy-rs";
   inputs.flake-utils.url = "github:numtide/flake-utils";
@@ -9,11 +9,10 @@
   inputs.sops-nix.url = "github:Mic92/sops-nix";
 
   # Modules
-  inputs.simple-nixos-mailserver.url = "gitlab:simple-nixos-mailserver/nixos-mailserver/nixos-21.11";
+  inputs.simple-nixos-mailserver.url = "gitlab:simple-nixos-mailserver/nixos-mailserver/nixos-22.05";
   inputs.simple-nixos-mailserver.inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    nixpkgs-21_05.url = "github:nixos/nixpkgs/nixos-21.05";
-    nixpkgs-21_11.url = "github:nixos/nixpkgs/nixos-21.11";
+    nixpkgs.follows = "nixpkgs-unstable";
+    nixpkgs-22_05.follows = "nixpkgs";
   };
 
   outputs = inputs@{ self, nixpkgs, deploy-rs, ... }: let
@@ -132,7 +131,7 @@
       };
     };
 
-    devShell = pkgs.mkShell {
+    devShells.default = pkgs.mkShell {
       name = "dev";
 
       nativeBuildInputs = [
