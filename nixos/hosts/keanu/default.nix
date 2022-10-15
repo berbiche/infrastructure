@@ -37,11 +37,11 @@
     interfaces = {
       eth0 = {
         ipv4.addresses = [
-          { address="51.222.15.167"; prefixLength=32; }
+          { address = "51.222.15.167"; prefixLength = 32; }
         ];
         ipv6.addresses = [
-          { address="fe80::f816:3eff:feb6:863d"; prefixLength=64; }
-          { address="2607:5300:205:200::404"; prefixLength=128; }
+          { address = "fe80::f816:3eff:feb6:863d"; prefixLength = 64; }
+          { address = "2607:5300:205:200::404"; prefixLength = 128; }
         ];
         ipv4.routes = [ { address = "51.222.12.1"; prefixLength = 32; } ];
         ipv6.routes = [ { address = "2607:5300:205:200::1"; prefixLength = 128; } ];
