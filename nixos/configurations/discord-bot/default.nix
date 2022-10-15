@@ -36,11 +36,10 @@ in
         text = ''
           #！/bin/bash
           cd bot;
-          if [ ! -f JMusicBot-''${VERSION}.jar ]
-          then
-            wget https://github.com/jagrosh/MusicBot/releases/download/''${VERSION}/JMusicBot-''${VERSION}.jar;
+          if [ ! -f JMusicBot-''${VERSION}.jar ]; then
+            wget "https://github.com/jagrosh/MusicBot/releases/download/''${VERSION}/JMusicBot-''${VERSION}.jar";
           fi
-          java -server -jar JMusicBot-''${VERSION}.jar nogui;
+          java -server -jar "JMusicBot-''${VERSION}.jar" nogui;
         '';
       };
     in {
