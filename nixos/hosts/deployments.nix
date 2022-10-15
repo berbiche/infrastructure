@@ -49,15 +49,15 @@ rec {
       };
     };
     generatedNodes = lib.flip lib.genAttrs makeNode [
-      "apoc"
+      # "apoc"
       "keanu"
-      "mouse"
+      # "mouse"
       # "switch"
     ];
   in
     lib.recursiveUpdate generatedNodes {
-      apoc.profiles.system.autoRollback = false;
-      apoc.profiles.system.magicRollback = false;
+      # apoc.profiles.system.autoRollback = false;
+      # apoc.profiles.system.magicRollback = false;
 
       keanu.hostname = "keanu.ovh";
     };

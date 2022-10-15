@@ -27,7 +27,6 @@ in
         system = pkgs.system;
         overlays = builtins.attrValues inputs.self.overlays;
       }).plex;
-      managePlugins = false;
     };
 
     networking.firewall = {

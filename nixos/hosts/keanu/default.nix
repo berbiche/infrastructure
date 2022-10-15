@@ -6,6 +6,8 @@
     (modulesPath + "/profiles/headless.nix")
   ];
 
+  system.stateVersion = "22.05";
+
   configurations.mail.enable = true;
   configurations.discord-bot.jmusicbot.enable = true;
 
