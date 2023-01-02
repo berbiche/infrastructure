@@ -69,15 +69,18 @@
       openshift-install = let
         url-and-hash = rec {
           "x86_64-linux" = {
-            url = "https://github.com/openshift/okd/releases/download/4.9.0-0.okd-2022-01-14-230113/openshift-install-linux-4.9.0-0.okd-2022-01-14-230113.tar.gz";
-            hash = "sha256-I1tj/cO3tXd3G1Lwii+VuFVmjQZTlzn8Q34b/YiJ+Ao=";
+            url = "https://github.com/okd-project/okd/releases/download/4.11.0-0.okd-2022-12-02-145640/openshift-install-linux-4.11.0-0.okd-2022-12-02-145640.tar.gz";
+            hash = "";
           };
           "x86_64-darwin" = {
-            url = "https://github.com/openshift/okd/releases/download/4.9.0-0.okd-2022-01-14-230113/openshift-install-mac-4.9.0-0.okd-2022-01-14-230113.tar.gz";
-            sha256 = "sha256-gJ3MnOllGdCrWGT4I8IoVf8Mc2cW7DzXqg3EwQPq3qo=";
+            url = "https://github.com/okd-project/okd/releases/download/4.11.0-0.okd-2022-12-02-145640/openshift-install-mac-4.11.0-0.okd-2022-12-02-145640.tar.gz";
+            hash = "";
           };
           # Universal binary?
-          "aarch64-darwin" = x86_64-darwin;
+          "aarch64-darwin" = {
+            url = "https://github.com/okd-project/okd/releases/download/4.11.0-0.okd-2022-12-02-145640/openshift-install-mac-arm64-4.11.0-0.okd-2022-12-02-145640.tar.gz";
+            hash = "sha256-6txY/VF9o7Jx6o7QURdGxJl1iH6sx/u50lUepjAh4N0=";
+          };
         }."${system}" or (throw "Unsupported platform");
         file = pkgs.fetchurl url-and-hash;
       in pkgs.runCommandLocal "openshift-install" {
