@@ -1,5 +1,3 @@
----
-# Source: tigera-operator/templates/tigera-operator/00-namespace-tigera-operator.yaml
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -9,4 +7,3 @@ metadata:
   labels:
     name: tigera-operator
     openshift.io/run-level: "0"
-
