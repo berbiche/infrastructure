@@ -28,19 +28,12 @@ HostedEngine needs to be deployed and should use the configured glusterfs storag
 * Configuring a new user for OCP
 
 1) Add a new user for the OCP deployment
-   1) SSH in the hosted engine
-   2) Run these commands:
-      #+begin_example
-      $ ovirt-aaa-jdbc-tool user add kubernetes --attribute=firstName=kubernetes
-      $ ovirt-aaa-jdbc-tool user password-reset kubernetes
-      $ ovirt-aaa-jdbc-tool user unlock kubernetes
-      $ ovirt-aaa-jdbc-tool group add okd
-      $ ovirt-aaa-jdbc-tool group-manage useradd okd --user kubernetes
-      #+end_example
-   3) Note down the password and modify the secret in the `install-config.yaml`
-   4) Add the user in the ovirt-engine administration portal under =Administration > Users=
-   5) Add the group in the ovirt-engine administration portal under =Administration > Users=
-   6) Add the following permissions to the *okd* group:
+   1) Go to the Keycloak admin interface
+   2) Create a user named =kubernetes@ovirt=
+   3) Set this user's password and save it
+   4) Update the password secret in the `install-config.yaml` configuration
+   5) Connect as the =kubernetes@ovirt= user on the Ovirt Portal
+   6) Add the following permissions to the =kubernetes@ovirt= user under =Administration > Users=:
       - =ClusterAdmin=
       - =DiskCreator=
       - =DiskOperator=
