@@ -63,9 +63,9 @@ platform:
     api_vip: 10.97.42.254
     # IP for the `default` IngressController
     ingress_vip: 10.97.42.200
-    ovirt_cluster_id: 6a4de9b0-66c7-11ec-b38d-00163e01600f
+    ovirt_cluster_id: 944509ea-8a45-11ed-97d1-00163e0eb82c
     ovirt_network_name: ovirtmgmt
-    ovirt_storage_domain_id: 6a52b7f9-080e-4ba5-a742-6928df49227b
+    ovirt_storage_domain_id: 8271d01f-b511-4f80-9868-209a58fba0dd
     vnicProfileID: 0000000a-000a-000a-000a-000000000398
 # publish: Required to be 'External' on non-cloud platforms
 publish: External
