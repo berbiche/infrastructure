@@ -4,11 +4,7 @@ namespace: metallb-system
 
 resources:
   - ../../base
-
-configMapGenerator:
-  - name: config
-    files:
-      - ./configs/config
+  - ./resources/default-address-pool.yml
 
 generators:
   - ./generators/secrets-generator.yml

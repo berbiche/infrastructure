@@ -1,0 +1,17 @@
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: ipv4-pool
+spec:
+  avoidBuggyIPs: true
+  autoAssign: true
+  addresses:
+  - 10.194.0.0/16
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: ipv4-pool-l2
+spec:
+  ipAddressPools:
+  - ipv4-pool

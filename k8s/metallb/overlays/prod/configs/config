@@ -1,6 +1,0 @@
-address-pools:
-  - name: ipv4-pool
-    protocol: layer2
-    avoid-buggy-ips: true
-    addresses:
-      - 10.194.0.0/16
