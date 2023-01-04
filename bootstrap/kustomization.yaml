@@ -5,6 +5,7 @@ resources:
   - ./calico
   - ./resources/openshift
   - ./resources/manifests
+  - ./patches/calico-resources.yaml
 
 buildMetadata: [originAnnotations]
 
@@ -22,4 +23,3 @@ patches:
       group: machine.openshift.io
       kind: MachineSet
       namespace: openshift-machine-api
-  - path: ./patches/calico-resources.yaml
