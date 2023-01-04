@@ -20,7 +20,7 @@ helmCharts:
 - name: traefik
   releaseName: traefik
   namespace: traefik
-  version: v10.9.1
+  version: v20.8.0
   repo: https://helm.traefik.io/traefik
   includeCRDs: true
   valuesFile: ./resources/helm-chart-values.yaml

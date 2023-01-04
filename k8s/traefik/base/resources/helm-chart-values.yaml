@@ -1,12 +1,15 @@
 nameOverride: traefik
 fullnameOverride: traefik
+namespaceOverride: traefik
+
+image:
+  name: docker.io/traefik
 
 globalArguments:
 - --global.checknewversion
 
 additionalArguments:
 - "--accesslog=true"
-- "--providers.kubernetesingress.ingressclass=traefik"
 
 serviceAccountAnnotations:
   kustomize.config.k8s.io/behavior: replace
@@ -17,18 +20,24 @@ deployment:
   kind: Deployment
   replicas: 2
 
+# Disable internal cert resolvers because of Cert Manager
+certResolvers: {}
+
+hub:
+  enabled: false
+
 ingressClass:
   enabled: true
   isDefaultClass: false
-  fallbackApiVersion: v1
 
 ingressRoute:
   dashboard:
     # I have my own route setup
     enabled: false
 
-pilot:
-  enabled: false
+providers:
+  kubernetesIngress:
+    ingressClass: traefik
 
 podDisruptionBudget:
   enabled: true
@@ -37,6 +46,9 @@ podDisruptionBudget:
 ports:
   web:
     redirectTo: websecure
+  # V3-only feature
+  # websecure:
+  #   asDefault: true
 
 service:
   ipFamilyPolicy: PreferDualStack
@@ -48,15 +60,14 @@ affinity:
   podAntiAffinity:
     requiredDuringSchedulingIgnoredDuringExecution:
     - labelSelector:
-        matchExpressions:
-        - key: app.kubernetes.io/name
-          operator: In
-          values: [traefik]
+        matchLabels:
+          app.kubernetes.io/name: '{{ template "traefik.name" . }}'
+          app.kubernetes.io/instance: '{{ .Release.Name }}-{{ .Release.Namespace }}'
       topologyKey: kubernetes.io/hostname
 
 deployment:
   additionalContainers:
-  - image: quay.io/oauth2-proxy/oauth2-proxy:v7.2.0
+  - image: quay.io/oauth2-proxy/oauth2-proxy:v7.4.0
     imagePullPolicy: IfNotPresent
     name: oauth2-proxy
     ports:

@@ -1,6 +1,6 @@
-{{- range $name, $config := .Values.tlsOptions }}
+{{- range $name, $config := .Values.tlsStore }}
 apiVersion: traefik.containo.us/v1alpha1
-kind: TLSOption
+kind: TLSStore
 metadata:
   name: {{ $name }}
   namespace: {{ template "traefik.namespace" $ }}
