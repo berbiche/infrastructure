@@ -100,6 +100,7 @@ deployment:
       - "--cookie-name=_oauth2"
       - "--provider=github"
       - "--provider-display-name=GitHub"
+      - "--scope=user:email"
       - "--upstream=static://202"
       - "--reverse-proxy=true"
       - "--redirect-url=https://auth.k8s.qt.rs/oauth2/callback"
