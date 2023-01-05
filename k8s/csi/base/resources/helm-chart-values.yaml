@@ -46,3 +46,46 @@ driver:
   existingConfigSecret: truenas-iscsi-driver-config
   config:
     driver: freenas-api-iscsi
+    instance_id: ""
+    httpConnection:
+      protocol: https
+      host: truenas.node.tq.rs
+      port: 443
+      allowInsecure: false
+      # Replaced by value in encrypted config
+      username: CHANGE-ME
+      # Replaced by value in encrypted config
+      apiKey: CHANGE-ME
+      apiVersion: 2
+    zfs:
+      datasetProperties:
+        "org.freenas:description": "{{ parameters.[csi.storage.k8s.io/pvc/namespace] }}/{{ parameters.[csi.storage.k8s.io/pvc/name] }}"
+      # total volume name (zvol/<datasetParentName>/<pvc name>) length cannot exceed 63 chars
+      datasetParentName: tank/kubernetes/iscsi/vols
+      detachedSnapshotsDatasetParentName: tank/kubernetes/iscsi/snaps
+      zvolCompression: "" # inherit
+      zvolDedup: "" # inherit
+      zvolEnableReservation: true
+      zvolBlocksize: "16K"
+    iscsi:
+      targetPortal: "truenas.node.tq.rs:3260"
+      # leave empty to omit usage of -I with iscsiadm
+      interface: ""
+      # Don't enable this, the generated names are too long and causing failures
+      #nameTemplate: "{{ parameters.[csi.storage.k8s.io/pvc/namespace] }}-{{ parameters.[csi.storage.k8s.io/pvc/name] }}"
+      namePrefix: csi-
+      nameSuffix: "-cluster"
+      # Replaced by value in encrypted config
+      targetGroups:
+      - targetGroupPortalGroup: 1
+        targetGroupInitiatorGroup: 1
+        targetGroupAuthType: CHAP
+        targetGroupAuthGroup: 1
+      extentInsecureTpc: true
+      extentXenCompat: false
+      extentDisablePhysicalBlocksize: true
+      extentBlocksize: 4096
+      # "" (let FreeNAS decide, currently defaults to SSD), Unknown, SSD, 5400, 7200, 10000, 15000
+      extentRpm: "SSD"
+      # 0-100 (0 == ignore)
+      extentAvailThreshold: 0
