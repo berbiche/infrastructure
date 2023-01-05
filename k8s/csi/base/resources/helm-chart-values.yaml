@@ -1,0 +1,48 @@
+csiDriver:
+  # should be globally unique for a given cluster
+  name: "org.democratic-csi.iscsi"
+  fsGroupPolicy: ReadWriteOnceWithFSType
+  storageCapacity: true
+
+# add note here about volume expansion requirements
+storageClasses:
+- name: truenas-iscsi-csi
+  defaultClass: false
+  reclaimPolicy: Delete
+  volumeBindingMode: Immediate
+  allowVolumeExpansion: true
+  parameters:
+    # for block-based storage can be ext3, ext4, xfs
+    fsType: ext4
+  mountOptions: []
+  secrets:
+    provisioner-secret:
+    controller-publish-secret:
+    node-stage-secret:
+      node-db.node.session.auth.authmethod: CHAP
+      # These values are changed by replacing the secret with Kustomize
+      node-db.node.session.auth.username: change-me
+      node-db.node.session.auth.password: change-me
+    node-publish-secret:
+    controller-expand-secret:
+
+controller:
+  driver:
+    imagePullPolicy: IfNotPresent
+  externalProvisioner:
+    extraArgs:
+    - --volume-name-uuid-length=16
+
+# Openshift specific settings
+node:
+  driver:
+    localtimeHostPath: false
+  rbac:
+    openshift:
+      privileged: true
+
+# Driver configuration
+driver:
+  existingConfigSecret: truenas-iscsi-driver-config
+  config:
+    driver: freenas-api-iscsi

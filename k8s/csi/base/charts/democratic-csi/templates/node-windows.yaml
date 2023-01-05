@@ -1,0 +1,227 @@
+{{- if and .Values.node.enabled .Values.node.windows.enabled -}}
+{{- $root := . -}}
+{{- $controllerStrategy := "node" -}}
+{{- $csiPipeAddress := tpl "//./pipe/democratic-csi/{{ .Values.csiDriver.name }}/csi.sock" $root -}}
+{{- $csiSocketAddress := tpl "{{ .Values.node.kubeletHostPath }}/plugins/{{ .Values.csiDriver.name }}/csi.sock" $root -}}
+{{- $_ := set $root "csiPipeAddress" $csiPipeAddress -}}
+{{- $_ := set $root "csiSocketAddress" $csiSocketAddress -}}
+---
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: {{ include "democratic-csi.fullname" . }}-node-windows
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "democratic-csi.name" . }}
+    helm.sh/chart: {{ include "democratic-csi.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/csi-role: "node"
+    app.kubernetes.io/component: "node-windows"
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "democratic-csi.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/managed-by: {{ .Release.Service }}
+      app.kubernetes.io/csi-role: "node"
+      app.kubernetes.io/component: "node-windows"
+  template:
+    metadata:
+      annotations:
+        {{- with .Values.node.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if not .Values.driver.existingConfigSecret }}
+        checksum/secret: {{ include (print $.Template.BasePath "/driver-config-secret.yaml") . | sha256sum }}
+        {{- end }}
+        checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      labels:
+        {{- with .Values.node.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        app.kubernetes.io/name: {{ include "democratic-csi.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+        app.kubernetes.io/csi-role: "node"
+        app.kubernetes.io/component: "node-windows"
+    spec:
+      {{- if .Values.node.rbac.enabled }}
+      serviceAccount: {{ include "democratic-csi.fullname" . }}-node-sa
+      {{- end }}
+      {{- if .Values.node.priorityClassName }}
+      priorityClassName: "{{ .Values.node.priorityClassName }}"
+      {{- end }}
+      hostNetwork: {{ .Values.node.hostNetwork }}
+      hostAliases: {{ .Values.node.hostAliases }}
+      securityContext:
+        windowsOptions:
+          hostProcess: true
+          runAsUserName: "NT AUTHORITY\\SYSTEM"
+
+      containers:
+
+      {{- if and .Values.controller.externalAttacher.enabled (eq .Values.controller.strategy $controllerStrategy) }}
+{{ include "democratic-csi.external-attacher-container" (list $ . "1") | indent 6 }}
+      {{- end }}
+
+      {{- if and .Values.controller.enabled .Values.controller.externalProvisioner.enabled (eq .Values.controller.strategy $controllerStrategy) }}
+{{ include "democratic-csi.external-provisioner-container" (list $ . "1") | indent 6 }}
+      {{- end }}
+
+      {{- if and .Values.controller.enabled .Values.controller.externalResizer.enabled (eq .Values.controller.strategy $controllerStrategy) }}
+{{ include "democratic-csi.external-resizer-container" (list $ . "1") | indent 6 }}
+      {{- end }}
+
+      {{- if and .Values.controller.enabled .Values.controller.externalSnapshotter.enabled (eq .Values.controller.strategy $controllerStrategy) }}
+{{ include "democratic-csi.external-snapshotter-container" (list $ . "1") | indent 6 }}
+      {{- end }}
+
+      {{- if and .Values.controller.externalHealthMonitorController.enabled (eq .Values.controller.strategy $controllerStrategy) }}
+{{ include "democratic-csi.external-health-monitor-controller" (list $ . "1") | indent 6 }}
+      {{- end }}
+
+      {{- if .Values.node.driver.enabled }}
+      - name: csi-driver
+        image: {{ .Values.node.driver.image }}
+        {{- if .Values.node.driver.imagePullPolicy }}
+        imagePullPolicy: {{ .Values.node.driver.imagePullPolicy }}
+        {{- end }}
+        {{- if .Values.node.driver.lifecycle }}
+        lifecycle:
+{{ toYaml .Values.node.driver.lifecycle | indent 10 }}
+        {{- end }}
+        args:
+        - --csi-version={{ .Values.csiDriver.version }}
+        - --csi-name={{ .Values.csiDriver.name }}
+        - --driver-config-file=/config/driver-config-file.yaml
+        - --log-level={{ .Values.node.driver.logLevel }}
+        - --csi-mode=node
+        {{- if and .Values.controller.enabled (eq .Values.controller.strategy $controllerStrategy) }}
+        - --csi-mode=controller
+        {{- end }}
+        - --server-socket={{ $csiPipeAddress }}
+
+        {{- if .Values.node.driver.resources }}
+        resources:
+{{ toYaml .Values.node.driver.resources | indent 10 }}
+        {{- end }}
+
+        env:
+        - name: CSI_NODE_ID
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        - name: NODE_EXTRA_CA_CERTS
+          value: "/tmp/certs/extra-ca-certs.crt"
+        - name: LOG_MEMORY_USAGE
+          value: "1"
+
+{{- if .Values.node.driver.extraEnv }}
+{{ toYaml .Values.node.driver.extraEnv | indent 8 }}
+{{- end }}
+
+        {{- if .Values.node.livenessProbe.enabled }}
+        livenessProbe:
+          failureThreshold: 3
+          exec:
+            command:
+            - bin/node.exe
+            - --expose-gc
+            - bin/liveness-probe
+            - --csi-version={{ .Values.csiDriver.version }}
+            - --csi-address={{ $csiPipeAddress }}
+          initialDelaySeconds: 10
+          timeoutSeconds: 15
+          periodSeconds: 60
+        {{- end }}
+
+        volumeMounts:
+        # not *really* used, just here to ensure path on host is created
+        - name: socket-dir
+          mountPath: /csi-data
+        - name: config
+          mountPath: /config
+        - name: extra-ca-certs
+          mountPath: /tmp/certs
+
+{{- if .Values.node.driver.extraVolumeMounts }}
+{{ toYaml .Values.node.driver.extraVolumeMounts | indent 8 }}
+{{- end }}
+      {{- end }}
+
+{{ include "democratic-csi.csi-proxy" (list $ . "1") | indent 6 }}
+
+      {{- if .Values.node.driverRegistrar.enabled }}
+      - name: driver-registrar
+        image: {{ .Values.node.driverRegistrar.image }}
+        args:
+        {{- range .Values.node.driverRegistrar.args }}
+        - {{ tpl . $root }}
+        {{- end }}
+        {{- range .Values.node.driverRegistrar.extraArgs }}
+        - {{ tpl . $root }}
+        {{- end }}
+        - --plugin-registration-path={{ .Values.node.kubeletHostPath }}/plugins_registry
+        {{- if .Values.node.driverRegistrar.resources }}
+        resources:
+{{ toYaml .Values.node.driverRegistrar.resources | indent 10 }}
+        {{- end }}
+        env:
+        - name: KUBE_NODE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        # override the default as it does not work with host-process currently
+        command:
+        - csi-node-driver-registrar.exe
+        livenessProbe:
+          exec:
+            command:
+            - csi-node-driver-registrar.exe
+            - --kubelet-registration-path={{ $csiSocketAddress }}
+            - --mode=kubelet-registration-probe
+
+        volumeMounts:
+        # not *really* used, just here to ensure path on host is created
+        - mountPath: /csi-data
+          name: socket-dir
+      {{- end }}
+
+      volumes:
+      - name: socket-dir
+        hostPath:
+          path: {{ .Values.node.kubeletHostPath }}/plugins/{{ .Values.csiDriver.name }}
+          type: DirectoryOrCreate
+      - name: config
+        secret:
+          {{- if .Values.driver.existingConfigSecret }}
+          secretName: {{ .Values.driver.existingConfigSecret }}
+          {{- else }}
+          secretName: {{ include "democratic-csi.fullname" . }}-driver-config
+          {{- end }}
+      - name: extra-ca-certs
+        configMap:
+          name: {{ include "democratic-csi.fullname" . }}
+          items:
+          - key: extra-ca-certs
+            path: extra-ca-certs.crt
+{{- if .Values.node.extraVolumes }}
+{{ toYaml .Values.node.extraVolumes | indent 6 }}
+{{- end }}
+      nodeSelector:
+        kubernetes.io/os: windows
+      {{- with .Values.node.nodeSelector }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.node.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.node.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

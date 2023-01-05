@@ -28,12 +28,12 @@ TODO: <https://plantuml.com/nwdiag>
 4.  [Terraform](#terraform)
 5.  [Backblaze](#backblaze)
 6.  [Kubernetes](#kubernetes)
-    1.  [Deploying oVirt Node](#org237a344)
-    2.  [Installing and configuring GlusterFS](#orgb126f38)
-    3.  [Deploying the HostedEngine VM](#orge8e9835)
-    4.  [Configuring a new user for OCP](#org85e0995)
-    5.  [Deploying OKD](#orge28789b)
-    6.  [Stuff to look at](#org6620b3d)
+    1.  [Deploying oVirt Node](#orga6e25f0)
+    2.  [Installing and configuring GlusterFS](#orgea838f4)
+    3.  [Deploying the HostedEngine VM](#orgef118a7)
+    4.  [Configuring a new user for OCP](#org54f82c0)
+    5.  [Deploying OKD](#org33bda34)
+    6.  [Stuff to look at](#orgcee9d46)
     7.  [Applications](#applications)
 7.  [NixOS](#nixos)
     1.  [Deployment](#deployment)
@@ -133,18 +133,12 @@ HostedEngine needs to be deployed and should use the configured glusterfs storag
 ### Configuring a new user for OCP
 
 1.  Add a new user for the OCP deployment
-    1.  SSH in the hosted engine
-    2.  Run these commands:
-        
-            $ ovirt-aaa-jdbc-tool user add kubernetes --attribute=firstName=kubernetes
-            $ ovirt-aaa-jdbc-tool user password-reset kubernetes
-            $ ovirt-aaa-jdbc-tool user unlock kubernetes
-            $ ovirt-aaa-jdbc-tool group add okd
-            $ ovirt-aaa-jdbc-tool group-manage useradd okd --user kubernetes
-    3.  Note down the password and modify the secret in the \`install-config.yaml\`
-    4.  Add the user in the ovirt-engine administration portal under `Administration > Users`
-    5.  Add the group in the ovirt-engine administration portal under `Administration > Users`
-    6.  Add the following permissions to the **okd** group:
+    1.  Go to the Keycloak admin interface
+    2.  Create a user named `kubernetes@ovirt`
+    3.  Set this user&rsquo;s password and save it
+    4.  Update the password secret in the \`install-config.yaml\` configuration
+    5.  Connect as the `kubernetes@ovirt` user on the Ovirt Portal
+    6.  Add the following permissions to the `kubernetes@ovirt` user under `Administration > Users`:
         -   `ClusterAdmin`
         -   `DiskCreator`
         -   `DiskOperator`
@@ -326,7 +320,8 @@ To encrypt a secret: `sops -i -e k8s/something/overlays/prod/secrets/some-secret
     2.  Deploy external-dns
     3.  Deploy cert-manager
     4.  Deploy Traefik (has a dependency on Cert Manager and MetalLB)
-    5.  Deploy the remaining resources
+    5.  Deploy CSI
+    6.  Deploy the remaining resources
 
 4.  ExternalDNS
 
@@ -338,6 +333,24 @@ To encrypt a secret: `sops -i -e k8s/something/overlays/prod/secrets/some-secret
     Also, when my ISP will properly support IPv6, I will add `AAAA` records and `CNAME` records for the IPv4 scenario.
     
     Domains that only allow access by administrators (myself) are gated behind an OAuth middleware in Traefik.
+
+5.  CSI
+
+    
+    1.  Setup
+    
+        Follow the democratic-csi documentation here: <https://github.com/democratic-csi/democratic-csi>
+        
+        TL;DR:
+        
+        1.  Get an API key for a user with enough privileges (root for instance)
+        2.  Configure iSCSI in TrueNAS interface
+        3.  Set iSCSI authentication method to CHAP or Mutual-CHAP
+        4.  Set the username/password combination used in the previous step in the `node-stage-secret.yaml` file
+        5.  Set the API key from the first step in the `driver-config-iscsi.yaml` file
+        6.  Deploy
+            
+                $ kubectl kustomize --enable-alpha-plugins ./overlays/prod | kubectl create -f- --save-config
 
 
 ## NixOS

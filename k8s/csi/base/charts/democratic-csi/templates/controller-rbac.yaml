@@ -1,0 +1,47 @@
+{{- if .Values.controller.enabled -}}
+{{- if .Values.controller.rbac.enabled -}}
+{{- if ne .Values.controller.strategy "node" -}}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "democratic-csi.fullname" . }}-controller-sa
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "democratic-csi.name" . }}
+    helm.sh/chart: {{ include "democratic-csi.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ include "democratic-csi.fullname" . }}-controller-cr
+  labels:
+    app.kubernetes.io/name: {{ include "democratic-csi.name" . }}
+    helm.sh/chart: {{ include "democratic-csi.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+rules:
+{{ include "democratic-csi.controller-rbac-rules" . | indent 2 }}
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ include "democratic-csi.fullname" . }}-controller-rb
+  labels:
+    app.kubernetes.io/name: {{ include "democratic-csi.name" . }}
+    helm.sh/chart: {{ include "democratic-csi.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+roleRef:
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+  name: {{ include "democratic-csi.fullname" . }}-controller-cr
+subjects:
+- kind: ServiceAccount
+  name: {{ include "democratic-csi.fullname" . }}-controller-sa
+  namespace: {{.Release.Namespace}}
+{{- end }}
+{{- end }}
+{{- end }}

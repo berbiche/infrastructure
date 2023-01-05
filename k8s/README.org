@@ -21,7 +21,8 @@ kustomize build --enable-alpha-plugins something/overlays/prod | kubectl apply -
 2. Deploy external-dns
 3. Deploy cert-manager
 4. Deploy Traefik (has a dependency on Cert Manager and MetalLB)
-5. Deploy the remaining resources
+5. Deploy CSI
+6. Deploy the remaining resources
 
 * ExternalDNS
 ExternalDNS automatically inserts CNAME entries pointing to ~k8s.qt.rs~ for each ingress defined
@@ -32,3 +33,7 @@ unresolvable domains.
 Also, when my ISP will properly support IPv6, I will add =AAAA= records and =CNAME= records for the IPv4 scenario.
 
 Domains that only allow access by administrators (myself) are gated behind an OAuth middleware in Traefik.
+
+* CSI
+
+#+INCLUDE: "./csi/README.org"

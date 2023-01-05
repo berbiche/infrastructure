@@ -1,0 +1,15 @@
+apiVersion:
+kind: Kustomization
+
+resources:
+- ../../base
+
+generators:
+- |
+  apiVersion: viaduct.ai/v1
+  kind: ksops-exec
+  metadata:
+    name: not-important
+  files:
+  - ./secrets/driver-config-iscsi.yaml
+  - ./secrets/node-stage-secret.yaml

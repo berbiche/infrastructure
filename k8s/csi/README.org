@@ -1,0 +1,16 @@
+#+TITLE: Container Storage Interface
+
+* Setup
+
+Follow the democratic-csi documentation here: https://github.com/democratic-csi/democratic-csi
+
+TL;DR:
+1. Get an API key for a user with enough privileges (root for instance)
+2. Configure iSCSI in TrueNAS interface
+3. Set iSCSI authentication method to CHAP or Mutual-CHAP
+4. Set the username/password combination used in the previous step in the =node-stage-secret.yaml= file
+5. Set the API key from the first step in the =driver-config-iscsi.yaml= file
+6. Deploy
+   #+BEGIN_EXAMPLE
+   $ kubectl kustomize --enable-alpha-plugins ./overlays/prod | kubectl create -f- --save-config
+   #+END_EXAMPLE

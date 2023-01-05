@@ -1,0 +1,331 @@
+{{- if .Values.node.enabled -}}
+{{- $root := . -}}
+{{- $controllerStrategy := "node" -}}
+{{- $_ := set $root "csiSocketAddress" "/csi-data/csi.sock" -}}
+{{- $mountIscsi := include "democratic-csi.mount-iscsi" . | eq "true" }}
+---
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: {{ include "democratic-csi.fullname" . }}-node
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "democratic-csi.name" . }}
+    helm.sh/chart: {{ include "democratic-csi.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/csi-role: "node"
+    app.kubernetes.io/component: "node-linux"
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "democratic-csi.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/managed-by: {{ .Release.Service }}
+      app.kubernetes.io/csi-role: "node"
+      app.kubernetes.io/component: "node-linux"
+  template:
+    metadata:
+      annotations:
+        {{- with .Values.node.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if not .Values.driver.existingConfigSecret }}
+        checksum/secret: {{ include (print $.Template.BasePath "/driver-config-secret.yaml") . | sha256sum }}
+        {{- end }}
+        checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      labels:
+        {{- with .Values.node.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        app.kubernetes.io/name: {{ include "democratic-csi.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+        app.kubernetes.io/csi-role: "node"
+        app.kubernetes.io/component: "node-linux"
+    spec:
+      {{- if .Values.node.rbac.enabled }}
+      serviceAccount: {{ include "democratic-csi.fullname" . }}-node-sa
+      {{- end }}
+      {{- if .Values.node.priorityClassName }}
+      priorityClassName: "{{ .Values.node.priorityClassName }}"
+      {{- end }}
+      # Required by iSCSI
+      hostNetwork: {{ .Values.node.hostNetwork }}
+      hostAliases: {{ .Values.node.hostAliases }}
+      # Required by multipath detach
+      hostIPC: {{ .Values.node.hostIPC }}
+      hostPID: {{ .Values.node.hostPID }}
+      containers:
+
+      {{- if and .Values.controller.externalAttacher.enabled (eq .Values.controller.strategy $controllerStrategy) }}
+{{ include "democratic-csi.external-attacher-container" (list $ . "0") | indent 6 }}
+      {{- end }}
+
+      {{- if and .Values.controller.enabled .Values.controller.externalProvisioner.enabled (eq .Values.controller.strategy $controllerStrategy) }}
+{{ include "democratic-csi.external-provisioner-container" (list $ . "0") | indent 6 }}
+      {{- end }}
+
+      {{- if and .Values.controller.enabled .Values.controller.externalResizer.enabled (eq .Values.controller.strategy $controllerStrategy) }}
+{{ include "democratic-csi.external-resizer-container" (list $ . "0") | indent 6 }}
+      {{- end }}
+
+      {{- if and .Values.controller.enabled .Values.controller.externalSnapshotter.enabled (eq .Values.controller.strategy $controllerStrategy) }}
+{{ include "democratic-csi.external-snapshotter-container" (list $ . "0") | indent 6 }}
+      {{- end }}
+
+      {{- if and .Values.controller.externalHealthMonitorController.enabled (eq .Values.controller.strategy $controllerStrategy) }}
+{{ include "democratic-csi.external-health-monitor-controller" (list $ . "0") | indent 6 }}
+      {{- end }}
+
+      {{- if .Values.node.driver.enabled }}
+      - name: csi-driver
+        image: {{ .Values.node.driver.image }}
+        {{- if .Values.node.driver.imagePullPolicy }}
+        imagePullPolicy: {{ .Values.node.driver.imagePullPolicy }}
+        {{- end }}
+        {{- if .Values.node.driver.lifecycle }}
+        lifecycle:
+{{ toYaml .Values.node.driver.lifecycle | indent 10 }}
+        {{- end }}
+        args:
+        - --csi-version={{ .Values.csiDriver.version }}
+        - --csi-name={{ .Values.csiDriver.name }}
+        - --driver-config-file=/config/driver-config-file.yaml
+        - --log-level={{ .Values.node.driver.logLevel }}
+        - --csi-mode=node
+        {{- if and .Values.controller.enabled (eq .Values.controller.strategy $controllerStrategy) }}
+        - --csi-mode=controller
+        {{- end }}
+        {{- if and .Values.csiProxy.enabled }}
+        - --server-socket=/csi-data/csi.sock.internal
+        {{- else }}
+        - --server-socket={{ .csiSocketAddress }}
+        {{- end }}
+
+        {{- if .Values.node.driver.resources }}
+        resources:
+{{ toYaml .Values.node.driver.resources | indent 10 }}
+        {{- end }}
+
+        securityContext:
+          allowPrivilegeEscalation: true
+          capabilities:
+            add:
+            - SYS_ADMIN
+          privileged: true
+        env:
+        - name: CSI_NODE_ID
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        - name: NODE_EXTRA_CA_CERTS
+          value: "/tmp/certs/extra-ca-certs.crt"
+
+{{- if .Values.node.driver.extraEnv }}
+{{ toYaml .Values.node.driver.extraEnv | indent 8 }}
+{{- end }}
+
+        # prevent crazy error messages due to the /dev host mount
+        terminationMessagePath: /tmp/termination-log
+        terminationMessagePolicy: File
+
+        {{- if .Values.node.livenessProbe.enabled }}
+        livenessProbe:
+          failureThreshold: 3
+          exec:
+            command:
+            - bin/liveness-probe
+            - --csi-version={{ .Values.csiDriver.version }}
+            {{- if and .Values.csiProxy.enabled }}
+            - --csi-address=/csi-data/csi.sock.internal
+            {{- else }}
+            - --csi-address=/csi-data/csi.sock
+            {{- end }}
+          initialDelaySeconds: 10
+          timeoutSeconds: 15
+          periodSeconds: 60
+        {{- end }}
+
+        volumeMounts:
+        - name: socket-dir
+          mountPath: /csi-data
+        - name: kubelet-dir
+          mountPath: {{ .Values.node.kubeletHostPath }}
+          mountPropagation: Bidirectional
+        {{- if $mountIscsi }}
+        - name: iscsi-dir
+          mountPath: {{ .Values.node.driver.iscsiDirHostPath }}
+          mountPropagation: Bidirectional
+        - name: iscsi-info
+          mountPath: /var/lib/iscsi
+          mountPropagation: Bidirectional
+        {{- end }}
+        - name: modules-dir
+          mountPath: /lib/modules
+          readOnly: true
+        {{- if .Values.node.driver.localtimeHostPath }}
+        - name: localtime
+          mountPath: /etc/localtime
+          readOnly: true
+        {{- end }}
+        - name: udev-data
+          mountPath: /run/udev
+        - name: host-dir
+          mountPath: /host
+          mountPropagation: Bidirectional
+        - mountPath: /sys
+          name: sys-dir
+        - name: dev-dir
+          mountPath: /dev
+        - name: config
+          mountPath: /config
+        - name: extra-ca-certs
+          mountPath: /tmp/certs
+
+{{- if .Values.node.driver.extraVolumeMounts }}
+{{ toYaml .Values.node.driver.extraVolumeMounts | indent 8 }}
+{{- end }}
+      {{- end }}
+
+      {{- if .Values.csiProxy.enabled }}
+{{ include "democratic-csi.csi-proxy" (list $ . "0") | indent 6 }}
+      {{- end }}
+
+      {{- if .Values.node.driverRegistrar.enabled }}
+      - name: driver-registrar
+        image: {{ .Values.node.driverRegistrar.image }}
+        args:
+        {{- range .Values.node.driverRegistrar.args }}
+        - {{ tpl . $root }}
+        {{- end }}
+        {{- range .Values.node.driverRegistrar.extraArgs }}
+        - {{ tpl . $root }}
+        {{- end }}
+        {{- if .Values.node.driverRegistrar.resources }}
+        resources:
+{{ toYaml .Values.node.driverRegistrar.resources | indent 10 }}
+        {{- end }}
+        env:
+        - name: KUBE_NODE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+
+        livenessProbe:
+          exec:
+            command:
+            - /csi-node-driver-registrar
+            - --kubelet-registration-path={{ .Values.node.kubeletHostPath }}/plugins/{{ .Values.csiDriver.name }}/csi.sock
+            - --mode=kubelet-registration-probe
+
+        volumeMounts:
+        - mountPath: /csi-data
+          name: socket-dir
+        - name: registration-dir
+          mountPath: /registration
+        - name: kubelet-dir
+          mountPath: {{ .Values.node.kubeletHostPath }}
+
+      - name: cleanup
+        image: {{ .Values.node.cleanup.image }}
+        command:
+          - "/bin/sh"
+          - "-c"
+          - "--"
+        args: [ "while true; do sleep 2; done;" ]
+
+        lifecycle:
+          # note this runs *before* other containers are terminated
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "rm -rf /plugins/{{ .Values.csiDriver.name }} /registration/{{ .Values.csiDriver.name }}-reg.sock"]
+
+        volumeMounts:
+        - name: plugins-dir
+          mountPath: /plugins
+        - name: registration-dir
+          mountPath: /registration
+      {{- end }}
+
+      volumes:
+      - name: socket-dir
+        hostPath:
+          path: {{ .Values.node.kubeletHostPath }}/plugins/{{ .Values.csiDriver.name }}
+          type: DirectoryOrCreate
+      - name: plugins-dir
+        hostPath:
+          path: {{ .Values.node.kubeletHostPath }}/plugins
+          type: Directory
+      - name: registration-dir
+        hostPath:
+          path: {{ .Values.node.kubeletHostPath }}/plugins_registry
+          type: Directory
+      - name: kubelet-dir
+        hostPath:
+          path: {{ .Values.node.kubeletHostPath }}
+          type: Directory
+      {{- if $mountIscsi }}
+      - name: iscsi-dir
+        hostPath:
+          path: {{ .Values.node.driver.iscsiDirHostPath }}
+          type: {{ .Values.node.driver.iscsiDirHostPathType }}
+      - name: iscsi-info
+        hostPath:
+          path: /var/lib/iscsi
+      {{- end }}
+      - name: dev-dir
+        hostPath:
+          path: /dev
+          type: Directory
+      - name: modules-dir
+        hostPath:
+          path: /lib/modules
+      {{- if .Values.node.driver.localtimeHostPath }}
+      - name: localtime
+        hostPath:
+          path: {{ .Values.node.driver.localtimeHostPath }}
+      {{- end }}
+      - name: udev-data
+        hostPath:
+          path: /run/udev
+      - name: sys-dir
+        hostPath:
+          path: /sys
+          type: Directory
+      - name: host-dir
+        hostPath:
+          path: /
+          type: Directory
+      - name: config
+        secret:
+          {{- if .Values.driver.existingConfigSecret }}
+          secretName: {{ .Values.driver.existingConfigSecret }}
+          {{- else }}
+          secretName: {{ include "democratic-csi.fullname" . }}-driver-config
+          {{- end }}
+      - name: extra-ca-certs
+        configMap:
+          name: {{ include "democratic-csi.fullname" . }}
+          items:
+          - key: extra-ca-certs
+            path: extra-ca-certs.crt
+{{- if .Values.node.extraVolumes }}
+{{ toYaml .Values.node.extraVolumes | indent 6 }}
+{{- end }}
+      nodeSelector:
+        kubernetes.io/os: linux
+      {{- with .Values.node.nodeSelector }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.node.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.node.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

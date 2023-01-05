@@ -1,0 +1,180 @@
+{{- if and .Values.controller.enabled (eq .Values.controller.strategy "deployment") -}}
+{{- $root := . -}}
+{{- $controllerStrategy := "deployment" -}}
+{{- $_ := set $root "csiSocketAddress" "/csi-data/csi.sock" -}}
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ include "democratic-csi.fullname" . }}-controller
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "democratic-csi.name" . }}
+    helm.sh/chart: {{ include "democratic-csi.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/csi-role: "controller"
+    app.kubernetes.io/component: "controller-linux"
+spec:
+  replicas: {{ .Values.controller.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "democratic-csi.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/managed-by: {{ .Release.Service }}
+      app.kubernetes.io/csi-role: "controller"
+      app.kubernetes.io/component: "controller-linux"
+  template:
+    metadata:
+      annotations:
+        {{- with .Values.controller.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if not .Values.driver.existingConfigSecret }}
+        checksum/secret: {{ include (print $.Template.BasePath "/driver-config-secret.yaml") . | sha256sum }}
+        {{- end }}
+        checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      labels:
+        {{- with .Values.controller.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        app.kubernetes.io/name: {{ include "democratic-csi.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+        app.kubernetes.io/csi-role: "controller"
+        app.kubernetes.io/component: "controller-linux"
+    spec:
+      {{- if .Values.controller.rbac.enabled }}
+      serviceAccount: {{ include "democratic-csi.fullname" . }}-controller-sa
+      {{- end }}
+      {{- if .Values.controller.priorityClassName }}
+      priorityClassName: "{{ .Values.controller.priorityClassName }}"
+      {{- end }}
+      hostNetwork: {{ .Values.controller.hostNetwork }}
+      hostAliases: {{ .Values.controller.hostAliases }}
+      hostIPC: {{ .Values.controller.hostIPC }}
+      containers:
+
+      {{- if and .Values.controller.externalAttacher.enabled (eq .Values.controller.strategy $controllerStrategy) }}
+{{ include "democratic-csi.external-attacher-container" (list $ . "0") | indent 6 }}
+      {{- end }}
+
+      {{- if and .Values.controller.externalProvisioner.enabled (eq .Values.controller.strategy $controllerStrategy) }}
+{{ include "democratic-csi.external-provisioner-container" (list $ . "0") | indent 6 }}
+      {{- end }}
+
+      {{- if and .Values.controller.externalResizer.enabled (eq .Values.controller.strategy $controllerStrategy) }}
+{{ include "democratic-csi.external-resizer-container" (list $ . "0") | indent 6 }}
+      {{- end }}
+
+      {{- if and .Values.controller.externalSnapshotter.enabled (eq .Values.controller.strategy $controllerStrategy) }}
+{{ include "democratic-csi.external-snapshotter-container" (list $ . "0") | indent 6 }}
+      {{- end }}
+
+      {{- if and .Values.controller.externalHealthMonitorController.enabled (eq .Values.controller.strategy $controllerStrategy) }}
+{{ include "democratic-csi.external-health-monitor-controller" (list $ . "0") | indent 6 }}
+      {{- end }}
+
+      {{- if .Values.controller.driver.enabled }}
+      - name: csi-driver
+        image: {{ .Values.controller.driver.image }}
+        {{- if .Values.controller.driver.imagePullPolicy }}
+        imagePullPolicy: {{ .Values.controller.driver.imagePullPolicy }}
+        {{- end }}
+        {{- if .Values.controller.driver.lifecycle }}
+        lifecycle:
+{{ toYaml .Values.controller.driver.lifecycle | indent 10 }}
+        {{- end }}
+        {{- if .Values.controller.driver.securityContext }}
+        securityContext:
+{{ toYaml .Values.controller.driver.securityContext | indent 10 }}
+        {{- end }}
+        args:
+        - --csi-version={{ .Values.csiDriver.version }}
+        - --csi-name={{ .Values.csiDriver.name }}
+        - --driver-config-file=/config/driver-config-file.yaml
+        - --log-level={{ .Values.controller.driver.logLevel }}
+        - --csi-mode=controller
+        {{- if and .Values.csiProxy.enabled }}
+        - --server-socket=/csi-data/csi.sock.internal
+        {{- else }}
+        - --server-socket=/csi-data/csi.sock
+        {{- end }}
+
+        {{- if .Values.controller.driver.resources }}
+        resources:
+{{ toYaml .Values.controller.driver.resources | indent 10 }}
+        {{- end }}
+
+        env:
+        - name: NODE_EXTRA_CA_CERTS
+          value: "/tmp/certs/extra-ca-certs.crt"
+{{- if .Values.controller.driver.extraEnv }}
+{{ toYaml .Values.controller.driver.extraEnv | indent 8 }}
+{{- end }}
+
+        {{- if .Values.controller.livenessProbe.enabled }}
+        livenessProbe:
+          failureThreshold: 3
+          exec:
+            command:
+            - bin/liveness-probe
+            - --csi-version={{ .Values.csiDriver.version }}
+            {{- if and .Values.csiProxy.enabled }}
+            - --csi-address=/csi-data/csi.sock.internal
+            {{- else }}
+            - --csi-address=/csi-data/csi.sock
+            {{- end }}
+          initialDelaySeconds: 10
+          timeoutSeconds: 15
+          periodSeconds: 60
+        {{- end }}
+        volumeMounts:
+        - name: socket-dir
+          mountPath: /csi-data
+        - name: config
+          mountPath: /config
+        - name: extra-ca-certs
+          mountPath: /tmp/certs
+{{- if .Values.controller.driver.extraVolumeMounts }}
+{{ toYaml .Values.controller.driver.extraVolumeMounts | indent 8 }}
+{{- end }}
+      {{- end }}
+
+      {{- if .Values.csiProxy.enabled }}
+{{ include "democratic-csi.csi-proxy" (list $ . "0") | indent 6 }}
+      {{- end }}
+
+      volumes:
+      - name: socket-dir
+        emptyDir: {}
+      - name: config
+        secret:
+          {{- if .Values.driver.existingConfigSecret }}
+          secretName: {{ .Values.driver.existingConfigSecret }}
+          {{- else }}
+          secretName: {{ include "democratic-csi.fullname" . }}-driver-config
+          {{- end }}
+      - name: extra-ca-certs
+        configMap:
+          name: {{ include "democratic-csi.fullname" . }}
+          items:
+          - key: extra-ca-certs
+            path: extra-ca-certs.crt
+{{- if .Values.controller.extraVolumes }}
+{{ toYaml .Values.controller.extraVolumes | indent 6 }}
+{{- end }}
+      nodeSelector:
+        kubernetes.io/os: linux
+      {{- with .Values.controller.nodeSelector }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.controller.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.controller.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
