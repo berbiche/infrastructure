@@ -9,7 +9,7 @@ data:
     prometheusK8s:
       volumeClaimTemplate:
         spec:
-          storageClassName: ovirt-csi-sc
+          storageClassName: truenas-iscsi-csi
           volumeMode: Filesystem
           resources:
             requests:
