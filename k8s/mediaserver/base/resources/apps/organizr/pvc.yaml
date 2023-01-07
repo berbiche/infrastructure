@@ -5,7 +5,7 @@ metadata:
   labels:
     app.kubernetes.io/name: organizr
 spec:
-  storageClassName: ovirt-csi-sc
+  storageClassName: truenas-iscsi-csi
   accessModes:
     - ReadWriteOnce
   resources:
