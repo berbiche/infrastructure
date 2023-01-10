@@ -35,10 +35,10 @@ spec:
           resources:
             requests:
               cpu: "250m"
-              memory: "250Mi"
+              memory: "500Mi"
             limits:
               cpu: "500m"
-              memory: "500Mi"
+              memory: "1Gi"
           readinessProbe:
             httpGet:
               path: /
