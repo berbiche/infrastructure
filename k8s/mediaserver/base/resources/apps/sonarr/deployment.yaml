@@ -14,6 +14,7 @@ spec:
       labels:
         app.kubernetes.io/name: sonarr
     spec:
+      serviceAccountName: mediaserver
       containers:
         - name: sonarr
           image: linuxserver/sonarr:latest
@@ -22,6 +23,10 @@ spec:
             - name: "http"
               containerPort: 8989
               protocol: TCP
+          # This is not a rootless image!
+          securityContext:
+            runAsUser: 0
+            runAsNonRoot: false
           volumeMounts:
             - name: sonarr-config
               mountPath: /config

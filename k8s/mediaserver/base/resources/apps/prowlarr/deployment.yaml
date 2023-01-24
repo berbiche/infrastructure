@@ -6,6 +6,7 @@ spec:
   replicas: 1
   template:
     spec:
+      serviceAccountName: mediaserver
       containers:
         - name: prowlarr
           image: linuxserver/prowlarr:latest
@@ -17,6 +18,10 @@ spec:
           volumeMounts:
             - name: prowlarr-config
               mountPath: /config
+          # This is not a rootless image!
+          securityContext:
+            runAsUser: 0
+            runAsNonRoot: false
           resources:
             requests:
               cpu: "250m"

@@ -14,6 +14,7 @@ spec:
       labels:
         app.kubernetes.io/name: overseerr
     spec:
+      serviceAccountName: mediaserver
       containers:
         - name: overseerr
           image: ghcr.io/linuxserver/overseerr:latest
@@ -25,6 +26,10 @@ spec:
             - name: "http"
               containerPort: 5055
               protocol: TCP
+          # This is not a rootless image!
+          securityContext:
+            runAsUser: 0
+            runAsNonRoot: false
           volumeMounts:
             - name: overseerr-config
               mountPath: /config

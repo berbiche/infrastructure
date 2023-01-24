@@ -5,6 +5,9 @@ namespace: mediaserver
 
 resources:
   - ./resources/namespace.yaml
+  - ./resources/service-account.yaml
+  - ./resources/scc.yaml
+  - ./resources/scc-rbac.yaml
   - ./resources/apps/prowlarr
   - ./resources/apps/qbittorrent
   - ./resources/apps/radarr

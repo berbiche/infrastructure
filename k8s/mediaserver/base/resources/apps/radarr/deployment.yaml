@@ -14,6 +14,7 @@ spec:
       labels:
         app.kubernetes.io/name: radarr
     spec:
+      serviceAccountName: mediaserver
       containers:
         - name: radarr
           image: linuxserver/radarr:latest
@@ -22,6 +23,10 @@ spec:
             - name: "http"
               containerPort: 7878
               protocol: TCP
+          # This is not a rootless image!
+          securityContext:
+            runAsUser: 0
+            runAsNonRoot: false
           volumeMounts:
             - name: radarr-config
               mountPath: /config

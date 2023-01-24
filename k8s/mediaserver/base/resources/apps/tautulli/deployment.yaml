@@ -14,6 +14,7 @@ spec:
       labels:
         app.kubernetes.io/name: tautulli
     spec:
+      serviceAccountName: mediaserver
       containers:
         - name: tautulli
           image: linuxserver/tautulli:latest
@@ -22,6 +23,10 @@ spec:
             - name: "http"
               containerPort: 8181
               protocol: TCP
+          # This is not a rootless image!
+          securityContext:
+            runAsUser: 0
+            runAsNonRoot: false
           volumeMounts:
             - name: tautulli-config
               mountPath: /config
