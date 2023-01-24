@@ -1,0 +1,28 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: traefik-scc
+  namespace: traefik
+rules:
+- apiGroups:
+  - security.openshift.io
+  resourceNames:
+  - traefik-scc
+  resources:
+  - securitycontextconstraints
+  verbs:
+  - use
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: traefik-scc
+  namespace: traefik
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: traefik-scc-role
+subjects:
+- kind: ServiceAccount
+  name: traefik
+  namespace: traefik

@@ -7,7 +7,8 @@ metadata:
     kubernetes.io/description: traefik-scc provides all features of the restricted SCC
       but allows users to run with any UID and any GID.
   name: traefik-scc
-priority: 10
+  namespace: traefik
+priority: 5
 allowHostDirVolumePlugin: false
 allowHostIPC: false
 allowHostNetwork: false
@@ -18,10 +19,9 @@ allowPrivilegedContainer: false
 allowedCapabilities:
 - NET_BIND_SERVICE
 defaultAddCapabilities: null
+groups: null
 fsGroup:
   type: RunAsAny
-groups:
-- system:authenticated
 readOnlyRootFilesystem: false
 requiredDropCapabilities:
 - MKNOD
@@ -31,7 +31,7 @@ seLinuxContext:
   type: MustRunAs
 supplementalGroups:
   type: RunAsAny
-users: []
+users: null
 volumes:
 - configMap
 - downwardAPI

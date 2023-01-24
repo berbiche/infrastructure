@@ -4,9 +4,7 @@ kind: Kustomization
 resources:
 - ./resources/namespace.yaml
 - ./resources/scc.yaml
-
-patchesStrategicMerge:
-- ./patches/scc-users.yaml
+- ./resources/scc-rbac.yaml
 
 # Somehow, the value specified in the Helm Chart is ignored
 replicas:
