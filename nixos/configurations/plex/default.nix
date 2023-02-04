@@ -3,7 +3,6 @@
 let
   cfg = config.configurations.plex;
   plexCfg = config.services.plex;
-  tautulliCfg = config.services.tautulli;
 in
 {
   options.configurations.plex.enable = lib.mkEnableOption "plex configuration";
@@ -22,16 +21,12 @@ in
     services.plex = {
       enable = true;
       openFirewall = false;
-      package = (import inputs.nixpkgs-unstable {
-        config = { inherit (pkgs.config) allowUnfree; };
-        system = pkgs.system;
-        overlays = builtins.attrValues inputs.self.overlays;
-      }).plex;
+      package = pkgs.plex;
     };
 
     networking.firewall = {
       # Default port
-      allowedTCPPorts = [ tautulliCfg.port 32400 ];
+      allowedTCPPorts = [ 32400 ];
       # AVAHI, Network Discovery, etc.
       allowedUDPPorts = [ 5353 32410 32412 32413 32414 ];
     };

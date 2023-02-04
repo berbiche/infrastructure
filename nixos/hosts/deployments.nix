@@ -30,10 +30,7 @@ let
 in
 rec {
   nixosConfigurations = lib.flip lib.genAttrs makeHost [
-    "apoc"
     "keanu"
-    "mouse"
-    "switch"
   ];
 
   deploy.nodes = let
@@ -49,10 +46,7 @@ rec {
       };
     };
     generatedNodes = lib.flip lib.genAttrs makeNode [
-      # "apoc"
       "keanu"
-      # "mouse"
-      # "switch"
     ];
   in
     lib.recursiveUpdate generatedNodes {

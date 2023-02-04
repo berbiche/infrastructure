@@ -36,7 +36,7 @@ in
         "/mediaserver" = "/mnt/tank/media";
       };
       description = ''
-        NFS mounts to mount from the TrueNas host.
+        NFS mounts to mount from the TrueNAS host.
         The attribute name is the local directory.
         By default, a systemd tmpfiles rule is created for the
         the folder <path>/metacortex</path> to chown it to
@@ -67,7 +67,6 @@ in
         uid = toString cfg.uid;
         gid = toString cfg.gid;
       in [
-        "d '/metacortex' - ${uid} ${gid} - -"
         "d '/mediaserver' - ${uid} ${gid} - -"
       ];
       boot.supportedFilesystems = [ "nfs" ];

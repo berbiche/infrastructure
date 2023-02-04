@@ -1,7 +1,7 @@
 {
-  description = "Deployment for my OVH VPS";
+  description = "My homelab's NixOS deployments";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.05";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
   inputs.nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable-small";
   inputs.deploy-rs.url = "github:serokell/deploy-rs";
   inputs.flake-utils.url = "github:numtide/flake-utils";
@@ -9,10 +9,10 @@
   inputs.sops-nix.url = "github:Mic92/sops-nix";
 
   # Modules
-  inputs.simple-nixos-mailserver.url = "gitlab:simple-nixos-mailserver/nixos-mailserver/nixos-22.05";
+  inputs.simple-nixos-mailserver.url = "gitlab:simple-nixos-mailserver/nixos-mailserver/nixos-22.11";
   inputs.simple-nixos-mailserver.inputs = {
     nixpkgs.follows = "nixpkgs-unstable";
-    nixpkgs-22_05.follows = "nixpkgs";
+    nixpkgs-22_11.follows = "nixpkgs";
   };
 
   outputs = inputs@{ self, nixpkgs, deploy-rs, ... }: let
@@ -22,11 +22,19 @@
       inherit inputs;
       rootPath = ./nixos;
     };
+
+    colmenaNodeConfigurations = import ./nixos/colmena.nix {
+      inherit inputs;
+      inherit self;
+      rootPath = ./nixos;
+    };
   in {
     overlays.packages = import ./nixos/pkgs;
     overlays.inputs = final: prev: { inherit inputs; };
 
     inherit (nodesConfigurations) deploy;
+
+    colmena = colmenaNodeConfigurations;
 
     checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
   }
@@ -156,6 +164,8 @@
         deploy-rs.defaultPackage.${system}
         terraform
         sops-nix.ssh-to-pgp
+        pkgs.colmena
+
         pkgs.ansible_2_13
         pkgs.jsonnet
         pkgs.jsonnet-bundler
@@ -175,23 +185,9 @@
         self.packages.${system}.kubectl-slice
       ];
 
-      /*
-      SFPATH =
-        (pkgs.runCommandLocal "zsh-kubectl-completions" { buildInputs = [ pkgs.kubectl pkgs.installShellFiles ]; } ''
-          kubectl completion zsh > kubectl.zsh
-          kubectl completion bash > kubectl.bash
-          installShellCompletion kubectl.{zsh,bash}
-        '');
-      */
-
       shellHook = ''
         export KUBECONFIG=$PWD/kubeconfig
       '';
-        # export XDG_DATA_DIRS="''${XDG_DATA_DIRS-}''${XDG_DATA_DIRS+:}$SFPATH/share/bash-completions/completions"
-        # . ${pkgs.bash-completion}/etc/profile.d/bash_completion.sh
-        # if [ -n "''${ZSH_VERSION:-}" ]; then
-        #  export fpath=($fpath $SFPATH/share/zsh/site-functions)
-        # fi
     };
   });
 }
