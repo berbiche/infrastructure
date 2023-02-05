@@ -1,5 +1,9 @@
 { config, lib, pkgs, ... }:
 
+let
+  mediaserverUID = 950;
+  mediaserverGID = 950;
+in
 {
   imports = [ ./hardware-config.nix ];
 
@@ -8,6 +12,18 @@
   configurations.plex = {
     enable = true;
     domain = "plex.tq.rs";
+    uid = mediaserverUID;
+    gid = mediaserverUID;
+  };
+  configurations.nfs-mediaserver-mounts = {
+    enable = true;
+    mountRO = true;
+    host = "truenas.node.tq.rs";
+    mounts."/mnt/tank/media" = {
+      path = "/mediaserver";
+      uid = mediaserverUID;
+      gid = mediaserverUID;
+    };
   };
 
   configurations.global.authorizedKeys = [

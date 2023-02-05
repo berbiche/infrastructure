@@ -4,43 +4,45 @@ with lib;
 
 let
   cfg = config.configurations.nfs-mediaserver-mounts;
+  defaultMountOptions = concatStringsSep "," cfg.defaultMountOptions;
 in
 {
   options.configurations.nfs-mediaserver-mounts = {
     enable = mkEnableOption "NFS mediaserver mounts";
 
-    mediaserver.enableBindMount = mkEnableOption "bind mounting to /mediaserver every folder" // { default = true; };
-
     host = mkOption {
       type = types.str;
-      default = "10.97.42.5";
-    };
-
-    uid = mkOption {
-      type = types.int;
-      default = 950;
-      readOnly = true;
-      description = "UID of the NFS mounts";
-    };
-
-    gid = mkOption {
-      type = types.int;
-      default = 950;
-      readOnly = true;
-      description = "GID of the NFS mounts";
+      example = "truenas.example.com";
     };
 
     mounts = mkOption {
-      type = types.attrsOf types.str;
-      default = {
-        "/mediaserver" = "/mnt/tank/media";
+      type = types.attrsOf (types.submodule {
+        options.path = mkOption {
+          type = types.str;
+          example = "/mediaserver";
+        };
+        options.uid = mkOption {
+          type = types.numbers.nonnegative;
+          example = 950;
+          description = "UID of the NFS mounts";
+        };
+        options.gid = mkOption {
+          type = types.numbers.nonnegative;
+          example = 950;
+          description = "GID of the NFS mounts";
+        };
+      });
+      example = {
+        "/mnt/tank/media" = {
+          path = "/mediaserver";
+          uid = 950;
+          gid = 950;
+        };
       };
       description = ''
         NFS mounts to mount from the TrueNAS host.
-        The attribute name is the local directory.
-        By default, a systemd tmpfiles rule is created for the
-        the folder <path>/metacortex</path> to chown it to
-        the specified GID and UID.
+        The attribute name is the remote directory and the attribute value
+        is the local mount point.
       '';
     };
 
@@ -63,53 +65,20 @@ in
 
   config = mkIf cfg.enable (mkMerge [
     {
-      systemd.tmpfiles.rules = let
-        uid = toString cfg.uid;
-        gid = toString cfg.gid;
-      in [
-        "d '/mediaserver' - ${uid} ${gid} - -"
-      ];
+      systemd.tmpfiles.rules = flip mapAttrsToList cfg.mounts (_: localFS:
+        "d ${escapeShellArg localFS.path} - ${toString localFS.uid} ${toString localFS.gid} - -"
+      );
       boot.supportedFilesystems = [ "nfs" ];
 
-      systemd.mounts = flip mapAttrsToList cfg.mounts (localFS: remoteFS: {
+      systemd.mounts = flip mapAttrsToList cfg.mounts (remoteFS: localFS: {
         # Move the constants below in another file
         what = "${cfg.host}:${remoteFS}";
-        where = localFS;
+        where = localFS.path;
         type = "nfs";
-        options = concatStringsSep "," cfg.defaultMountOptions;
+        options = defaultMountOptions;
         mountConfig.DirectoryMode = "770";
         wantedBy = [ "multi-user.target" ];
       });
     }
-    (mkIf cfg.mediaserver.enableBindMount {
-      systemd.mounts = [{
-        what = "/mediaserver";
-        where = "/metacortex";
-        type = "none";
-        options = concatStringsSep "," [
-          "bind"
-          "defaults"
-          "noauto"
-          "x-systemd.requires-mounts-for=/mediaserver"
-          "x-systemd.automount"
-        ];
-        mountConfig.DirectoryMode = "770";
-        wantedBy = [ "multi-user.target" ];
-      }];
-      # systemd.mounts = flip mapAttrsToList cfg.mounts (localFS: _: {
-      #   what = localFS;
-      #   where = "/mediaserver/${builtins.baseNameOf localFS}";
-      #   type = "none";
-      #   options = concatStringsSep "," [
-      #     "bind"
-      #     "defaults"
-      #     "noauto"
-      #     "x-systemd.requires-mounts-for=${localFS}"
-      #     "x-systemd.automount"
-      #   ];
-      #   mountConfig.DirectoryMode = "770";
-      #   wantedBy = [ "multi-user.target" ];
-      # });
-    })
   ]);
 }

@@ -12,12 +12,14 @@ in
     example = "plex.example.com";
     description = "The domain Plex will be bound to by Traefik";
   };
+  options.configurations.plex.uid = lib.mkOption {
+    type = lib.types.numbers.nonnegative;
+  };
+  options.configurations.plex.gid = lib.mkOption {
+    type = lib.types.numbers.nonnegative;
+  };
 
   config = lib.mkIf cfg.enable {
-    configurations.nfs-mediaserver-mounts.enable = true;
-    configurations.nfs-mediaserver-mounts.mountRO = true;
-    configurations.nfs-mediaserver-mounts.mediaserver.enableBindMount = true;
-
     services.plex = {
       enable = true;
       openFirewall = false;
@@ -39,10 +41,10 @@ in
     ];
 
     users.users.${plexCfg.user} = {
-      uid = lib.mkForce 950;
+      uid = lib.mkForce cfg.uid;
       isSystemUser = true;
     };
-    users.groups.${plexCfg.group}.gid = lib.mkForce 950;
+    users.groups.${plexCfg.group}.gid = lib.mkForce cfg.gid;
     # users.users.${plexCfg.user}.extraGroups = [ config.users.groups.mediaserver.name ];
     # users.users.mediaserver = {
     #   uid = 950;
