@@ -4,6 +4,7 @@
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
   inputs.nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable-small";
   inputs.deploy-rs.url = "github:serokell/deploy-rs";
+  inputs.colmena.url = "github:zhaofengli/colmena";
   inputs.flake-utils.url = "github:numtide/flake-utils";
   # Secret management
   inputs.sops-nix.url = "github:Mic92/sops-nix";
@@ -11,7 +12,7 @@
   # Modules
   inputs.simple-nixos-mailserver.url = "gitlab:simple-nixos-mailserver/nixos-mailserver/nixos-22.11";
   inputs.simple-nixos-mailserver.inputs = {
-    nixpkgs.follows = "nixpkgs-unstable";
+    nixpkgs.follows = "nixpkgs";
     nixpkgs-22_11.follows = "nixpkgs";
   };
 
@@ -46,84 +47,9 @@
     sops-nix = inputs.sops-nix.packages.${system};
     terraform = pkgs.terraform_1;
 
-    # FHS for the terraform-provider-b2
-    # because writing a derivation is complex (it embeds a python binary generated with pyinstaller)
-    terraformFHS = pkgs.buildFHSUserEnv {
-      name = "terraform-keanu-fhs";
-      targetPkgs = pkgs: [
-        terraform
-        pkgs.gnupg
-        pkgs.sops
-        pkgs.zlib
-      ];
-      # Only one line can be in the runScript option
-      runScript = pkgs.writeShellScript "fhs-terraform-run-script" ''
-        echo >&2 "This file must be executed from the root of the project"
-        echo "You may need to allow GPG decryption of the secrets"
-        echo "Please input your password if required"
-        sops exec-env secrets/terraform-backend.yaml ${pkgs.writeShellScript "fhs-terraform-sops" ''
-          : # export nix-shell name
-          export name="terraform"
-          exec zsh
-        ''}
-      '';
-    } // {
-      meta.mainProgram = terraformFHS.name;
-    };
-
   in {
-    packages = {
-      # nix shell .#openshift-install
-      openshift-install = let
-        url-and-hash = rec {
-          "x86_64-linux" = {
-            url = "https://github.com/okd-project/okd/releases/download/4.11.0-0.okd-2022-12-02-145640/openshift-install-linux-4.11.0-0.okd-2022-12-02-145640.tar.gz";
-            hash = "";
-          };
-          "x86_64-darwin" = {
-            url = "https://github.com/okd-project/okd/releases/download/4.11.0-0.okd-2022-12-02-145640/openshift-install-mac-4.11.0-0.okd-2022-12-02-145640.tar.gz";
-            hash = "sha256-xg9Ljoroi4fcomS5juW4qEHufdWkuTIjSMJc3LF8Mrs=";
-          };
-          # Universal binary?
-          # "aarch64-darwin" = {
-          #   url = "https://github.com/okd-project/okd/releases/download/4.11.0-0.okd-2022-12-02-145640/openshift-install-mac-arm64-4.11.0-0.okd-2022-12-02-145640.tar.gz";
-          #   hash = "sha256-6txY/VF9o7Jx6o7QURdGxJl1iH6sx/u50lUepjAh4N0=";
-          # };
-          "aarch64-darwin" = x86_64-darwin;
-        }."${system}" or (throw "Unsupported platform");
-        file = pkgs.fetchurl url-and-hash;
-      in pkgs.runCommandLocal "openshift-install" {
-        nativeBuildInputs = [ pkgs.gnutar ];
-        src = file;
-      } ''
-        mkdir -p "$out"/bin
-        tar -zxf "$src" -C "$out"/bin
-      '';
-
-      kubectl-slice = let
-        url-and-hash = {
-          "x86_64-linux" = {
-            url = "https://github.com/patrickdappollonio/kubectl-slice/releases/download/v1.1.0/kubectl-slice_1.1.0_linux_x86_64.tar.gz";
-            hash = "sha256-DKI8WQU7KOqlKosUNno4o61I6KSblUm3CHWPHAEMz/k=";
-          };
-          "x86_64-darwin" = {
-            url = "https://github.com/patrickdappollonio/kubectl-slice/releases/download/v1.1.0/kubectl-slice_1.1.0_darwin_x86_64.tar.gz";
-            sha256 = pkgs.lib.fakeHash;
-          };
-          "aarch64-darwin" = {
-            url = "https://github.com/patrickdappollonio/kubectl-slice/releases/download/v1.1.0/kubectl-slice_1.1.0_darwin_arm64.tar.gz";
-            sha256 = "sha256-mjqCD5jnBXk496IXOeakxvQ7jW8Js1MlHFxLmd76Wf8=";
-          };
-        }."${system}" or (throw "Unsupported platform");
-        file = pkgs.fetchurl url-and-hash;
-      in pkgs.runCommandLocal "kubectl-slice" {
-        src = file;
-        nativeBuildInputs = [ pkgs.gnutar ];
-      } ''
-        mkdir -p "$out"/bin
-        tar -zxf "$src" -C "$out"/bin
-      '';
-    };
+    # nix shell .#openshift-install
+    packages = import ./packages.nix { inherit inputs pkgs system; };
 
     # nix run .#terraform-fhs --
     # nix run .#bmc-access --
@@ -135,7 +61,9 @@
       };
       terraform-fhs = {
         type = "app";
-        program = "${terraformFHS}/bin/${terraformFHS.meta.mainProgram}";
+        program = let
+          terraformFHS = import ./scripts/terraform-fhs.nix { inherit pkgs terraform; };
+        in "${terraformFHS}/bin/${terraformFHS.meta.mainProgram}";
       };
       openshift-install = {
         type = "app";
@@ -164,7 +92,7 @@
         deploy-rs.defaultPackage.${system}
         terraform
         sops-nix.ssh-to-pgp
-        pkgs.colmena
+        inputs.colmena.packages.${system}.colmena
 
         pkgs.ansible_2_13
         pkgs.jsonnet

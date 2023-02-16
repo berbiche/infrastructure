@@ -15,7 +15,6 @@ let
       (./. + "/${host}")
     ] ++ lib.concatLists [
       (import ../configurations)
-      (import ../modules)
     ];
     specialArgs = {
       inherit (inputs) self;

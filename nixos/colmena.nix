@@ -30,7 +30,6 @@ in
 
   morpheus = { name, nodes, ... }: {
     imports = [ ./hosts/morpheus ];
-    # deployment.targetHost = "morpheus.node.tq.rs";
     deployment.targetHost = "morpheus.node.tq.rs";
     deployment.targetUser = "admin";
     networking.hostName = "morpheus";
@@ -44,6 +43,6 @@ in
     deployment.targetPort = 59910;
 
     networking.hostName = "keanu";
-    networking.domain = "ovh";
+    networking.domain = "normie.dev";
   };
 }
