@@ -12,7 +12,7 @@ in
     domain = "plex.tq.rs";
     uid = mediaserverUID;
     gid = mediaserverUID;
-    package = lib.traceValSeqN 1 (pkgs.packages.plex {});
+    package = pkgs.packages.plex;
   };
   configurations.nfs-mediaserver-mounts = {
     enable = true;

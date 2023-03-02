@@ -16,7 +16,7 @@
   };
 
   # Overrides
-  inputs.nixpkgs-pr216547.url = "github:NixOS/nixpkgs/3cbf66ca1d5243e7bff7ca42a8610cb040abc750";
+  inputs.nixpkgs-plex.url = "github:NixOS/nixpkgs/0cbcc73900994a7d29f5cdc52f06f7418fc176a4";
 
   outputs = inputs@{ self, nixpkgs, ... }: let
     flakeConfig = toplevel@{inputs, self, withSystem, ...}: {

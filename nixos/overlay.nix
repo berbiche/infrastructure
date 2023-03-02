@@ -4,7 +4,7 @@ let
     inherit (prev) system;
     config.allowUnfree = true;
   };
-  pkgsPlex = import inputs.nixpkgs-pr216547 {
+  pkgsPlex = import inputs.nixpkgs-plex {
     inherit (prev) system;
     config.allowUnfree = true;
   };
