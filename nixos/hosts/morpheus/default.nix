@@ -7,13 +7,12 @@ in
 {
   imports = [ ./hardware-config.nix ];
 
-  system.stateVersion = "22.11";
-
   configurations.plex = {
     enable = true;
     domain = "plex.tq.rs";
     uid = mediaserverUID;
     gid = mediaserverUID;
+    package = lib.traceValSeqN 1 (pkgs.packages.plex {});
   };
   configurations.nfs-mediaserver-mounts = {
     enable = true;

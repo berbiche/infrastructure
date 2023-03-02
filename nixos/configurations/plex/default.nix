@@ -18,12 +18,13 @@ in
   options.configurations.plex.gid = lib.mkOption {
     type = lib.types.numbers.nonnegative;
   };
+  options.configurations.plex.package = lib.mkPackageOption pkgs "plex" { };
 
   config = lib.mkIf cfg.enable {
     services.plex = {
       enable = true;
       openFirewall = false;
-      package = pkgs.plex;
+      package = cfg.package;
     };
 
     networking.firewall = {

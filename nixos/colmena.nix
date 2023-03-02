@@ -1,13 +1,10 @@
-{ inputs, self, rootPath }:
+{ inputs, pkgs, self, rootPath }:
 
 let
 in
 {
   meta = {
-    nixpkgs = import inputs.nixpkgs {
-      system = "x86_64-linux";
-      config.allowUnfree = true;
-    };
+    nixpkgs = pkgs;
     specialArgs = {
       inherit inputs;
     };
@@ -21,7 +18,8 @@ in
 
     imports = [
       inputs.sops-nix.nixosModule
-    ] ++ import ./configurations;
+      ./configurations
+    ];
 
     system.stateVersion = "22.11";
 
@@ -32,6 +30,7 @@ in
     imports = [ ./hosts/morpheus ];
     deployment.targetHost = "morpheus.node.tq.rs";
     deployment.targetUser = "admin";
+
     networking.hostName = "morpheus";
     networking.domain = "node.tq.rs";
   };
@@ -42,7 +41,20 @@ in
     deployment.targetUser = "root";
     deployment.targetPort = 59910;
 
+    system.stateVersion = "22.11";
+
     networking.hostName = "keanu";
     networking.domain = "normie.dev";
+  };
+
+  builder = { name, nodes, ... }: {
+    imports = [ ./hosts/builder ];
+    deployment.targetHost = "nixos-builder.node.tq.rs";
+    deployment.targetUser = "nicolas";
+
+    system.stateVersion = "22.11";
+
+    networking.hostName = "nixos-builder";
+    networking.domain = "node.tq.rs";
   };
 }

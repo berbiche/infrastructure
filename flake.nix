@@ -3,9 +3,8 @@
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
   inputs.nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable-small";
-  inputs.deploy-rs.url = "github:serokell/deploy-rs";
   inputs.colmena.url = "github:zhaofengli/colmena";
-  inputs.flake-utils.url = "github:numtide/flake-utils";
+  inputs.flake-parts.url = "github:hercules-ci/flake-parts";
   # Secret management
   inputs.sops-nix.url = "github:Mic92/sops-nix";
 
@@ -16,106 +15,107 @@
     nixpkgs-22_11.follows = "nixpkgs";
   };
 
-  outputs = inputs@{ self, nixpkgs, deploy-rs, ... }: let
-    supportedSystems = [ "x86_64-linux" "x86_64-darwin" "aarch64-darwin" ];
+  # Overrides
+  inputs.nixpkgs-pr216547.url = "github:NixOS/nixpkgs/3cbf66ca1d5243e7bff7ca42a8610cb040abc750";
 
-    nodesConfigurations = import ./nixos/hosts/deployments.nix {
-      inherit inputs;
-      rootPath = ./nixos;
-    };
+  outputs = inputs@{ self, nixpkgs, ... }: let
+    flakeConfig = toplevel@{inputs, self, withSystem, ...}: {
+      systems = [ "x86_64-linux" "x86_64-darwin" "aarch64-darwin" ];
 
-    colmenaNodeConfigurations = import ./nixos/colmena.nix {
-      inherit inputs;
-      inherit self;
-      rootPath = ./nixos;
-    };
-  in {
-    overlays.packages = import ./nixos/pkgs;
-    overlays.inputs = final: prev: { inherit inputs; };
+      imports = [ inputs.flake-parts.flakeModules.easyOverlay ];
 
-    inherit (nodesConfigurations) deploy;
-
-    colmena = colmenaNodeConfigurations;
-
-    checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
-  }
-  // inputs.flake-utils.lib.eachSystem supportedSystems (system: let
-    pkgs = import inputs.nixpkgs-unstable {
-      inherit system;
-      overlays = builtins.attrValues self.overlays;
-    };
-    sops-nix = inputs.sops-nix.packages.${system};
-    terraform = pkgs.terraform_1;
-
-  in {
-    # nix shell .#openshift-install
-    packages = import ./packages.nix { inherit inputs pkgs system; };
-
-    # nix run .#terraform-fhs --
-    # nix run .#bmc-access --
-    # nix run .#openshift-install --
-    apps = {
-      bmc-access = {
-        type = "app";
-        program = toString (import ./scripts/bmc-access.nix { inherit nixpkgs; }).bmc;
-      };
-      terraform-fhs = {
-        type = "app";
-        program = let
-          terraformFHS = import ./scripts/terraform-fhs.nix { inherit pkgs terraform; };
-        in "${terraformFHS}/bin/${terraformFHS.meta.mainProgram}";
-      };
-      openshift-install = {
-        type = "app";
-        program = "${self.packages.${system}.openshift-install}/bin/openshift-install";
-      };
-    };
-
-    devShells.default = pkgs.mkShell {
-      name = "dev";
-
-      nativeBuildInputs = [
-        sops-nix.sops-import-keys-hook
-      ];
-
-      KUSTOMIZE_PLUGIN_HOME = pkgs.buildEnv {
-        name = "kustomize-plugins";
-        paths =  [ pkgs.kustomize-sops ];
-        postBuild = ''
-          mv $out/lib/* $out
-          rm -r $out/lib
-        '';
-        pathsToLink = [ "/lib" ];
+      flake = {
+        colmena = withSystem "x86_64-linux" ({pkgs, ...}: import ./nixos/colmena.nix {
+          inherit inputs pkgs self;
+          rootPath = ./nixos;
+        });
       };
 
-      buildInputs = [
-        deploy-rs.defaultPackage.${system}
-        terraform
-        sops-nix.ssh-to-pgp
-        inputs.colmena.packages.${system}.colmena
+      perSystem = { config, final, self', inputs', pkgs, system, ... }: let
+        sops-nix = inputs'.sops-nix.packages;
+        terraform = pkgs.terraform_1;
+      in {
+        _module.args.pkgs = import inputs.nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+          overlays = builtins.attrValues toplevel.config.flake.overlays;
+        };
 
-        pkgs.ansible_2_13
-        pkgs.jsonnet
-        pkgs.jsonnet-bundler
-        pkgs.kubectl
-        pkgs.kubectx
-        pkgs.kubernetes-helm
-        pkgs.kubetail
-        # pkgs.kustomize_3
-        pkgs.kustomize
-        # pkgs.ltrace
-        pkgs.pipenv
-        pkgs.python311
-        pkgs.sops
-        pkgs.openshift
+        overlayAttrs = import ./nixos/overlay.nix {
+          inherit final inputs;
+          prev = pkgs;
+        };
 
-        self.packages.${system}.openshift-install
-        self.packages.${system}.kubectl-slice
-      ];
+        # nix shell .#openshift-install
+        packages = import ./packages.nix { inherit pkgs system; };
 
-      shellHook = ''
-        export KUBECONFIG=$PWD/kubeconfig
-      '';
+        # nix run .#terraform-fhs --
+        # nix run .#bmc-access --
+        # nix run .#openshift-install --
+        apps = {
+          bmc-access = {
+            type = "app";
+            program = toString (import ./scripts/bmc-access.nix { inherit pkgs; }).bmc;
+          };
+          terraform-fhs = {
+            type = "app";
+            program = let
+              terraformFHS = import ./scripts/terraform-fhs.nix { inherit pkgs terraform; };
+            in "${terraformFHS}/bin/${terraformFHS.meta.mainProgram}";
+          };
+          openshift-install = {
+            type = "app";
+            program = "${self'.packages.openshift-install}/bin/openshift-install";
+          };
+        };
+
+        devShells.default = pkgs.mkShell {
+          name = "dev";
+
+          nativeBuildInputs = [
+            sops-nix.sops-import-keys-hook
+          ];
+
+          KUSTOMIZE_PLUGIN_HOME = pkgs.buildEnv {
+            name = "kustomize-plugins";
+            paths =  [ pkgs.kustomize-sops ];
+            postBuild = ''
+              mv $out/lib/* $out
+              rm -r $out/lib
+            '';
+            pathsToLink = [ "/lib" ];
+          };
+
+          buildInputs = [
+            terraform
+            sops-nix.ssh-to-pgp
+            inputs'.colmena.packages.colmena
+
+            pkgs.ansible_2_13
+            pkgs.jsonnet
+            pkgs.jsonnet-bundler
+            pkgs.kubectl
+            pkgs.kubectx
+            pkgs.kubernetes-helm
+            pkgs.kubetail
+            # pkgs.kustomize_3
+            pkgs.kustomize
+            # pkgs.ltrace
+            pkgs.pipenv
+            pkgs.python311
+            pkgs.sops
+            pkgs.openshift
+
+            self'.packages.openshift-install
+            self'.packages.kubectl-slice
+          ];
+
+          shellHook = ''
+            export KUBECONFIG=$PWD/kubeconfig
+          '';
+        };
+      };
     };
-  });
+  in
+    inputs.flake-parts.lib.mkFlake { inherit inputs; } flakeConfig;
 }

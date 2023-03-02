@@ -1,6 +1,10 @@
-with builtins;
-
-map (x: ./. + "/${x}") (
-  filter (x: x != "default.nix")
-    (attrNames (readDir ./.))
-)
+{
+  imports = [
+    ./options.nix
+    ./discord-bot
+    ./nfs-mediaserver-mounts
+    ./nixos-mail-server
+    ./plex
+    ./system
+  ];
+}

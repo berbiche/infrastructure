@@ -4,7 +4,7 @@
 
 let
   fhs = pkgs.buildFHSUserEnv {
-    name = "terraform-keanu-fhs";
+    name = "terraform-fhs";
     targetPkgs = pkgs: [
       terraform
       pkgs.gnupg

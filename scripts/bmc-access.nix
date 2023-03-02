@@ -1,13 +1,7 @@
 # To be executed with `nix run .#bmc -- path-to-jnlp.jnlp`
-{ nixpkgs }:
+{ pkgs }:
 
 let
-  defaultSystems = [ "x86_64-linux" "i686-linux" "aarch64-linux" ];
-  genAttrs = list: fun: builtins.foldl' (c: d: c // d) {} (map (x: { ${x} = fun x; }) list);
-  eachNixpkgs = f: genAttrs defaultSystems (system: let
-    pkgs = import nixpkgs { inherit system; config.allowUnfree = true; };
-  in f pkgs);
-in eachNixpkgs (pkgs: let
   java = pkgs.jre8Plugin;
   javaSecurity = pkgs.writeText "bmc-java.security" ''
     # jdk.jar.disabledAlgorithms=MD2, MD5, RSA keySize < 128
@@ -64,5 +58,5 @@ in {
 
     ${java}/bin/javaws $VERBOSE -J'-Djava.security.debug=properties' -J'-Djava.security.properties=file:${javaSecurity}' "$FILE"
   '';
-})
+}
 

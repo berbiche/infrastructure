@@ -12,10 +12,6 @@ in
 
   boot.kernelParams = [ "panic=1" "boot.panic_on_fail" ];
 
-  sops.defaultSopsFile = lib.mkDefault (rootPath + "/secrets/keanu.yaml");
-
-  sops.secrets.admin-pass = { };
-
   networking.firewall.allowPing = true;
 
   services.openssh = {
