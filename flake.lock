@@ -86,6 +86,21 @@
         "type": "github"
       }
     },
+    "mission-control": {
+      "locked": {
+        "lastModified": 1675195908,
+        "narHash": "sha256-nQv35C7svZFluwy2uoZFxwPqiT16XoKAoMlIQYmvg3A=",
+        "owner": "Platonic-Systems",
+        "repo": "mission-control",
+        "rev": "feb06872ac4dc977f70f6388c87d36fc3c3c3693",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Platonic-Systems",
+        "repo": "mission-control",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1674641431,
@@ -136,29 +151,13 @@
         "type": "github"
       }
     },
-    "nixpkgs-plex": {
-      "locked": {
-        "lastModified": 1677614094,
-        "narHash": "sha256-+LjkSr/sd3x6oGFCjA6lexMQ2MZON0mZRuCE1v9ScuQ=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "0cbcc73900994a7d29f5cdc52f06f7418fc176a4",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "0cbcc73900994a7d29f5cdc52f06f7418fc176a4",
-        "type": "github"
-      }
-    },
     "nixpkgs-unstable": {
       "locked": {
-        "lastModified": 1665739725,
-        "narHash": "sha256-+4gT1fslLg/EN1nnCzIxVSpPpgCME55zUYVkwmXiAS4=",
+        "lastModified": 1677918630,
+        "narHash": "sha256-XvfzkZr+GQMm+BTYvQ9gMaJ6lkd1mKSEZ6I184OP5RM=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "a114755d05c1a590ece2e3ecff31e43e07334b5e",
+        "rev": "e0737778444ae0aa3baf8d6512288d3310c372ed",
         "type": "github"
       },
       "original": {
@@ -204,8 +203,8 @@
       "inputs": {
         "colmena": "colmena",
         "flake-parts": "flake-parts",
+        "mission-control": "mission-control",
         "nixpkgs": "nixpkgs_2",
-        "nixpkgs-plex": "nixpkgs-plex",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "simple-nixos-mailserver": "simple-nixos-mailserver",
         "sops-nix": "sops-nix"
