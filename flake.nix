@@ -1,28 +1,31 @@
 {
   description = "My homelab's NixOS deployments";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
-  inputs.nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable-small";
-  inputs.colmena.url = "github:zhaofengli/colmena";
-  inputs.flake-parts.url = "github:hercules-ci/flake-parts";
-  # Secret management
-  inputs.sops-nix.url = "github:Mic92/sops-nix";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable-small";
+    colmena.url = "github:zhaofengli/colmena";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    mission-control.url = "github:Platonic-Systems/mission-control";
+    # Secret management
+    sops-nix.url = "github:Mic92/sops-nix";
 
-  # Modules
-  inputs.simple-nixos-mailserver.url = "gitlab:simple-nixos-mailserver/nixos-mailserver/nixos-22.11";
-  inputs.simple-nixos-mailserver.inputs = {
-    nixpkgs.follows = "nixpkgs";
-    nixpkgs-22_11.follows = "nixpkgs";
+    # Modules
+    simple-nixos-mailserver.url = "gitlab:simple-nixos-mailserver/nixos-mailserver/nixos-22.11";
+    simple-nixos-mailserver.inputs = {
+      nixpkgs.follows = "nixpkgs";
+      nixpkgs-22_11.follows = "nixpkgs";
+    };
   };
-
-  # Overrides
-  inputs.nixpkgs-plex.url = "github:NixOS/nixpkgs/0cbcc73900994a7d29f5cdc52f06f7418fc176a4";
 
   outputs = inputs@{ self, nixpkgs, ... }: let
     flakeConfig = toplevel@{inputs, self, withSystem, ...}: {
       systems = [ "x86_64-linux" "x86_64-darwin" "aarch64-darwin" ];
 
-      imports = [ inputs.flake-parts.flakeModules.easyOverlay ];
+      imports = [
+        inputs.flake-parts.flakeModules.easyOverlay
+        inputs.mission-control.flakeModule
+      ];
 
       flake = {
         colmena = withSystem "x86_64-linux" ({pkgs, ...}: import ./nixos/colmena.nix {
@@ -31,7 +34,7 @@
         });
       };
 
-      perSystem = { config, final, self', inputs', pkgs, system, ... }: let
+      perSystem = { config, final, self', inputs', pkgs, lib, system, ... }: let
         sops-nix = inputs'.sops-nix.packages;
         terraform = pkgs.terraform_1;
       in {
@@ -52,20 +55,21 @@
         # nix run .#terraform-fhs --
         # nix run .#bmc-access --
         # nix run .#openshift-install --
-        apps = {
+        apps = lib.mapAttrs (_: v: { type = "app"; program = v.exec; }) config.mission-control.scripts;
+        mission-control.scripts = {
           bmc-access = {
-            type = "app";
-            program = toString (import ./scripts/bmc-access.nix { inherit pkgs; }).bmc;
+            description = "Access iDrac Java BMC console";
+            exec = toString (import ./scripts/bmc-access.nix { inherit pkgs; }).bmc;
           };
           terraform-fhs = {
-            type = "app";
-            program = let
+            description = "Enter an FHS with Terraform dependencies";
+            exec = let
               terraformFHS = import ./scripts/terraform-fhs.nix { inherit pkgs terraform; };
             in "${terraformFHS}/bin/${terraformFHS.meta.mainProgram}";
           };
           openshift-install = {
-            type = "app";
-            program = "${self'.packages.openshift-install}/bin/openshift-install";
+            description = "OpenShift installer script";
+            exec = "${self'.packages.openshift-install}/bin/openshift-install";
           };
         };
 
