@@ -38,8 +38,8 @@ in
   keanu = { name, nodes, ... }: {
     imports = [ ./hosts/keanu ];
     deployment.targetHost = "keanu.ovh";
-    deployment.targetUser = "root";
-    deployment.targetPort = 59910;
+    deployment.targetUser = "admin";
+    deployment.targetPort = 22;
 
     system.stateVersion = "22.11";
 

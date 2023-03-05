@@ -61,7 +61,7 @@ in
           autoStart = true;
           environment = {
             # Release version
-            VERSION = "0.3.8";
+            VERSION = "0.3.9";
           };
         };
       };
