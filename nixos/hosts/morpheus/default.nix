@@ -14,6 +14,7 @@ in
     gid = mediaserverUID;
     package = pkgs.packages.plex;
   };
+
   configurations.nfs-mediaserver-mounts = {
     enable = true;
     mountRO = true;
@@ -24,6 +25,8 @@ in
       gid = mediaserverUID;
     };
   };
+
+  configurations.cockpit.enable = true;
 
   configurations.global.authorizedKeys = [
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIXqBarGejSu6/XzblEbsWocVCIyPxuQUCVLnMtnfrvi"
