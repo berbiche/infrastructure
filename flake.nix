@@ -7,6 +7,7 @@
     colmena.url = "github:zhaofengli/colmena";
     flake-parts.url = "github:hercules-ci/flake-parts";
     mission-control.url = "github:Platonic-Systems/mission-control";
+    flake-root.url = "github:srid/flake-root";
     # Secret management
     sops-nix.url = "github:Mic92/sops-nix";
 
@@ -25,6 +26,7 @@
       imports = [
         inputs.flake-parts.flakeModules.easyOverlay
         inputs.mission-control.flakeModule
+        inputs.flake-root.flakeModule
       ];
 
       flake = {
@@ -57,11 +59,11 @@
         # nix run .#openshift-install --
         apps = lib.mapAttrs (_: v: { type = "app"; program = v.exec; }) config.mission-control.scripts;
         mission-control.scripts = {
-          bmc-access = {
+          bmc-access = lib.mkIf pkgs.hostPlatform.isLinux {
             description = "Access iDrac Java BMC console";
             exec = toString (import ./scripts/bmc-access.nix { inherit pkgs; }).bmc;
           };
-          terraform-fhs = {
+          terraform-fhs = lib.mkIf pkgs.hostPlatform.isLinux {
             description = "Enter an FHS with Terraform dependencies";
             exec = let
               terraformFHS = import ./scripts/terraform-fhs.nix { inherit pkgs terraform; };
@@ -79,6 +81,8 @@
           nativeBuildInputs = [
             sops-nix.sops-import-keys-hook
           ];
+
+          inputsFrom = [ config.mission-control.devShell ];
 
           KUSTOMIZE_PLUGIN_HOME = pkgs.buildEnv {
             name = "kustomize-plugins";

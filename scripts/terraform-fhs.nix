@@ -25,5 +25,5 @@ let
   };
 in
   fhs // {
-    meta.mainProgram = terraformFHS.name;
+    meta.mainProgram = fhs.name;
   }
