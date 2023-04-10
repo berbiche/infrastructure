@@ -17,7 +17,7 @@ in
     };
 
     imports = [
-      inputs.sops-nix.nixosModule
+      inputs.sops-nix.nixosModules.default
       ./configurations
     ];
 
