@@ -38,10 +38,6 @@
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.intel.updateMicrocode = false;
 
-  time.timeZone = "America/Toronto";
-  i18n.defaultLocale = "en_US.UTF-8";
-  console.keyMap = "us";
-
   nix.gc = {
     automatic = true;
     dates = "monthly";
