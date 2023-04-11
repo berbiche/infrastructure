@@ -1,0 +1,42 @@
+# Configure persistent storage for Prometheus
+# Enable prometheus scraping for "user workloads"
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-monitoring-config
+  namespace: openshift-monitoring
+data:
+  config.yaml: |
+    enableUserWorkload: true
+
+    # Reuses the main Alertmanager instance
+    alertmanagerMain:
+      enableUserAlertmanagerConfig: true
+
+    # Creates a secondary instance iff alertmanager.enabled is true
+    # mutually exclusive with the options above
+    alertmanager:
+      enabled: false
+      enableAlertmanagerConfig: true
+
+
+    prometheus:
+      retention: 10w
+      retentionSize: 30GB
+
+    prometheusK8s:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: truenas-iscsi-csi
+          volumeMode: Filesystem
+          resources:
+            requests:
+              storage: 40Gi
+      # remoteWrite:
+      # - url: "https://something.example.com"
+      #   writeRelabelConfigs:
+      #   - sourceLabels:
+      #     - __tmp_openshift_cluster_id__
+      #     targetLabel: cluster_id
+      #     action: replace
+

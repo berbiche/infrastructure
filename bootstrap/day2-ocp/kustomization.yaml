@@ -6,6 +6,8 @@ buildMetadata: [originAnnotations]
 resources:
   # - ./resources/oauthclient.yaml
   - ./resources/oauth-idp-provider.yaml
+  - ./resources/prometheus-cluster.yaml
+  - ./resources/prometheus-user-config.yaml
   # - ./resources/public-ingress-controller.yaml
 
 generators:
