@@ -1,6 +1,7 @@
 # Default values for Traefik
 image:
-  name: traefik
+  registry: docker.io
+  repository: traefik
   # defaults to appVersion
   tag: ""
   pullPolicy: IfNotPresent
@@ -66,10 +67,14 @@ deployment:
   # Additional initContainers (e.g. for setting file permission as shown below)
   initContainers: []
     # The "volume-permissions" init container is required if you run into permission issues.
-    # Related issue: https://github.com/traefik/traefik/issues/6825
+    # Related issue: https://github.com/traefik/traefik-helm-chart/issues/396
     # - name: volume-permissions
-    #   image: busybox:1.35
-    #   command: ["sh", "-c", "touch /data/acme.json && chmod -Rv 600 /data/* && chown 65532:65532 /data/acme.json"]
+    #   image: busybox:latest
+    #   command: ["sh", "-c", "touch /data/acme.json; chmod -v 600 /data/acme.json"]
+    #   securityContext:
+    #     runAsNonRoot: true
+    #     runAsGroup: 65532
+    #     runAsUser: 65532
     #   volumeMounts:
     #     - name: data
     #       mountPath: /data
@@ -142,6 +147,8 @@ ingressRoute:
     entryPoints: ["traefik"]
     # Additional ingressRoute middlewares (e.g. for authentication)
     middlewares: []
+    # TLS options (e.g. secret containing certificate)
+    tls: {}
 
 # Customize updateStrategy of traefik pods
 updateStrategy:
@@ -396,6 +403,8 @@ metrics:
   #    enabled: false
   #    labels: {}
   #    annotations: {}
+  ## When set to true, it won't check if Prometheus Operator CRDs are deployed
+  #  disableAPICheck: false
   #  serviceMonitor:
   #    metricRelabelings: []
   #      - sourceLabels: [__name__]
@@ -580,7 +589,7 @@ ports:
     # hostPort: 8443
     expose: true
     exposedPort: 443
-    # The port protocol (TCP/UDP)
+    ## The port protocol (TCP/UDP)
     protocol: TCP
     # nodePort: 32443
     #
@@ -594,6 +603,16 @@ ports:
       enabled: false
     # advertisedPort: 4443
     #
+    ## Trust forwarded  headers information (X-Forwarded-*).
+    #forwardedHeaders:
+    #  trustedIPs: []
+    #  insecure: false
+    #
+    ## Enable the Proxy Protocol header parsing for the entry point
+    #proxyProtocol:
+    #  trustedIPs: []
+    #  insecure: false
+    #
     ## Set TLS at the entrypoint
     ## https://doc.traefik.io/traefik/routing/entrypoints/#tls
     tls:
@@ -606,16 +625,6 @@ ports:
       #   sans:
       #     - foo.example.com
       #     - bar.example.com
-    #
-    # Trust forwarded  headers information (X-Forwarded-*).
-    # forwardedHeaders:
-    #   trustedIPs: []
-    #   insecure: false
-    #
-    # Enable the Proxy Protocol header parsing for the entry point
-    # proxyProtocol:
-    #   trustedIPs: []
-    #   insecure: false
     #
     # One can apply Middlewares on an entrypoint
     # https://doc.traefik.io/traefik/middlewares/overview/
@@ -645,12 +654,15 @@ ports:
 
 # TLS Options are created as TLSOption CRDs
 # https://doc.traefik.io/traefik/https/tls/#tls-options
+# When using `labelSelector`, you'll need to set labels on tlsOption accordingly.
 # Example:
 # tlsOptions:
 #   default:
+#     labels: {}
 #     sniStrict: true
 #     preferServerCipherSuites: true
-#   foobar:
+#   customOptions:
+#     labels: {}
 #     curvePreferences:
 #       - CurveP521
 #       - CurveP384
@@ -748,6 +760,7 @@ persistence:
   accessMode: ReadWriteOnce
   size: 128Mi
   # storageClass: ""
+  # volumeName: ""
   path: /data
   annotations: {}
   # subPath: "" # only mount a subpath of the Volume into the pod
@@ -844,12 +857,16 @@ securityContext:
   capabilities:
     drop: [ALL]
   readOnlyRootFilesystem: true
+
+podSecurityContext:
+#  # /!\ When setting fsGroup, Kubernetes will recursively changes ownership and
+#  # permissions for the contents of each volume to match the fsGroup. This can
+#  # be an issue when storing sensitive content like TLS Certificates /!\
+#  fsGroup: 65532
+  fsGroupChangePolicy: "OnRootMismatch"
   runAsGroup: 65532
   runAsNonRoot: true
   runAsUser: 65532
-
-podSecurityContext:
-  fsGroup: 65532
 
 #
 # Extra objects to deploy (value evaluated as a template)

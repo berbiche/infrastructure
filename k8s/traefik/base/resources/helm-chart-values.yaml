@@ -3,7 +3,9 @@ fullnameOverride: traefik
 namespaceOverride: traefik
 
 image:
-  name: docker.io/traefik
+  registry: docker.io
+  repository: traefik
+  tag: 2.9.10
 
 globalArguments:
 - --global.checknewversion
@@ -25,6 +27,16 @@ certResolvers: {}
 
 hub:
   enabled: false
+
+metrics:
+  prometheus:
+    service:
+      enabled: true
+    # Enable ServiceMonitor with the next settings
+    serviceMonitor:
+      jobLabel: traefik
+      interval: 30s
+      honorLabels: true
 
 ingressClass:
   enabled: true
@@ -93,9 +105,6 @@ deployment:
       timeoutSeconds: 1
       successThreshold: 1
       periodSeconds: 10
-    securityContext:
-      seccompProfile:
-        type: RuntimeDefault
     args:
       - "--http-address=0.0.0.0:4180"
       - "--metrics-address=0.0.0.0:44180"
