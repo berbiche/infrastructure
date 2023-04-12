@@ -1,0 +1,23 @@
+### This permission allows users to add custom alert manager rules for a given namespace
+### Changing the kind to a ClusterRoleBinding is not recommended (and supported?)
+###
+### See: https://docs.openshift.com/container-platform/4.11/monitoring/enabling-alert-routing-for-user-defined-projects.html#granting-users-permission-to-configure-alert-routing-for-user-defined-projects_enabling-alert-routing-for-user-defined-projects
+###
+### To retrieve the list of users:
+### > kubectl get users
+###
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  creationTimestamp: null
+  name: alert-routing-edit
+  namespace: <NAMESPACE>
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: alert-routing-edit
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: <NAME>

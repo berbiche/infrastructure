@@ -1,0 +1,22 @@
+### This permission allows users to setup ServiceMonitors and PodMonitors
+###
+### See: https://docs.openshift.com/container-platform/4.11/monitoring/enabling-monitoring-for-user-defined-projects.html#granting-users-permission-to-monitor-user-defined-projects_enabling-monitoring-for-user-defined-projects
+###
+### To retrieve the list of users:
+### > kubectl get users
+###
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  creationTimestamp: null
+  name: monitoring-edit
+  namespace: <NAMESPACE>
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: monitoring-edit
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: <NAME>
