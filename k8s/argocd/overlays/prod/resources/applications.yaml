@@ -35,7 +35,7 @@ spec:
       - path: k8s/argocd/overlays/prod
   template:
     metadata:
-      name: '{{path.basename}}'
+      name: '{{path[1]}}'
     spec:
       project: production
       source:
@@ -44,7 +44,7 @@ spec:
         path: '{{path}}'
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{path.basename}}'
+        namespace: '{{path[1]}}'
       syncPolicy:
         automated:
           selfHeal: true
