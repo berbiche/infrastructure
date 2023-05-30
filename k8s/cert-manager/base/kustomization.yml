@@ -6,6 +6,6 @@ namespace: cert-manager
 resources:
   - https://github.com/jetstack/cert-manager/releases/download/v1.10.1/cert-manager.yaml
 
-patchesStrategicMerge:
-  - ./patches/certmanager_namespace.yaml
-  - ./patches/cainjector_namespace.yaml
+patches:
+  - path: ./patches/certmanager_namespace.yaml
+  - path: ./patches/cainjector_namespace.yaml
