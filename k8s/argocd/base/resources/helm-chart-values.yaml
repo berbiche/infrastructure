@@ -68,7 +68,7 @@ configs:
     controller.operation.processors: 10
     controller.self.heal.timeout.seconds: 5
     controller.repo.server.timeout.seconds: 60
-    redis.server: "argocd-redis-ha-haproxy:6379"
+    redis.server: "argo-cd-redis-ha-haproxy:6379"
     ## Server properties
     # -- Run server without TLS
     server.insecure: true
@@ -179,10 +179,6 @@ dex:
     serviceMonitor:
       enabled: true
       interval: 30s
-
-  image:
-    repository: ghcr.io/dexidp/dex
-    tag: v2.35.3
 
   certificateSecret:
     enabled: false
