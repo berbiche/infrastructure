@@ -21,7 +21,7 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: traefik-scc-role
+  name: traefik-scc
 subjects:
 - kind: ServiceAccount
   name: traefik

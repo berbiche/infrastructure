@@ -100,10 +100,11 @@
             inputs'.colmena.packages.colmena
 
             pkgs.ansible_2_13
+            pkgs.argocd
             pkgs.jsonnet
             pkgs.jsonnet-bundler
             pkgs.kubectl
-            pkgs.kubectx
+            pkgs.kubie
             pkgs.kubernetes-helm
             pkgs.kubetail
             # pkgs.kustomize_3
@@ -122,7 +123,7 @@
             export KUBECONFIG=$PWD/kubeconfig
           '';
         };
-      };
+      }; # per-system
     };
   in
     inputs.flake-parts.lib.mkFlake { inherit inputs; } flakeConfig;

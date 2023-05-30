@@ -1,0 +1,423 @@
+# -- Create aggregated roles that extend existing cluster roles to interact with argo-cd resources
+## Ref: https://kubernetes.io/docs/reference/access-authn-authz/rbac/#aggregated-clusterroles
+createAggregateRoles: false
+createClusterRoles: true
+
+openshift:
+  enabled: true
+
+## Custom resource configuration
+crds:
+  install: true
+  keep: false
+
+## Globally shared configuration
+global:
+  revisionHistoryLimit: 3
+  networkPolicy:
+    create: true
+    defaultDenyIngress: false
+  affinity:
+    podAntiAffinity: soft
+    nodeAffinity:
+      type: hard
+  deploymentStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+
+## Argo Configs
+configs:
+  # General Argo CD configuration
+  ## Ref: https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/argocd-cm.yaml
+  cm:
+    create: true
+
+    url: "https://gitops.k8s.qt.rs"
+
+    application.instanceLabelKey: app.kubernetes.io/instance
+    application.resourceTrackingMethod: 'annotation+label'
+
+    server.rbac.log.enforce.enable: true
+    exec.enabled: false
+    admin.enabled: false
+
+    users.anonymous.enabled: false
+
+    timeout.reconciliation: 300s
+
+    # Enable Kustomize Alpha Plugins via Argo CD ConfigMap, required for ksops
+    kustomize.buildOptions: "--enable-alpha-plugins --enable-exec"
+
+    dex.config: |
+      connectors:
+      - type: github
+        id: github
+        name: GitHub
+        config:
+          clientID: $dex.github.clientID
+          clientSecret: $dex.github.clientSecret
+          orgs:
+          - name: berbiche-infra
+
+  # Argo CD configuration parameters
+  ## Ref: https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/argocd-cmd-params-cm.yaml
+  params:
+    controller.status.processors: 20
+    controller.operation.processors: 10
+    controller.self.heal.timeout.seconds: 5
+    controller.repo.server.timeout.seconds: 60
+    redis.server: "argocd-redis-ha-haproxy:6379"
+    ## Server properties
+    # -- Run server without TLS
+    server.insecure: true
+    reposerver.parallelism.limit: 20
+    applicationsetcontroller.policy: sync
+
+  rbac:
+    create: true
+    policy.default: 'role:readonly'
+    policy.csv: |
+      p, role:none, applications, get, *, allow
+
+      p, role:org-operators, applications, sync, *, allow
+      p, role:org-operators, clusters, get, *, allow
+      p, role:org-operators, certificates, get, *, allow
+      p, role:org-operators, repositories, get, *, allow
+      p, role:org-operators, gpgkeys, get, *, allow
+      p, role:org-operators, gpgkeys, create, *, allow
+      p, role:org-operators, gpgkeys, delete, *, allow
+      p, role:org-operators, logs, get, *, allow
+
+      g, berbiche-infra:org-admin, role:org-operators
+    # -- OIDC scopes to examine during rbac enforcement (in addition to `sub` scope).
+    # The scope value can be a string, or a list of strings.
+    scopes: "[groups]"
+
+  # Set in a different file so as not to pollute this values file
+  gpg: {}
+
+  # ConfigMap for Config Management Plugins
+  # Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/config-management-plugins/
+  cmp:
+    create: false
+
+  # repocreds are stored in an external secret
+  repositories:
+    infrastructure:
+      url: https://github.com/berbiche/infrastructure
+
+  secret:
+    createSecret: true
+    githubSecret: $webhook.github.secret
+
+
+## Application controller
+controller:
+  replicas: 1
+
+  # -- Additional command line arguments to pass to application controller
+  extraArgs:
+    - --app-resync
+    - "300" # 5 minutes between re-sync
+    - --redis
+    - argocd-redis-ha-haproxy:6379
+
+  resources:
+   limits: {}
+     # cpu: 500m
+     # memory: 512Mi
+   requests:
+     cpu: 250m
+     memory: 256Mi
+
+  metrics:
+    enabled: true
+    applicationLabels:
+      # -- Enables additional labels in argocd_app_labels metric
+      enabled: false
+      labels: []
+    serviceMonitor:
+      enabled: true
+      interval: 30s
+    rules:
+      enabled: true
+      spec:
+      - alert: ArgoAppMissing
+        expr: |
+          absent(argocd_app_info) == 1
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "[Argo CD] No reported applications"
+          description: >
+            Argo CD has not reported any applications data for the past 15 minutes which
+            means that it must be down or not functioning properly.  This needs to be
+            resolved for this cloud to continue to maintain state.
+      - alert: ArgoAppNotSynced
+        expr: |
+          argocd_app_info{sync_status!="Synced"} == 1
+        for: 12h
+        labels:
+          severity: warning
+        annotations:
+          summary: "[{{`{{$labels.name}}`}}] Application not synchronized"
+          description: >
+            The application [{{`{{$labels.name}}`}} has not been synchronized for over
+            12 hours which means that the state of this cloud has drifted away from the
+            state inside Git.
+
+## Dex
+dex:
+  enabled: true
+  name: dex-server
+
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      interval: 30s
+
+  image:
+    repository: ghcr.io/dexidp/dex
+    tag: v2.35.3
+
+  certificateSecret:
+    enabled: false
+
+  resources:
+    limits:
+      cpu: 300m
+      memory: 200Mi
+    requests:
+      cpu: 10m
+      memory: 32Mi
+
+  # -- Enable Kubernetes liveness probe for Dex >= 2.28.0
+  livenessProbe:
+    enabled: true
+
+  # -- Enable Kubernetes readiness probe for Dex >= 2.28.0
+  readinessProbe:
+    enabled: true
+
+
+# This key configures Redis-HA subchart and when enabled (redis-ha.enabled=true)
+# the custom redis deployment is omitted
+# Check the redis-ha chart for more properties
+redis-ha:
+  enabled: true
+  image:
+    tag: 7.0.9-alpine
+
+  exporter:
+    enabled: false
+    image: public.ecr.aws/bitnami/redis-exporter
+    tag: 1.45.0
+  persistentVolume:
+    enabled: false
+  redis:
+    masterGroupName: argocd
+    # -- Any valid redis config options in this section will be applied to each server (see `redis-ha` chart)
+    # @default -- See [values.yaml]
+    config:
+      # -- Will save the DB if both the given number of seconds and the given number of write operations against the DB occurred. `""`  is disabled
+      # @default -- `'""'`
+      save: '""'
+  haproxy:
+    # -- Enabled HAProxy LoadBalancing/Proxy
+    enabled: true
+    metrics:
+      enabled: true
+
+
+## Server
+server:
+  name: server
+  replicas: 2
+
+  certificate:
+    enabled: false
+
+  ## Argo UI extensions
+  ## Ref: https://github.com/argoproj-labs/argocd-extensions
+  extensions:
+    enabled: false
+
+  resources:
+   limits:
+     cpu: 100m
+     memory: 128Mi
+   requests:
+     cpu: 50m
+     memory: 64Mi
+
+  hostNetwork: false
+
+  service:
+    type: ClusterIP
+
+  ## Server metrics service configuration
+  metrics:
+    # -- Deploy metrics service
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      interval: 30s
+
+  # Maintained in a separate file
+  ingress:
+    enabled: false
+  ingressGrpc:
+    enabled: false
+  # OpenShift route
+  route:
+    enabled: false
+
+
+## Repo Server
+repoServer:
+  name: repo-server
+  replicas: 2
+
+  resources:
+   limits: {}
+   requests:
+     cpu: 1000m
+     memory: 1000Mi
+
+  hostNetwork: false
+
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      interval: 30s
+
+  env:
+  - name: SOPS_AGE_KEY_FILE
+    value: /home/argocd/keys.txt
+  - name: XDG_CONFIG_HOME
+    value: /.config
+
+  # Use init containers to configure custom tooling
+  # https://argoproj.github.io/argo-cd/operator-manual/custom_tools/
+  volumes:
+    - name: custom-tools
+      emptyDir: {}
+    - name: deploy-sops-age-key
+      secret:
+        secretName: deploy-sops-age-key
+
+  initContainers:
+    - name: install-ksops
+      image: viaductoss/ksops:v4.1.1
+      command: ["/bin/sh", "-c"]
+      args:
+        - echo "Installing KSOPS...";
+          mv ksops /custom-tools/;
+          mv $GOPATH/bin/kustomize /custom-tools/;
+          echo "Done.";
+      volumeMounts:
+        - mountPath: /custom-tools
+          name: custom-tools
+  volumeMounts:
+    - mountPath: /home/argocd/keys.txt
+      name: deploy-sops-age-key
+      subPath: keys.txt
+      readOnly: true
+    - mountPath: /usr/local/bin/kustomize
+      name: custom-tools
+      subPath: kustomize
+    - mountPath: /usr/local/bin/ksops
+      name: custom-tools
+      subPath: ksops
+      # Verify this matches a XDG_CONFIG_HOME=/.config env variable
+    - mountPath: /.config/kustomize/plugin/viaduct.ai/v1/ksops/ksops
+      name: custom-tools
+      subPath: ksops
+    - mountPath: /.config/kustomize/plugin/viaduct.ai/v1/ksops-exec/ksops-exec
+      name: custom-tools
+      subPath: ksops
+    - mountPath: /.config/kustomize/plugin/viaduct.ai/v1/ksops/ksops.so
+      name: custom-tools
+      subPath: ksops.so
+    - mountPath: /.config/kustomize/plugin/viaduct.ai/v1/ksops-exec/ksops-exec.so
+      name: custom-tools
+      subPath: ksops.so
+
+
+## ApplicationSet controller
+applicationSet:
+  enabled: true
+  name: applicationset-controller
+  replicaCount: 2
+
+  pdb:
+    enabled: true
+    minAvailable: 1
+
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      interval: 30s
+
+  resources:
+    limits: {}
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+
+## Notifications controller
+notifications:
+  enabled: false
+  name: notifications-controller
+
+  # -- Argo CD dashboard url; used in place of {{.context.argocdUrl}} in templates
+  argocdUrl: https://gitops.k8s.qt.rs
+
+  # -- Define user-defined context
+  ## For more information: https://argocd-notifications.readthedocs.io/en/stable/templates/#defining-user-defined-context
+  context: {}
+
+  # -- Whether helm chart creates notifications controller secret
+  secret:
+    create: false
+
+  metrics:
+    enabled: false
+    serviceMonitor:
+      enabled: true
+
+  # -- Configures notification services such as slack, email or custom webhook
+  ## For more information: https://argocd-notifications.readthedocs.io/en/stable/services/overview/
+  notifiers: {}
+
+  # -- Resource limits and requests for the notifications controller
+  resources: {}
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  cm:
+    # -- Whether helm chart creates notifications controller config map
+    create: true
+
+  # -- Contains centrally managed global application subscriptions
+  ## For more information: https://argocd-notifications.readthedocs.io/en/stable/subscriptions/
+  subscriptions: []
+
+  # -- The notification template is used to generate the notification content
+  ## For more information: https://argocd-notifications.readthedocs.io/en/stable/templates/
+  templates: {}
+
+  # -- The trigger defines the condition when the notification should be sent
+  ## For more information: https://argocd-notifications.readthedocs.io/en/stable/triggers/
+  triggers: {}

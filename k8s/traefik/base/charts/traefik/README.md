@@ -36,7 +36,8 @@ Due to changes in CRD version support, the following versions of the chart are u
 |                         |  Kubernetes v1.15 and below | Kubernetes v1.16-v1.21 | Kubernetes v1.22 and above |
 |-------------------------|-----------------------------|------------------------|----------------------------|
 | Chart v9.20.2 and below | [x]                         | [x]                    |                            |
-| Chart 10.0.0 and above  |                             | [x]                    | [x]                        |
+| Chart v10.0.0 and above |                             | [x]                    | [x]                        |
+| Chart v22.0.0 and above |                             |                        | [x]                        |
 
 ### Deploying Traefik
 
@@ -63,7 +64,7 @@ helm repo update
 # See current Chart & Traefik version
 helm search repo traefik/traefik
 # Upgrade Traefik
-helm upgrade traefik traefik/traefik
+helm upgrade --reuse-values traefik traefik/traefik
 ```
 
 New major version indicates that there is an incompatible breaking change.
@@ -75,6 +76,10 @@ With Helm v3, CRDs created by this chart can not be updated, cf the [Helm Docume
 ```bash
 kubectl apply --server-side --force-conflicts -k https://github.com/traefik/traefik-helm-chart/traefik/crds/
 ```
+
+### Upgrading after 18.X+
+
+It's detailed in [release notes](https://github.com/traefik/traefik-helm-chart/releases).
 
 ### Upgrading from 17.x to 18.x
 
@@ -116,3 +121,9 @@ This will override the new `Release.Name-Release.Namespace` pattern to avoid any
 ## Contributing
 
 If you want to contribute to this chart, please read the [Contributing Guide](./CONTRIBUTING.md).
+
+Thanks to all the people who have already contributed!
+
+<a href="https://github.com/traefik/traefik-helm-chart/graphs/contributors">
+  <img src="https://contributors-img.web.app/image?repo=traefik/traefik-helm-chart" />
+</a>

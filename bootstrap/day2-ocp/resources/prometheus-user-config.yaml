@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-workload-monitoring-config
+  namespace: openshift-user-workload-monitoring
+data:
+  config.yaml: |
+    prometheus:
+      enforcedLabelLimit: 500
+      enforcedLabelNameLengthLimit: 200
+      enforcedLabelValueLengthLimit: 600
+      enforcedSampleLimit: 50000
+      retention: 10w
+      retentionSize: 30GB
+      resources:
+        requests:
+          cpu: 250m
+          memory: 2Gi
+
+    prometheusK8s:
+      enforcedBodySizeLimit: 10MB
+      volumeClaimTemplate:
+        spec:
+          storageClassName: truenas-iscsi-csi
+          resources:
+            requests:
+              storage: 40Gi
+---
+      # remoteWrite:
+      # - url: "https://something.example.com"
+      #   writeRelabelConfigs:
+      #   - sourceLabels:
+      #     - __tmp_openshift_cluster_id__
+      #     targetLabel: cluster_id
+      #     action: replace

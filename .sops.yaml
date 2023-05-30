@@ -1,16 +1,21 @@
 keys:
   - &mine 328820E009708FDD29C08DBA1D0261F6BCA46C6E
+  - &argocd age1h0exhkky2vwydazymcpwccf8dvlm3u0sg0rj0zn7dz82s5zglguscnemkd
 creation_rules:
   - path_regex: k8s/.*$
     encrypted_regex: '^(data|stringData)$'
     key_groups:
     - pgp:
       - *mine
+      age:
+      - *argocd
   - path_regex: bootstrap/.*\.yaml$
     encrypted_regex: '^(data|stringData)$'
     key_groups:
     - pgp:
       - *mine
+      age:
+      - *argocd
   - path_regex: secrets/.*\.(txt|ya?ml)$
     key_groups:
     - pgp:
