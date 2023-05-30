@@ -122,7 +122,7 @@ controller:
     - --app-resync
     - "300" # 5 minutes between re-sync
     - --redis
-    - argocd-redis-ha-haproxy:6379
+    - argo-cd-redis-ha-haproxy:6379
 
   resources:
    limits: {}
