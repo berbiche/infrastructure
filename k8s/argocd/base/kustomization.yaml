@@ -1,14 +1,21 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-resources:
-- https://github.com/argoproj/argo-cd/manifests/ha/cluster-install?ref=v2.1.2
-- https://github.com/argoproj-labs/argocd-image-updater/manifests/base?ref=v0.9.5
-- ./metrics/argocd-serviceMonitor.yaml
-- ./metrics/argocd-server-serviceMonitor.yaml
-- ./metrics/argocd-dex-server-serviceMonitor.yaml
-- ./metrics/argocd-repo-server-serviceMonitor.yaml
-- ./metrics/argocd-image-updater-serviceMonitor.yaml
-# - ./argocd-roles.yml
-- ./namespace.yaml
 
-namespace: argocd
+resources:
+- ./resources/namespace.yaml
+
+helmGlobals:
+  chartHome: ./charts
+
+helmCharts:
+- name: argo-cd
+  releaseName: argo-cd
+  namespace: argocd
+  version: v5.31.0
+  repo: https://argoproj.github.io/argo-helm
+  includeCRDs: true
+  valuesFile: ./resources/helm-chart-values.yaml
+  apiVersions:
+  - monitoring.coreos.com/v1
+  - policy/v1/PodDisruptionBudget
+  - networking.k8s.io/v1

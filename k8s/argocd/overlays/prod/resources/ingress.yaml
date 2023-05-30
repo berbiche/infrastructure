@@ -5,22 +5,46 @@ metadata:
   name: argocd-server
   namespace: argocd
   annotations:
-    kubernetes.io/ingress.class: "traefik"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    kubernetes.io/ingress.class: traefik
+    cert-manager.io/cluster-issuer: letsencrypt-prod
     traefik.ingress.kubernetes.io/router.tls: "true"
+    external-dns.alpha.kubernetes.io/target: k8s.qt.rs
 spec:
   tls:
   - hosts:
-    - gitops.tdude.co
-    secretName: argocd-tdude-co-tls
+    - gitops.k8s.qt.rs
+    - applicationset-controller.gitops.k8s.qt.rs
+    secretName: gitops-k8s-qt-rs
   rules:
-  - host: gitops.tdude.co
+  - host: gitops.k8s.qt.rs
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: argocd-server
+            name: argo-cd-argocd-server
             port:
               name: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd-application-set-controller
+  namespace: argocd
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    external-dns.alpha.kubernetes.io/target: k8s.qt.rs
+spec:
+  rules:
+  - host: applicationset-controller.gitops.k8s.qt.rs
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: argo-cd-argocd-applicationset-controller
+            port:
+              name: webhook
