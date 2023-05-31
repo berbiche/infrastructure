@@ -1,0 +1,123 @@
+# -- Create aggregated roles that extend existing cluster roles to interact with argo-cd resources
+## Ref: https://kubernetes.io/docs/reference/access-authn-authz/rbac/#aggregated-clusterroles
+createAggregateRoles: false
+createClusterRoles: true
+
+## Custom resource configuration
+crds:
+  install: true
+  keep: false
+
+## Globally shared configuration
+global:
+  revisionHistoryLimit: 3
+  networkPolicy:
+    create: true
+    defaultDenyIngress: false
+  affinity:
+    podAntiAffinity: soft
+    nodeAffinity:
+      type: hard
+  deploymentStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+
+## Argo Configs
+configs:
+  # General Argo CD configuration
+  ## Ref: https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/argocd-cm.yaml
+  cm:
+    create: true
+
+    url: "https://gitops.k8s.qt.rs"
+
+    application.instanceLabelKey: app.kubernetes.io/instance
+    application.resourceTrackingMethod: 'annotation+label'
+
+    server.rbac.log.enforce.enable: true
+    exec.enabled: false
+    admin.enabled: false
+
+    users.anonymous.enabled: false
+
+    timeout.reconciliation: 300s
+
+    # Enable Kustomize Alpha Plugins via Argo CD ConfigMap, required for ksops
+    kustomize.buildOptions: "--enable-alpha-plugins --enable-exec"
+
+    dex.config: |
+      connectors:
+      - type: github
+        id: github
+        name: GitHub
+        config:
+          clientID: $dex.github.clientID
+          clientSecret: $dex.github.clientSecret
+          orgs:
+          - name: berbiche-infra
+
+    # Workaround bug mentioned in docs: https://github.com/argoproj/argo-cd/issues/968
+    resource.customizations: |
+      extensions/Ingress:
+        health.lua: |
+          hs = {}
+          hs.status = "Healthy"
+          return hs
+      networking.k8s.io/Ingress:
+        health.lua: |
+          hs = {}
+          hs.status = "Healthy"
+          return hs
+
+  # Argo CD configuration parameters
+  ## Ref: https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/argocd-cmd-params-cm.yaml
+  params:
+    controller.status.processors: 20
+    controller.operation.processors: 10
+    controller.self.heal.timeout.seconds: 5
+    controller.repo.server.timeout.seconds: 60
+    redis.server: "argo-cd-redis-ha-haproxy:6379"
+    ## Server properties
+    # -- Run server without TLS
+    server.insecure: true
+    reposerver.parallelism.limit: 20
+    applicationsetcontroller.policy: sync
+
+  rbac:
+    create: true
+    policy.default: 'role:readonly'
+    policy.csv: |
+      p, role:none, applications, get, *, allow
+
+      p, role:org-operators, applications, sync, *, allow
+      p, role:org-operators, clusters, get, *, allow
+      p, role:org-operators, certificates, get, *, allow
+      p, role:org-operators, repositories, get, *, allow
+      p, role:org-operators, gpgkeys, get, *, allow
+      p, role:org-operators, gpgkeys, create, *, allow
+      p, role:org-operators, gpgkeys, delete, *, allow
+      p, role:org-operators, logs, get, *, allow
+
+      g, berbiche-infra:org-admin, role:org-operators
+    # -- OIDC scopes to examine during rbac enforcement (in addition to `sub` scope).
+    # The scope value can be a string, or a list of strings.
+    scopes: "[groups]"
+
+  # Set in a different file so as not to pollute this values file
+  gpg: {}
+
+  # ConfigMap for Config Management Plugins
+  # Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/config-management-plugins/
+  cmp:
+    create: false
+
+  # repocreds are stored in an external secret
+  repositories:
+    infrastructure:
+      url: https://github.com/berbiche/infrastructure
+
+  secret:
+    createSecret: true
+    githubSecret: $webhook.github.secret
