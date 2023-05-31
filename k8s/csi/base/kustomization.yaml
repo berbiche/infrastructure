@@ -11,8 +11,8 @@ helmGlobals:
 helmCharts:
 - name: democratic-csi
   releaseName: democratic-csi-iscsi
+  namespace: democratic-csi
   version: 0.13.5
   repo: https://democratic-csi.github.io/charts/
-  namespace: democratic-csi
   includeCRDs: true
   valuesFile: ./resources/helm-chart-values.yaml
