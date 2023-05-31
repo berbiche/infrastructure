@@ -48,3 +48,21 @@ spec:
   destination:
     namespace: democratic-csi
     server: https://kubernetes.default.svc
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mediaserver
+  namespace: argocd
+spec:
+  project: production
+  source:
+    repoURL: https://github.com/berbiche/infrastructure
+    targetRevision: cluster-v2
+    path: k8s/mediaserver/overlays/prod
+  destination:
+    namespace: mediaserver
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    syncOptions:
+    - PruneLast=true
