@@ -21,7 +21,7 @@ images:
   newTag: develop@sha256:3b9959bb948dc7d9e034d50026a34640667673942ab3adbd20b3a9b54bf18c2b
 - name: linuxserver/qbittorrent
   newName: ghcr.io/linuxserver/qbittorrent
-  newTag: 4.5.3
+  newTag: 20.04.1
 - name: linuxserver/tautulli
   newName: ghcr.io/linuxserver/tautulli
   newTag: latest@sha256:70fa8b9405cba434777c8f513d450bfe91c77de0feaccfaa051f3a43864b0c54
