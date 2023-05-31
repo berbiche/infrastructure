@@ -18,6 +18,7 @@ spec:
       - path: k8s/traefik/overlays/prod
       - path: k8s/cert-manager/overlays/prod
       - path: k8s/external-dns/overlays/prod
+      - path: k8s/mediaserver/overlays/prod
   template:
     metadata:
       name: '{{path[1]}}'
@@ -52,17 +53,15 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: mediaserver
+  name: metallb
   namespace: argocd
 spec:
   project: production
   source:
     repoURL: https://github.com/berbiche/infrastructure
     targetRevision: cluster-v2
-    path: k8s/mediaserver/overlays/prod
+    path: k8s/metallb/overlays/prod
   destination:
-    namespace: mediaserver
+    namespace: metallb-system
     server: https://kubernetes.default.svc
-  syncPolicy:
-    syncOptions:
-    - PruneLast=true
+  syncPolicy: {}
