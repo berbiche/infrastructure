@@ -8,7 +8,8 @@
     ":semanticCommitTypeAll(ci)",
   ],
 
-  "configMigration": true,
+  // Disabled for now because it removes comments and messes the indentation
+  "configMigration": false,
 
   "enabledManagers": ["kustomize", "github-actions", "nix",],
 
