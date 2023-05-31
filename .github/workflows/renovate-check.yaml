@@ -1,0 +1,25 @@
+name: renovate-config-validator
+
+on:
+  pull_request:
+    branches:
+      - cluster-v2
+    paths:
+      - renovate.json5
+  push:
+    branches:
+      - cluster-v2
+    paths:
+      - renovate.json5
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: lts
+      - uses: suzuki-shunsuke/github-action-renovate-config-validator@v0.1.3
+        with:
+          config_file_path: renovate.json5
