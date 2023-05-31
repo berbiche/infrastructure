@@ -1,38 +1,49 @@
-// -*- mode: jsonc -*-
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:base",
-    ":disablePrControls",
-    ":semanticCommits",
-    ":semanticCommitTypeAll(ci)",
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: [
+    'config:base',
+    ':disablePrControls',
+    ':semanticCommits',
+    ':semanticCommitTypeAll(ci)',
   ],
-
-  "configMigration": true,
-
-  "enabledManagers": ["kustomize", "github-actions", "nix",],
-
-  "prHourlyLimit": 5,
-
-  "nix": {
-    "enabled": true,
-    "lockFileMaintenance": true,
+  configMigration: true,
+  enabledManagers: [
+    'kustomize',
+    'github-actions',
+    'nix',
+  ],
+  prHourlyLimit: 5,
+  nix: {
+    enabled: true,
+    lockFileMaintenance: {
+      enabled: true,
+    },
   },
-
-  "packageRules": [
+  packageRules: [
     {
-      "description": "Group dependencies for the Mediaserver namespace & pin digest updates",
-      "matchPaths": ["k8s/mediaserver/**"],
-      "matchManagers": ["kustomize"],
-      "groupName": "mediaserver packages",
-      "pinDigests": true,
+      description: 'Group dependencies for the Mediaserver namespace & pin digest updates',
+      matchPaths: [
+        'k8s/mediaserver/**',
+      ],
+      matchManagers: [
+        'kustomize',
+      ],
+      groupName: 'mediaserver packages',
+      pinDigests: true,
     },
     {
-      "description": "Nix Flakes updates",
-      "matchFiles": ["flake.nix", "flake.lock",],
-      "matchManagers": ["nix"],
-      "groupName": "Nix packages",
-      "schedule": ["every weekend"],
+      description: 'Nix Flakes updates',
+      matchFiles: [
+        'flake.nix',
+        'flake.lock',
+      ],
+      matchManagers: [
+        'nix',
+      ],
+      groupName: 'Nix packages',
+      schedule: [
+        'every weekend',
+      ],
     },
   ],
 }
