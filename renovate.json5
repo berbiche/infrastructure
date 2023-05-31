@@ -4,14 +4,19 @@
   "extends": [
     "config:base",
     ":disablePrControls",
-    ":semanticCommits"
+    ":semanticCommits",
+    ":semanticCommitTypeAll(ci)",
   ],
 
   "configMigration": true,
 
-  // Don't need Terraform updates
-  "terraform": {
-    "enabled": false,
+  "enabledManagers": ["kustomize", "github-actions", "nix",],
+
+  "prHourlyLimit": 5,
+
+  "nix": {
+    "enabled": true,
+    "lockFileMaintenance": true,
   },
 
   "packageRules": [
@@ -21,9 +26,13 @@
       "matchManagers": ["kustomize"],
       "groupName": "mediaserver packages",
       "pinDigests": true,
-      "digest": {
-        "enabled": true,
-      },
+    },
+    {
+      "description": "Nix Flakes updates",
+      "matchFiles": ["flake.nix", "flake.lock",],
+      "matchManagers": ["nix"],
+      "groupName": "Nix packages",
+      "schedule": ["every weekend"],
     },
   ],
 }
