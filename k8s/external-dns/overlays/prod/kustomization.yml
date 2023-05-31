@@ -8,6 +8,3 @@ resources:
 generators:
   - ./secrets-generator.yaml
 
-images:
-  - name: registry.k8s.io/external-dns/external-dns
-    newTag: "v0.13.1"
