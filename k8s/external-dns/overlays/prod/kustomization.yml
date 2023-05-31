@@ -10,4 +10,4 @@ generators:
 
 images:
   - name: registry.k8s.io/external-dns/external-dns
-    newTag: "v0.13.1"
+    newTag: "v0.13.5"
