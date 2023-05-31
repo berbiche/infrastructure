@@ -1,0 +1,29 @@
+// -*- mode: jsonc -*-
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base",
+    ":disablePrControls",
+    ":semanticCommits"
+  ],
+
+  "configMigration": true,
+
+  // Don't need Terraform updates
+  "terraform": {
+    "enabled": false,
+  },
+
+  "packageRules": [
+    {
+      "description": "Group dependencies for the Mediaserver namespace & pin digest updates",
+      "matchPaths": ["k8s/mediaserver/**"],
+      "matchManagers": ["kustomize"],
+      "groupName": "mediaserver packages",
+      "pinDigests": true,
+      "digest": {
+        "enabled": true,
+      },
+    },
+  ],
+}
