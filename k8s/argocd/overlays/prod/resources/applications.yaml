@@ -17,6 +17,7 @@ spec:
       - path: k8s/argocd/overlays/prod
       - path: k8s/traefik/overlays/prod
       - path: k8s/cert-manager/overlays/prod
+      - path: k8s/external-dns/overlays/prod
   template:
     metadata:
       name: '{{path[1]}}'
