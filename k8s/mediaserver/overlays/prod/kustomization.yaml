@@ -12,16 +12,16 @@ resources:
 images:
 - name: linuxserver/prowlarr
   newName: ghcr.io/linuxserver/prowlarr
-  newTag: nightly@sha256:26b2ba728d28eef5a9d06da7348222d119f12e4eefe0e335f1a40f9e2e53fb9f
+  newTag: nightly@sha256:201ceaa5a8c9b29068b02072fe75520812e881fd06f764f070efb9b8759e99ea
 - name: linuxserver/radarr
   newName: ghcr.io/linuxserver/radarr
   newTag: develop@sha256:154014d3b29bb2db2d6f9ed50ed0569ade1d70b154f5724786ca92361602ffbf
 - name: linuxserver/sonarr
   newName: ghcr.io/linuxserver/sonarr
-  newTag: develop@sha256:4c0dad3458863b4b84981ad22366993585ad0fb5dd99916cd2274e520b6e5757
+  newTag: develop@sha256:3b9959bb948dc7d9e034d50026a34640667673942ab3adbd20b3a9b54bf18c2b
 - name: linuxserver/qbittorrent
   newName: ghcr.io/linuxserver/qbittorrent
-  newTag: 4.5.0
+  newTag: 4.5.3
 - name: linuxserver/tautulli
   newName: ghcr.io/linuxserver/tautulli
   newTag: latest@sha256:70fa8b9405cba434777c8f513d450bfe91c77de0feaccfaa051f3a43864b0c54
