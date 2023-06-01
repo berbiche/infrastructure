@@ -12,6 +12,12 @@ resources:
 
 patches:
 - path: ./patches/argocd-gpg-keys-cm-patch.yaml
+- path: ./patches/network-policy-patches.yaml
+  target:
+    kind: NetworkPolicy
+    group: networking.k8s.io
+    version: v1
+    name: argo-cd-argocd-applicationset-controller
 
 generators:
 - |
