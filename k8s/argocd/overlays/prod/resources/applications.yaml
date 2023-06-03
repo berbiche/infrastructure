@@ -14,7 +14,7 @@ spec:
       repoURL: https://github.com/berbiche/infrastructure
       revision: cluster-v2
       directories:
-      - path: k8s/argocd/overlays/prod
+      # - path: k8s/argocd/overlays/prod
       - path: k8s/traefik/overlays/prod
       - path: k8s/cert-manager/overlays/prod
       - path: k8s/external-dns/overlays/prod
@@ -34,6 +34,21 @@ spec:
       syncPolicy:
         automated:
           selfHeal: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd
+  namespace: argocd
+spec:
+  project: production
+  source:
+    repoURL: https://github.com/berbiche/infrastructure
+    targetRevision: cluster-v2
+    path: k8s/argocd/overlays/prod
+  destination:
+    namespace: argocd
+    server: https://kubernetes.default.svc
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
