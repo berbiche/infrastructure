@@ -2,7 +2,7 @@
 # apiVersion: networking.k8s.io/v1
 # kind: NetworkPolicy
 # metadata:
-#   name: argo-cd-argocd-applicationset-controller
+#   name: argocd-argocd-applicationset-controller
 #   namespace: argocd
 # spec:
 #   ingress:
@@ -12,7 +12,7 @@
 #     - port: metrics
 #   podSelector:
 #     matchLabels:
-#       app.kubernetes.io/instance: argo-cd
+#       app.kubernetes.io/instance: argocd
 #       app.kubernetes.io/name: argocd-applicationset-controller
 #   policyTypes:
 #   - Ingress

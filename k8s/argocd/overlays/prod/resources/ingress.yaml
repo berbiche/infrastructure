@@ -23,7 +23,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: argo-cd-argocd-server
+            name: argocd-argocd-server
             port:
               name: http
 ---
@@ -45,6 +45,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: argo-cd-argocd-applicationset-controller
+            name: argocd-argocd-applicationset-controller
             port:
               name: webhook
