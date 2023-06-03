@@ -17,7 +17,7 @@ patches:
     kind: NetworkPolicy
     group: networking.k8s.io
     version: v1
-    name: argocd-argocd-applicationset-controller
+    name: argocd-applicationset-controller
 
 generators:
 - |
