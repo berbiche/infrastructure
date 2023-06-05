@@ -4,6 +4,7 @@
   imports = [
     (modulesPath + "/profiles/qemu-guest.nix")
     (modulesPath + "/profiles/headless.nix")
+    (modulesPath + "/profiles/minimal.nix")
     ./hardware-config.nix
   ];
 
