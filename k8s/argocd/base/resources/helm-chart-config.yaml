@@ -83,6 +83,9 @@ configs:
     resource.customizations.ignoreDifferences.admissionregistration.k8s.io_MutatingWebhookConfiguration: |
       jqPathExpressions:
       - '.webhooks[]?.clientConfig.caBundle'
+    resources.customizations.ignoreDifferences.all: |
+      managedFieldsManagers:
+      - cluster-policy-controller
 
   # Argo CD configuration parameters
   ## Ref: https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/argocd-cmd-params-cm.yaml
