@@ -102,6 +102,7 @@
 
           buildInputs = [
             terraform
+            pkgs.terraform-ls
             sops-nix.ssh-to-pgp
             inputs'.colmena.packages.colmena
 

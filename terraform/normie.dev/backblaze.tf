@@ -1,5 +1,5 @@
 provider "b2" {
-  application_key = data.sops_file.backblaze-secrets.data["application_key"]
+  application_key    = data.sops_file.backblaze-secrets.data["application_key"]
   application_key_id = data.sops_file.backblaze-secrets.data["application_key_id"]
 }
 
@@ -46,8 +46,8 @@ resource "b2_bucket" "keanu-emails" {
   }
 
   lifecycle_rules {
-    file_name_prefix = ""
-    days_from_hiding_to_deleting = 30
+    file_name_prefix              = ""
+    days_from_hiding_to_deleting  = 30
     days_from_uploading_to_hiding = null
   }
 }
