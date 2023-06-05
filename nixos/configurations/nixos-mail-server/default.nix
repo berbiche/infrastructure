@@ -15,6 +15,15 @@ in
     sops.secrets.admin-pass = { };
     # sops.secrets.roundcube-db-pass = { };
 
+
+    services.monit = {
+      config = lib.mkBefore ''
+        set mail-format {
+          from: monit@normie.dev
+        }
+      '';
+    };
+
     mailserver = {
       enable = true;
       fqdn = "mail.normie.dev";
