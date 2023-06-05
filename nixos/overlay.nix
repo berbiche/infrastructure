@@ -19,7 +19,4 @@ in
   packages.radarr = unstable.radarr;
   packages.sonarr = unstable.sonarr;
   packages.qbittorrent = unstable.qbittorrent;
-
-  # Not merged in 22.11
-  packages.cockpit = unstable.cockpit;
 }

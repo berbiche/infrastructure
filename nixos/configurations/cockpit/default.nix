@@ -1,11 +1,9 @@
-{ config, inputs, lib, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 let
   cfg = config.configurations.cockpit;
 in
 {
-  imports = [ "${inputs.nixpkgs-unstable}/nixos/modules/services/monitoring/cockpit.nix" ];
-
   options.configurations.cockpit = {
     enable = lib.mkEnableOption "cockpit";
     fqdn = lib.mkOption {
@@ -18,7 +16,6 @@ in
   config = {
     services.cockpit = lib.mkIf cfg.enable {
       enable = true;
-      package = pkgs.packages.cockpit;
       openFirewall = true;
 
       settings = {

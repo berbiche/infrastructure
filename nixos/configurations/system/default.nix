@@ -17,8 +17,8 @@ in
   services.openssh = {
     enable = true;
     openFirewall = true;
-    passwordAuthentication = false;
-    permitRootLogin = "no";
+    settings.PasswordAuthentication = false;
+    settings.PermitRootLogin = "no";
   };
 
   users.mutableUsers = false;

@@ -2,7 +2,7 @@
   description = "My homelab's NixOS deployments";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable-small";
     colmena.url = "github:zhaofengli/colmena";
     flake-parts.url = "github:hercules-ci/flake-parts";
@@ -12,10 +12,10 @@
     sops-nix.url = "github:Mic92/sops-nix";
 
     # Modules
-    simple-nixos-mailserver.url = "gitlab:simple-nixos-mailserver/nixos-mailserver/nixos-22.11";
+    simple-nixos-mailserver.url = "gitlab:simple-nixos-mailserver/nixos-mailserver/nixos-23.05";
     simple-nixos-mailserver.inputs = {
       nixpkgs.follows = "nixpkgs";
-      nixpkgs-22_11.follows = "nixpkgs";
+      nixpkgs-23_05.follows = "nixpkgs";
     };
   };
 
@@ -30,17 +30,23 @@
       ];
 
       flake = {
-        colmena = withSystem "x86_64-linux" ({pkgs, ...}: import ./nixos/colmena.nix {
-          inherit inputs pkgs self;
+        colmena = import ./nixos/colmena.nix {
+          inherit inputs self;
           rootPath = ./nixos;
-        });
+          # Uses the stable nixpkgs release
+          pkgs = import inputs.nixpkgs {
+            system = "x86_64-linux";
+            overlays = builtins.attrValues toplevel.config.flake.overlays;
+            config.allowUnfree = true;
+          };
+        };
       };
 
       perSystem = { config, final, self', inputs', pkgs, lib, system, ... }: let
         sops-nix = inputs'.sops-nix.packages;
         terraform = pkgs.terraform_1;
       in {
-        _module.args.pkgs = import inputs.nixpkgs {
+        _module.args.pkgs = import inputs.nixpkgs-unstable {
           inherit system;
           config.allowUnfree = true;
           overlays = builtins.attrValues toplevel.config.flake.overlays;
