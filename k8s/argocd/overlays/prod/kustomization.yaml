@@ -29,3 +29,27 @@ generators:
   - ./secrets/deploy-sops-age-key.yaml
   - ./secrets/argocd-secret-patch.yaml
   - ./secrets/argocd-github-repo-creds.yaml
+
+replacements:
+- source:
+    kind: ServiceAccount
+    name: argocd-redis-ha
+    namespace: argocd
+    fieldPath: metadata.name
+  targets:
+  - select:
+      name: argocd-scc
+      kind: RoleBinding
+    fieldPaths:
+    - subjects.0.name
+- source:
+    kind: ServiceAccount
+    name: argocd-redis-ha-haproxy
+    namespace: argocd
+    fieldPath: metadata.name
+  targets:
+  - select:
+      name: argocd-scc
+      kind: RoleBinding
+    fieldPaths:
+    - subjects.1.name

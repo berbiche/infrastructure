@@ -24,8 +24,8 @@ roleRef:
   name: argocd-scc
 subjects:
 - kind: ServiceAccount
-  name: argocd-redis-ha
+  name: $(ARGOCD-REDIS-HA)
   namespace: argocd
 - kind: ServiceAccount
-  name: argocd-redis-ha-haproxy
+  name: $(ARGOCD-REDIS-HA-HAPROXY)
   namespace: argocd
