@@ -18,3 +18,7 @@ generators:
     name: not-important
   files:
   - ./secrets/oauth2-proxy-secrets.yaml
+
+images:
+- name: ghcr.io/berbiche/cringy-404-page
+  newTag: master@sha256:d8fd70181b25f1e3d041b8154344d4b5cbe8523b9896309fc4466c551b2b9b4a
