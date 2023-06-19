@@ -6,6 +6,7 @@
     ":disablePrControls",
     ":semanticCommits",
     ":semanticCommitTypeAll(ci)",
+    ":automergeAll",
   ],
 
   // Disabled for now because it removes comments and messes the indentation
