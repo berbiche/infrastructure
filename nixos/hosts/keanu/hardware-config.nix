@@ -1,7 +1,7 @@
 { ... }:
 
 {
-  boot.cleanTmpDir = true;
+  boot.tmp.cleanOnBoot = true;
 
   boot.loader.grub.device = "/dev/sda";
   fileSystems."/" = { device = "/dev/sda1"; fsType = "ext4"; };

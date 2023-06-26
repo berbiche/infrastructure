@@ -7,9 +7,16 @@ in
   imports = [
     inputs.simple-nixos-mailserver.nixosModules.default
     ./roundcube.nix
+    ./mta-sts.nix
+    ./discovery.nix
   ];
 
   options.configurations.mail.enable = lib.mkEnableOption "mail configuration";
+  options.configurations.mail.baseDomain = lib.mkOption {
+    type = lib.types.str;
+    description = "base domain to use for the email setup";
+    default = "normie.dev";
+  };
 
   config = lib.mkIf cfg.enable {
     sops.secrets.admin-pass = { };
@@ -19,16 +26,16 @@ in
     services.monit = {
       config = lib.mkBefore ''
         set mail-format {
-          from: monit@normie.dev
+          from: monit@${cfg.baseDomain}
         }
       '';
     };
 
     mailserver = {
       enable = true;
-      fqdn = "mail.normie.dev";
-      domains = [ "normie.dev" ];
-      certificateDomains = [ "normie.dev" "mail.normie.dev" ];
+      fqdn = "mail.${cfg.baseDomain}";
+      domains = [ cfg.baseDomain ];
+      certificateDomains = [ cfg.baseDomain "mail.${cfg.baseDomain}" ];
 
       enableImap = false;
       enableImapSsl = true;
@@ -42,12 +49,12 @@ in
         };
       };
       extraVirtualAliases = {
-        "postmaster@normie.dev" = "nicolas@normie.dev";
-        "abuse@normie.dev" = "nicolas@normie.dev";
-        "nic.berbiche+era@normie.dev" = "nicolas@normie.dev";
-        "nic.berbiche@normie.dev" = "nicolas@normie.dev";
+        "postmaster@${cfg.baseDomain}" = "nicolas@${cfg.baseDomain}";
+        "abuse@${cfg.baseDomain}" = "nicolas@${cfg.baseDomain}";
+        "nic.berbiche+era@${cfg.baseDomain}" = "nicolas@${cfg.baseDomain}";
+        "nic.berbiche@${cfg.baseDomain}" = "nicolas@${cfg.baseDomain}";
       };
-      forwards = { "nicolas@normie.dev" = "nic.berbiche@gmail.com"; };
+      forwards = { "nicolas@${cfg.baseDomain}" = "nic.berbiche@gmail.com"; };
 
 
       # Store mails in /var/vmail/example.com/user/folder/subfolder
@@ -61,7 +68,7 @@ in
       monitoring.alertAddress = "nic.berbiche@gmail.com";
 
       # Uses Let's Encrypt HTTP challenge to get a certificate
-      certificateScheme = 3;
+      certificateScheme = "acme-nginx";
 
       fullTextSearch.indexAttachments = false;
     };

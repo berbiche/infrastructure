@@ -69,35 +69,29 @@ resource "cloudflare_record" "DMARC" {
   proxied = false
 }
 
-// Autodiscovery settings: https://nixos-mailserver.readthedocs.io/en/latest/autodiscovery.html
-resource "cloudflare_record" "_submission_tcp" {
+resource "cloudflare_record" "cname-mta-sts" {
   zone_id = cloudflare_zone.normie_dev.id
-  name    = "_submission._tcp"
-  type    = "SRV"
 
-  data {
-    service  = "_submission"
-    proto    = "_tcp"
-    name     = "terraform-srv"
-    priority = 5
-    weight   = 0
-    port     = 587
-    target   = cloudflare_record.MX.value
-  }
+  name  = "mta-sts"
+  type  = "CNAME"
+  value = cloudflare_record.MX.value
+
+  proxied = false
 }
 
-resource "cloudflare_record" "_imap_tcp" {
+// Autodiscovery settings: https://nixos-mailserver.readthedocs.io/en/latest/autodiscovery.html
+resource "cloudflare_record" "_submissions_tcp" {
   zone_id = cloudflare_zone.normie_dev.id
-  name    = "_imap._tcp"
+  name    = "_submissions._tcp"
   type    = "SRV"
 
   data {
-    service  = "_imap"
+    service  = "_submissions"
     proto    = "_tcp"
-    name     = "terraform-srv"
+    name     = "terraform-srv.normie.dev"
     priority = 5
     weight   = 0
-    port     = 143
+    port     = 465
     target   = cloudflare_record.MX.value
   }
 }
@@ -110,10 +104,27 @@ resource "cloudflare_record" "_imaps_tcp" {
   data {
     service  = "_imaps"
     proto    = "_tcp"
-    name     = "terraform-srv"
+    name     = "terraform-srv.normie.dev"
     priority = 5
     weight   = 0
     port     = 993
     target   = cloudflare_record.MX.value
   }
 }
+
+resource "cloudflare_record" "mta_sts" {
+  zone_id = cloudflare_zone.normie_dev.id
+  name    = "_mta-sts"
+  type    = "TXT"
+  value   = "v=STSv1; id=20230618T010101;"
+  proxied = false
+}
+
+resource "cloudflare_record" "smtp_tls" {
+  zone_id = cloudflare_zone.normie_dev.id
+  name    = "_smtp._tls"
+  type    = "TXT"
+  value   = "v=TLSRPTv1; rua=mailto:postmaster@normie.dev"
+  proxied = false
+}
+
