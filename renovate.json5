@@ -25,12 +25,21 @@
   },
 
   "packageRules": [
+    // {
+    //   "description": "Disable major package updates"
+    //   "matchPaths": ["k8s/mediaserver/**"],
+    //   "matchUpdateTypes": ["major"],
+    //   "enabled": false
+    // }
     {
       "description": "Group dependencies for the Mediaserver namespace & pin digest updates",
       "matchPaths": ["k8s/mediaserver/**"],
       "matchManagers": ["kustomize"],
       "groupName": "mediaserver packages",
       "pinDigests": true,
+      "major": {
+        "enabled": false,
+      },
     },
     {
       "description": "Nix Flakes updates",
