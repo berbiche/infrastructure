@@ -2,8 +2,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "mergeConfidence:all-badges",
-    "config:recommended",
+    ":dependencyDashboard",
+    "config:best-practices",
     ":disablePrControls",
     ":semanticCommits",
     ":semanticCommitTypeAll(ci)",
@@ -13,7 +13,9 @@
   // Disabled for now because it removes comments and messes the indentation
   "configMigration": false,
 
-  "enabledManagers": ["kustomize", "github-actions", "nix",],
+  "reviewers": ["berbiche"],
+
+  "enabledManagers": ["kustomize", "github-actions", "nix", "regex"],
 
   "prHourlyLimit": 5,
 
@@ -24,16 +26,21 @@
     },
   },
 
+  "regexManagers": [
+    {
+      "fileMatch": ["^k8s/traefik/base/resources/helm-chart-values\\.yaml$"],
+      "matchStrings": [
+        "image:\\s+(?<depName>quay\\.io/[a-zA-Z0-9/\\-_]+):(?<currentValue>[^\\s]+)",
+      ],
+      "autoReplaceStringTemplate": "image: {{{depName}}}:{{{newValue}}}",
+      "datasourceTemplate": "docker",
+    },
+  ],
+
   "packageRules": [
-    // {
-    //   "description": "Disable major package updates"
-    //   "matchPaths": ["k8s/mediaserver/**"],
-    //   "matchUpdateTypes": ["major"],
-    //   "enabled": false
-    // }
     {
       "description": "Group dependencies for the Mediaserver namespace & pin digest updates",
-      "matchPaths": ["k8s/mediaserver/**"],
+      "matchFileNames": ["k8s/mediaserver/**"],
       "matchManagers": ["kustomize"],
       "groupName": "mediaserver packages",
       "pinDigests": true,
@@ -43,7 +50,7 @@
     },
     {
       "description": "Nix Flakes updates",
-      "matchFiles": ["flake.nix", "flake.lock",],
+      "matchFileNames": ["^flake\\.nix$", "^flake\\.lock$",],
       "matchManagers": ["nix"],
       "groupName": "Nix packages",
       "schedule": ["every weekend"],
