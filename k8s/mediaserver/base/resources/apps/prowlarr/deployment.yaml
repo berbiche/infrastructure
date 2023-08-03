@@ -9,7 +9,7 @@ spec:
       serviceAccountName: mediaserver
       containers:
         - name: prowlarr
-          image: linuxserver/prowlarr:latest
+          image: ghcr.io/linuxserver/prowlarr:latest
           imagePullPolicy: Always
           ports:
             - name: "http"

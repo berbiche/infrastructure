@@ -2,7 +2,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base",
+    "mergeConfidence:all-badges",
+    "config:recommended",
     ":disablePrControls",
     ":semanticCommits",
     ":semanticCommitTypeAll(ci)",
@@ -18,7 +19,9 @@
 
   "nix": {
     "enabled": true,
-    "lockFileMaintenance": true,
+    "lockFileMaintenance": {
+      "enabled": true,
+    },
   },
 
   "packageRules": [

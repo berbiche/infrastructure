@@ -17,7 +17,7 @@ spec:
       serviceAccountName: mediaserver
       containers:
         - name: radarr
-          image: linuxserver/radarr:latest
+          image: ghcr.io/linuxserver/radarr:latest
           imagePullPolicy: Always
           ports:
             - name: "http"
