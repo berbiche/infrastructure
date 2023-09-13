@@ -19,13 +19,17 @@
       "aarch64-darwin" = x86_64-darwin;
     }."${system}" or (throw "Unsupported platform");
     file = pkgs.fetchurl url-and-hash;
-  in pkgs.runCommandLocal "openshift-install" {
+  in (pkgs.runCommandLocal "openshift-install" {
     nativeBuildInputs = [ pkgs.gnutar ];
     src = file;
   } ''
     mkdir -p "$out"/bin
     tar -zxf "$src" -C "$out"/bin
-  '';
+  '').overrideAttrs (drv: {
+      meta = drv.meta or {} // {
+        mainProgram = "openshift-install";
+      };
+    });
 
   kubectl-slice = let
     url-and-hash = {
