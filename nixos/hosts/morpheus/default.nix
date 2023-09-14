@@ -11,7 +11,7 @@ in
     enable = true;
     domain = "plex.tq.rs";
     uid = mediaserverUID;
-    gid = mediaserverUID;
+    gid = mediaserverGID;
     package = pkgs.packages.plex;
   };
 
@@ -22,7 +22,7 @@ in
     mounts."/mnt/tank/media" = {
       path = "/mediaserver";
       uid = mediaserverUID;
-      gid = mediaserverUID;
+      gid = mediaserverGID;
     };
   };
 

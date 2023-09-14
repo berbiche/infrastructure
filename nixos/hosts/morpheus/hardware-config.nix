@@ -78,5 +78,5 @@
     };
   };
 
-  # services.lldpd.enable = true;
+  services.lldpd.enable = true;
 }

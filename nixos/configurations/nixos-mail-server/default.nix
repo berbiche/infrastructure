@@ -54,7 +54,7 @@ in
         "nic.berbiche+era@${cfg.baseDomain}" = "nicolas@${cfg.baseDomain}";
         "nic.berbiche@${cfg.baseDomain}" = "nicolas@${cfg.baseDomain}";
       };
-      forwards = { "nicolas@${cfg.baseDomain}" = "nic.berbiche@gmail.com"; };
+      #forwards = { "nicolas@${cfg.baseDomain}" = "nic.berbiche@gmail.com"; };
 
 
       # Store mails in /var/vmail/example.com/user/folder/subfolder
