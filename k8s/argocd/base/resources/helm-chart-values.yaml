@@ -241,7 +241,7 @@ applicationSet:
   replicaCount: 2
 
   pdb:
-    enabled: true
+    enabled: false
     minAvailable: 1
 
   metrics:
