@@ -57,7 +57,8 @@ podDisruptionBudget:
 
 ports:
   web:
-    redirectTo: websecure
+    redirectTo:
+      port: websecure
   # V3-only feature
   # websecure:
   #   asDefault: true
