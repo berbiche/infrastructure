@@ -39,9 +39,12 @@
 
   "packageRules": [
     {
+      // Excludes qBittorrent because it needs to be handled separately
       "description": "Group dependencies for the Mediaserver namespace & pin digest updates",
       "matchFileNames": ["k8s/mediaserver/**"],
       "matchManagers": ["kustomize"],
+      // "matchUpdateTypes": ["patch", "minor"],
+      "excludeDepPatterns": ["qbittorrent$"],
       "groupName": "mediaserver packages",
       "pinDigests": true,
       "major": {
@@ -55,5 +58,17 @@
       "groupName": "Nix packages",
       "schedule": ["every weekend"],
     },
+    {
+      "description": "qBittorrent updates",
+      "matchDepPatterns": ["qbittorrent$"],
+      "matchManagers": ["kustomize"],
+      "major": {
+        "enabled": false,
+      },
+      "minor": {
+        "enabled": true,
+      },
+      "pinDigests": true,
+    }
   ],
 }
