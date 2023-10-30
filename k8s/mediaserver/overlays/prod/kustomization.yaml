@@ -15,7 +15,7 @@ images:
 - name: ghcr.io/linuxserver/radarr
   newTag: develop@sha256:3cde08f2d891ab1e4dd8b41cbe3c0ec185a32c62cba815c38f74b1d2797dfc30
 - name: ghcr.io/linuxserver/sonarr
-  newTag: develop@sha256:791afb2e1982e449e04951a20571a02b9e927cd74b3a26580618353f7c7212e6
+  newTag: develop@sha256:fe40316ead004b46c25be99681d1bb40ec4872fa755d0e5826be67f0e3c1b44b
 - name: ghcr.io/linuxserver/qbittorrent
   newTag: 4.5.5
 - name: ghcr.io/linuxserver/tautulli
