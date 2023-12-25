@@ -21,6 +21,13 @@ in
     settings.PermitRootLogin = "no";
   };
 
+  # Don't need to package nixos-rebuild and all
+  system.disableInstallerTools = true;
+  # This option (`mkDefault true` by minimal profile) sees a lot of breakage
+  # https://github.com/NixOS/nixpkgs/issues/265675
+  # https://github.com/NixOS/nixpkgs/issues/135810
+  environment.noXlibs = false;
+
   users.mutableUsers = false;
   users.users.root.openssh.authorizedKeys.keys = globalCfg.authorizedKeys;
   users.users.admin = {

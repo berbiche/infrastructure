@@ -46,6 +46,7 @@ in
         "nicolas@normie.dev" = {
           hashedPasswordFile = config.sops.secrets.admin-pass.path;
           catchAll = [ "normie.dev" ];
+          quota = "10G";
         };
       };
       extraVirtualAliases = {

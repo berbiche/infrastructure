@@ -24,6 +24,13 @@ in
     system.stateVersion = "22.11";
 
     deployment.replaceUnknownProfiles = true;
+
+    nix.settings.trusted-substituters = [
+      "ssh-ng://nixos-builder.node.tq.rs"
+    ];
+    nix.settings.trusted-public-keys = [
+      "nixos-builder.node.tq.rs:iRHmjI5sQ7vkwkArTZIBIYm8dFVs9VzVbgNwNhlzBfc="
+    ];
   };
 
   morpheus = { name, nodes, ... }: {

@@ -5,7 +5,7 @@ let
 in
 {
   services.prometheus = {
-    enable = false;
+    enable = lib.mkDefault false;
     port = 9001;
 
     exporters = {

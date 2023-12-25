@@ -11,7 +11,7 @@
   sops.defaultSopsFile = rootPath + "/secrets/keanu.yaml";
 
   configurations.mail.enable = true;
-  configurations.discord-bot.jmusicbot.enable = true;
+  configurations.discord-bot.jmusicbot.enable = false;
 
   configurations.global.authorizedKeys = [
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO7OSbLUwgRy5NY0VWDmyHUIUh1gAR/EYCm3Z4Y6C0iu keanu.ovh"
