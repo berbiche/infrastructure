@@ -2,7 +2,7 @@
   description = "My homelab's NixOS deployments";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable-small";
     colmena.url = "github:zhaofengli/colmena";
     flake-parts.url = "github:hercules-ci/flake-parts";
