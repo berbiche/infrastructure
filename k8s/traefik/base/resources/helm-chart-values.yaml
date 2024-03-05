@@ -80,7 +80,7 @@ affinity:
 
 deployment:
   additionalContainers:
-  - image: quay.io/oauth2-proxy/oauth2-proxy:v7.5.1
+  - image: quay.io/oauth2-proxy/oauth2-proxy:v7.6.0
     imagePullPolicy: IfNotPresent
     name: oauth2-proxy
     ports:
