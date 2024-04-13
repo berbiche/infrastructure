@@ -106,7 +106,7 @@
             sops-nix.ssh-to-pgp
             inputs'.colmena.packages.colmena
 
-            pkgs.ansible_2_13
+            pkgs.ansible_2_15
             pkgs.argocd
             pkgs.jsonnet
             pkgs.jsonnet-bundler
