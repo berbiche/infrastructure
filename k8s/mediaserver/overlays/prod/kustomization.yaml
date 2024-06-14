@@ -11,17 +11,17 @@ resources:
 
 images:
 - name: ghcr.io/linuxserver/prowlarr
-  newTag: nightly@sha256:7e5cde93c7f9222030794d31788ed4dafa7c51475efb920004161918405a408a
+  newTag: nightly@sha256:a601431fe73be0cf27e89f6e974b8c56bcf694322bd9ea899325d49aa0b46757
 - name: ghcr.io/linuxserver/radarr
-  newTag: develop@sha256:ad3a9865cc81086e2a959a93cc59618a0fe3066e75c3e3c5334c463a753a1bf2
+  newTag: develop@sha256:ad86a88b562ccdefa6726255505cd4edee120bb7823146367652a5af0e99a399
 - name: ghcr.io/linuxserver/sonarr
-  newTag: develop@sha256:19b4e840727ba00a9f6fb639a5cbb75c9884d53e5422f9ded1e7371c17057c11
+  newTag: develop@sha256:5d96a750e76ba1f2a6026329c72b6165470c9a8e146c136685ce89148aa53516
 - name: ghcr.io/linuxserver/qbittorrent
   newTag: 4.5.5
 - name: ghcr.io/linuxserver/tautulli
-  newTag: latest@sha256:b1cf616b4cf17e5229e860ae8111ece3dfda018b9c5b769c8e84ca2e86b28279
+  newTag: latest@sha256:22328b7ec50d9e005a96805ad67cd9ace138960eae9dcda6265ef7baad5263e9
 - name: ghcr.io/linuxserver/overseerr
-  newTag: latest@sha256:9e13ecb96ed4507385f97b0cbe85f3204f1d87bd35792034021308ff7463217b
+  newTag: latest@sha256:a21b9f6cce4fa7040a32a9feb77a1902e792cd3716acf695ee416862dc22c6a4
 
 configMapGenerator:
   - name: mediaserver-permissions
