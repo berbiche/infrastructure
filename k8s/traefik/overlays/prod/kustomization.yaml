@@ -21,4 +21,4 @@ generators:
 
 images:
 - name: ghcr.io/berbiche/cringy-404-page
-  newTag: master@sha256:d8fd70181b25f1e3d041b8154344d4b5cbe8523b9896309fc4466c551b2b9b4a
+  newTag: master@sha256:f936a258e3f961eeb89461980f175898e6e460456416492e37ab01df44def166
