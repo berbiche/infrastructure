@@ -3,7 +3,7 @@ kind: Kustomization
 namespace: external-dns
 
 resources:
-  - github.com/kubernetes-sigs/external-dns//kustomize?ref=v0.14.2
+  - github.com/kubernetes-sigs/external-dns//kustomize?ref=v0.15.0
   - ./resources/namespace.yaml
 
 patches:
