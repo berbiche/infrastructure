@@ -53,12 +53,13 @@ in
       default = [
         "defaults"
         (if cfg.mountRO then "ro" else "rw")
+        "_netdev"
         "nfsvers=3"
         "noauto"
         "x-systemd.automount"
         "noatime"
         "timeo=10"
-        "retry=1000000"
+        "retry=forever"
       ];
     };
   };
