@@ -47,7 +47,7 @@
     {
       "fileMatch": ["^k8s/argocd/base/resources/helm-chart-values.yaml$"],
       "matchStrings": [
-        "(?<key>image): (?<depName>viaductoss/ksops):(?<currentValue>[^\\s]+)"
+        "(?<key>image): (?<depName>viaductoss/ksops):(?<currentValue>[^\\s]+)",
         "# renovate: depName=(?<depName>[a-zA-Z0-9/\\-_]+)\\s+?((?<skipdep>skipdep))?\\s*version=(?<versioning>[a-z-]+?)\\s*(?<key>tag):\\s*(?<currentValue>.+?)\\s"
       ],
       "autoReplaceStringTemplate": "{{{key}}}: {{#unless skipdep}}{{{depName}}}:{{/unless}}{{{newValue}}}",
