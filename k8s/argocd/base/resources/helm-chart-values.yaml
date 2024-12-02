@@ -95,11 +95,14 @@ dex:
 redis-ha:
   enabled: true
   image:
+    repository: public.ecr.aws/docker/library/redis
+    # renovate: depName=public.ecr.aws/docker/library/redis skipdep version=7.0.9-alpine
     tag: 7.0.9-alpine
 
   exporter:
     enabled: false
     image: public.ecr.aws/bitnami/redis-exporter
+    # renovate: depName=public.ecr.aws/bitnami/redis-exporter skipdep version=1.45.0
     tag: 1.45.0
   persistentVolume:
     enabled: false

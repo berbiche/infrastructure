@@ -25,3 +25,11 @@
     ports:
     - port: webhook
       protocol: TCP
+- op: add
+  path: /spec/ingress/-
+  value:
+    from:
+    - namespaceSelector: {}
+    ports:
+    - port: http-webhook
+      protocol: TCP

@@ -35,6 +35,24 @@
       "autoReplaceStringTemplate": "image: {{{depName}}}:{{{newValue}}}",
       "datasourceTemplate": "docker",
     },
+    {
+      "enabled": false,
+      "fileMatch": ["^k8s/ci/base/resources/helm-chart-values.yaml$"],
+      "matchStrings": [
+        "actionsRunnerRepositoryAndTag:\\s+(?<depName>actions/[a-zA-Z0-9/\\-_]+):(?<currentValue>[^\\s]+)",
+      ],
+      "autoReplaceStringTemplate": "actionsRunnerRepositoryAndTag: {{{depName}}}:{{{newValue}}}",
+      "datasourceTemplate": "docker",
+    },
+    {
+      "fileMatch": ["^k8s/argocd/base/resources/helm-chart-values.yaml$"],
+      "matchStrings": [
+        "(?<key>image): (?<depName>viaductoss/ksops):(?<currentValue>[^\\s]+)"
+        "# renovate: depName=(?<depName>[a-zA-Z0-9/\\-_]+)\\s+?((?<skipdep>skipdep))?\\s*version=(?<versioning>[a-z-]+?)\\s*(?<key>tag):\\s*(?<currentValue>.+?)\\s"
+      ],
+      "autoReplaceStringTemplate": "{{{key}}}: {{#unless skipdep}}{{{depName}}}:{{/unless}}{{{newValue}}}",
+      "datasourceTemplate": "docker",
+    },
   ],
 
   "packageRules": [
